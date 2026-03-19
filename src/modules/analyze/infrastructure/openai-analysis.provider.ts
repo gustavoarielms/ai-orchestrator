@@ -9,10 +9,11 @@ import {
 import { openai } from "../../../shared/openai/openai.client";
 import { env } from "../../../config/env";
 import { AnalyzeRequest, AnalyzeResponse } from "../domain/analyze.types";
-import { parseAnalyzeResponse } from "../application/parse-analyze-response";
+import { parseAnalyzeResponse } from "../application/services/parse-analyze-response";
+import { AnalysisProvider } from "../application/ports/analysis.provider";
 
 @Injectable()
-export class OpenAiAnalysisProvider {
+export class OpenAiAnalysisProvider implements AnalysisProvider {
   async analyze(input: AnalyzeRequest): Promise<AnalyzeResponse> {
     const maxAttempts = 2;
 
