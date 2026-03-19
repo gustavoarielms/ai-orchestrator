@@ -1,8 +1,8 @@
-export interface AnalyzeRequestDto {
+export interface AnalyzeRequest {
   text: string;
 }
 
-export interface AnalyzeResponseDto {
+export interface AnalyzeResponse {
   userStory: string;
   acceptanceCriteria: string[];
   tasks: string[];

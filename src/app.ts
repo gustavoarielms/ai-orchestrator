@@ -1,6 +1,7 @@
 import { Controller, Get, Module } from "@nestjs/common";
-import { AnalyzeController } from "./modules/analyze/analyze.controller";
-import { AnalyzeService } from "./modules/analyze/analyze.service";
+import { AnalyzeController } from "./modules/analyze/entrypoints/analyze.controller";
+import { AnalyzeUseCase } from "./modules/analyze/application/analyze.use-case";
+import { OpenAiAnalysisProvider } from "./modules/analyze/infrastructure/openai-analysis.provider";
 
 @Controller()
 class HealthController {
@@ -15,6 +16,6 @@ class HealthController {
 
 @Module({
   controllers: [HealthController, AnalyzeController],
-  providers: [AnalyzeService]
+  providers: [AnalyzeUseCase, OpenAiAnalysisProvider]
 })
 export class AppModule {}
