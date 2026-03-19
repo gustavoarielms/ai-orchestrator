@@ -2,21 +2,21 @@
 
 ## 🎯 Purpose
 
-Definir los agentes que participan en el sistema, sus responsabilidades, inputs, outputs y límites.
+Define the agents participating in the system, their responsibilities, inputs, outputs, and constraints.
 
-Este documento establece los contratos de comportamiento para garantizar consistencia, control y escalabilidad en el orquestador.
+This document establishes behavioral contracts to ensure consistency, control, and scalability within the orchestrator.
 
 ---
 
 ## 🧠 Agent Strategy (MVP)
 
-En la primera versión del sistema se implementará **un único agente**:
+In the first version of the system, **a single agent** will be implemented:
 
 - `AnalysisAgent`
 
-Este agente concentra las responsabilidades iniciales de análisis funcional y técnico.
+This agent concentrates the initial functional and technical analysis responsibilities.
 
-La separación en múltiples agentes (PO, TL, Dev) se realizará en etapas posteriores.
+Separation into multiple agents (PO, TL, Dev) will be introduced in later stages.
 
 ---
 
@@ -24,7 +24,7 @@ La separación en múltiples agentes (PO, TL, Dev) se realizará en etapas poste
 
 ### 🧩 Role
 
-Actuar como un analista híbrido (producto + técnico), capaz de transformar una necesidad en lenguaje natural en un entregable estructurado listo para el equipo de desarrollo.
+Act as a hybrid analyst (product + technical), capable of transforming a natural language requirement into a structured deliverable ready for the development team.
 
 ---
 
@@ -34,15 +34,15 @@ Actuar como un analista híbrido (producto + técnico), capaz de transformar una
       "text": "string"
     }
 
-Ejemplo:
+Example:
 
-    Necesito implementar OTP por WhatsApp fallback SMS
+    I need to implement OTP via WhatsApp with SMS fallback
 
 ---
 
 ### 📤 Output
 
-El agente debe devolver un JSON válido con la siguiente estructura:
+The agent must return a valid JSON with the following structure:
 
     {
       "userStory": "string",
@@ -54,37 +54,37 @@ El agente debe devolver un JSON válido con la siguiente estructura:
 
 ### 📌 Responsibilities
 
-- Interpretar correctamente la necesidad planteada
-- Definir una user story clara y accionable
-- Generar criterios de aceptación concretos y verificables
-- Proponer tareas técnicas coherentes con la solución
-- Mantener consistencia en el formato de salida
+- Correctly interpret the given requirement
+- Define a clear and actionable user story
+- Generate concrete and verifiable acceptance criteria
+- Propose technical tasks aligned with the solution
+- Maintain consistency in the output format
 
 ---
 
 ### 🚫 Constraints
 
-- No debe inventar requerimientos fuera del contexto dado
-- No debe ejecutar acciones externas
-- No debe asumir detalles técnicos no inferibles
-- No debe generar texto fuera del JSON definido
-- No debe incluir explicaciones adicionales
+- Must not invent requirements outside the given context
+- Must not execute external actions
+- Must not assume technical details that cannot be inferred
+- Must not generate text outside the defined JSON
+- Must not include additional explanations
 
 ---
 
 ### 🧠 Behavior Guidelines
 
-- Priorizar claridad sobre creatividad
-- Mantener outputs concisos
-- Evitar ambigüedad en criterios de aceptación
-- Las tareas deben ser implementables por un developer
-- Usar lenguaje simple y directo
+- Prioritize clarity over creativity
+- Keep outputs concise
+- Avoid ambiguity in acceptance criteria
+- Tasks must be implementable by a developer
+- Use simple and direct language
 
 ---
 
 ## 🔮 Future Evolution (Multi-Agent Model)
 
-Una vez validado el MVP, el sistema evolucionará hacia múltiples agentes especializados:
+Once the MVP is validated, the system will evolve towards multiple specialized agents:
 
 ---
 
@@ -92,7 +92,7 @@ Una vez validado el MVP, el sistema evolucionará hacia múltiples agentes espec
 
 #### Role
 
-Refinamiento funcional y definición de producto.
+Functional refinement and product definition.
 
 #### Output
 
@@ -110,7 +110,7 @@ Refinamiento funcional y definición de producto.
 
 #### Role
 
-Definición de arquitectura y diseño técnico.
+Architecture definition and technical design.
 
 #### Output
 
@@ -128,7 +128,7 @@ Definición de arquitectura y diseño técnico.
 
 #### Role
 
-Descomposición técnica e implementación.
+Technical breakdown and implementation.
 
 #### Output
 
@@ -157,20 +157,20 @@ Descomposición técnica e implementación.
 
 ## 🔐 Control & Governance
 
-- El orquestador es el único responsable de:
-  - Invocar agentes
-  - Validar outputs
-  - Manejar errores
-  - Controlar permisos
-- Los agentes no tienen acceso directo a sistemas externos
-- Todas las interacciones deben ser trazables
+- The orchestrator is solely responsible for:
+  - invoking agents
+  - validating outputs
+  - handling errors
+  - controlling permissions
+- Agents have no direct access to external systems
+- All interactions must be traceable
 
 ---
 
 ## 📌 Design Principles
 
-- Agentes pequeños y especializados (a futuro)
-- Outputs estrictamente tipados
-- Sin side-effects
-- Sin autonomía fuera del orquestador
-- Evolución incremental del modelo
+- Small and specialized agents (future state)
+- Strictly typed outputs
+- No side-effects
+- No autonomy outside the orchestrator
+- Incremental evolution of the model

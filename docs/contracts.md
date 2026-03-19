@@ -2,19 +2,19 @@
 
 ## 🎯 Purpose
 
-Definir los contratos de entrada y salida del sistema, asegurando consistencia, validación y previsibilidad en la interacción entre componentes.
+Define the system's input and output contracts, ensuring consistency, validation, and predictability in interactions between components.
 
-Este documento es la fuente de verdad para los formatos de datos utilizados por el orquestador y los agentes.
+This document is the single source of truth for the data formats used by the orchestrator and agents.
 
 ---
 
 ## 🧩 General Principles
 
-- Todos los contratos deben ser explícitos y estrictos
-- No se permiten campos adicionales fuera del esquema definido
-- Los outputs deben ser siempre válidos y parseables
-- Se prioriza simplicidad sobre flexibilidad
-- El orquestador es responsable de validar todos los contratos
+- All contracts must be explicit and strict
+- No additional fields are allowed outside the defined schema
+- Outputs must always be valid and parseable
+- Simplicity is prioritized over flexibility
+- The orchestrator is responsible for validating all contracts
 
 ---
 
@@ -32,9 +32,9 @@ POST `/analyze`
 
 ### Rules
 
-- `text` es obligatorio
-- Debe ser un string no vacío
-- Representa una necesidad funcional o técnica en lenguaje natural
+- `text` is required
+- Must be a non-empty string
+- Represents a functional or technical requirement in natural language
 
 ---
 
@@ -52,31 +52,31 @@ POST `/analyze`
 
 #### userStory
 
-- Descripción clara del requerimiento
-- Debe estar en formato entendible para negocio y desarrollo
-- No debe estar vacío
+- Clear description of the requirement
+- Must be understandable for both business and engineering
+- Must not be empty
 
 #### acceptanceCriteria
 
-- Lista de criterios verificables
-- Cada elemento debe ser un string claro
-- No debe contener elementos vacíos
+- List of verifiable criteria
+- Each item must be a clear string
+- Must not contain empty values
 
 #### tasks
 
-- Lista de tareas técnicas necesarias para implementar la solución
-- Cada tarea debe ser accionable por un developer
-- No debe contener elementos vacíos
+- List of technical tasks required to implement the solution
+- Each task must be actionable by a developer
+- Must not contain empty values
 
 ---
 
 ## 🚫 Validation Rules
 
-- No se permiten propiedades adicionales
-- Ningún campo puede ser null
-- Ningún array puede contener valores vacíos
-- El JSON debe ser válido y parseable sin transformación
-- El output debe respetar exactamente la estructura definida
+- No additional properties are allowed
+- No field can be null
+- Arrays must not contain empty values
+- JSON must be valid and parseable without transformation
+- Output must strictly match the defined structure
 
 ---
 
@@ -93,57 +93,57 @@ POST `/analyze`
 
 ### Rules
 
-- `message` debe describir el error de forma clara
-- `code` debe ser un identificador técnico del error
+- `message` must clearly describe the error
+- `code` must be a technical identifier of the error
 
 ---
 
 ## 🧠 Internal Normalization
 
-El orquestador debe:
+The orchestrator must:
 
-- Sanitizar inputs antes de enviarlos al modelo
-- Validar outputs antes de retornarlos al cliente
-- Rechazar respuestas que no cumplan el contrato
-- Aplicar retries controlados en caso de outputs inválidos
+- sanitize inputs before sending them to the model
+- validate outputs before returning them to the client
+- reject responses that do not comply with the contract
+- apply controlled retries in case of invalid outputs
 
 ---
 
 ## 🔐 Security Constraints
 
-- No se debe ejecutar código basado en el output
-- No se deben interpolar strings sin validación
-- No se deben aceptar estructuras dinámicas
-- No se debe confiar en el modelo sin validación previa
+- Do not execute code based on model output
+- Do not interpolate strings without validation
+- Do not accept dynamic structures
+- Do not trust model output without prior validation
 
 ---
 
 ## 🔮 Future Extensions
 
-El contrato podrá evolucionar para incluir:
+The contract may evolve to include:
 
-- metadata adicional
-- trazabilidad de agentes
-- outputs multi-step
-- referencias a tools ejecutadas
+- additional metadata
+- agent traceability
+- multi-step outputs
+- references to executed tools
 
-Cualquier cambio debe ser versionado explícitamente.
+Any change must be explicitly versioned.
 
 ---
 
 ## 📌 Versioning Strategy
 
-- Versión inicial: `v1`
-- Cambios breaking requieren nueva versión (`v2`, `v3`, etc.)
-- Cambios backward-compatible pueden agregarse sin romper contrato
+- Initial version: `v1`
+- Breaking changes require a new version (`v2`, `v3`, etc.)
+- Backward-compatible changes can be introduced without breaking the contract
 
 ---
 
 ## ✅ Success Criteria
 
-Un contrato es correcto si:
+A contract is considered correct if:
 
-- puede validarse automáticamente
-- no requiere interpretación manual
-- es consistente en todos los casos
-- permite integrar otros sistemas sin ambigüedad
+- it can be automatically validated
+- it does not require manual interpretation
+- it is consistent across all cases
+- it allows integration with other systems without ambiguity

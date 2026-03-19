@@ -2,43 +2,43 @@
 
 ## Objective
 
-Validar que el sistema puede transformar una necesidad expresada en lenguaje natural en un entregable estructurado y útil para el equipo de desarrollo.
+Validate that the system can transform a natural language requirement into a structured and useful deliverable for the development team.
 
 ## In Scope
 
-La primera versión del sistema incluirá:
+The first version of the system will include:
 
-- Un único endpoint de entrada
-- Un único agente de análisis
-- Integración con OpenAI para procesar texto
-- Generación de una salida estructurada con:
+- A single input endpoint
+- A single analysis agent
+- Integration with OpenAI for text processing
+- Generation of a structured output containing:
   - User Story
   - Acceptance Criteria
   - Technical Tasks
 
 ## Out of Scope
 
-La primera versión no incluirá:
+The first version will not include:
 
-- Múltiples agentes especializados
-- Integración con Jira, GitLab o Confluence
-- Memoria persistente
-- Ejecución automática de acciones
-- OpenClaw como gateway
-- Paralelización de flujos
-- Gestión avanzada de permisos
+- Multiple specialized agents
+- Integration with Jira, GitLab, or Confluence
+- Persistent memory
+- Automatic action execution
+- OpenClaw as a gateway
+- Parallel workflow execution
+- Advanced permission management
 
 ## Input
 
-Texto libre con una necesidad funcional o técnica.
+Free text describing a functional or technical requirement.
 
-Ejemplo:
+Example:
 
-`Necesito implementar OTP por WhatsApp fallback SMS`
+`I need to implement OTP via WhatsApp with SMS fallback`
 
 ## Output
 
-JSON estructurado con el siguiente formato:
+Structured JSON with the following format:
 
 ```json
 {
