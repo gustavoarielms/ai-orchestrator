@@ -5,13 +5,13 @@ import {
   InternalServerErrorException,
   UnauthorizedException
 } from "@nestjs/common";
-import { AnalyzeRequestDto, AnalyzeResponseDto } from "./dto";
-import { openai } from "../../shared/openai/openai.client";
-import { env } from "../../config/env";
+import { openai } from "../../../shared/openai/openai.client";
+import { env } from "../../../config/env";
+import { AnalyzeRequest, AnalyzeResponse } from "../domain/analyze.types";
 
 @Injectable()
-export class AnalyzeService {
-  async analyze(input: AnalyzeRequestDto): Promise<AnalyzeResponseDto> {
+export class OpenAiAnalysisProvider {
+  async analyze(input: AnalyzeRequest): Promise<AnalyzeResponse> {
     try {
       const response = await openai.responses.create({
         model: env.openAiModel,
@@ -34,7 +34,7 @@ export class AnalyzeService {
         throw new InternalServerErrorException("OpenAI returned an empty response");
       }
 
-      const parsed = JSON.parse(outputText) as AnalyzeResponseDto;
+      const parsed = JSON.parse(outputText) as AnalyzeResponse;
 
       return {
         userStory: parsed.userStory,
@@ -42,7 +42,7 @@ export class AnalyzeService {
         tasks: parsed.tasks
       };
     } catch (error: any) {
-      console.error("AnalyzeService error:", error);
+      console.error("OpenAiAnalysisProvider error:", error);
 
       if (error?.status === 429 && error?.code === "insufficient_quota") {
         throw new HttpException(
