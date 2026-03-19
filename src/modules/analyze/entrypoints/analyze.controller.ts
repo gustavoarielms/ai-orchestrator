@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { AnalyzeUseCase } from "../application/analyze.use-case";
+import { AnalyzeUseCase } from "../application/use-cases/analyze.use-case";
 import { AnalyzeRequest } from "../domain/analyze.types";
 
 @Controller("/analyze")

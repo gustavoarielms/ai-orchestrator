@@ -1,21 +1,15 @@
-jest.mock("../infrastructure/openai-analysis.provider", () => ({
-  OpenAiAnalysisProvider: class {
-    analyze = jest.fn();
-  }
-}));
-
 import { BadRequestException } from "@nestjs/common";
-import { AnalyzeUseCase } from "./analyze.use-case";
-import { OpenAiAnalysisProvider } from "../infrastructure/openai-analysis.provider";
+import { AnalyzeUseCase } from "../use-cases/analyze.use-case";
+import { AnalysisProvider } from "../ports/analysis.provider";
 
 describe("AnalyzeUseCase", () => {
   let useCase: AnalyzeUseCase;
-  let provider: jest.Mocked<OpenAiAnalysisProvider>;
+  let provider: jest.Mocked<AnalysisProvider>;
 
   beforeEach(() => {
     provider = {
       analyze: jest.fn()
-    } as unknown as jest.Mocked<OpenAiAnalysisProvider>;
+    };
 
     useCase = new AnalyzeUseCase(provider);
   });

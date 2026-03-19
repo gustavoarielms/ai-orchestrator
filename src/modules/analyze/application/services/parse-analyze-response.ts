@@ -1,6 +1,6 @@
 import { BadRequestException } from "@nestjs/common";
-import { AnalyzeResponse } from "../domain/analyze.types";
-import { AnalyzeResponseSchema } from "../domain/analyze.schema";
+import { AnalyzeResponse } from "../../domain/analyze.types";
+import { AnalyzeResponseSchema } from "../../domain/analyze.schema";
 
 export function parseAnalyzeResponse(rawText: string): AnalyzeResponse {
   const trimmed = rawText?.trim();
