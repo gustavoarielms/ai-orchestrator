@@ -38,24 +38,30 @@ Ejemplo de output:
 
 ---
 
-## 🧱 Architecture
+## Architecture
 
-El sistema sigue una arquitectura simple y controlada:
+The project follows a modular architecture with hexagonal tendencies (hexagonal-light).
 
-    Client
-      ↓
-    Orchestrator API
-      ↓
-    OpenAI
-      ↓
-    Structured Output
+Each module is organized into:
 
-El orquestador es responsable de:
+- entrypoints (controllers)
+- application (use cases)
+- domain (types and contracts)
+- infrastructure (external integrations)
 
-- validar inputs
-- invocar el modelo
-- validar outputs
-- controlar el flujo completo
+Example structure:
+
+    modules/
+      analyze/
+        entrypoints/
+        application/
+        domain/
+        infrastructure/
+
+For more details, see:
+- `docs/architecture.md`
+- `docs/adr/ADR-001-arquitectura-base.md`
+- `docs/adr/ADR-002-architectural-style.md`
 
 ---
 
