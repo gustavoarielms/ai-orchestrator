@@ -1,46 +1,56 @@
 import { BadRequestException } from "@nestjs/common";
-import { AnalyzeUseCase } from "../use-cases/analyze.use-case";
-import { AnalysisProvider } from "../ports/analysis.provider";
+import { parseAnalyzeResponse } from "./parse-analyze-response";
 
-describe("AnalyzeUseCase", () => {
-  let useCase: AnalyzeUseCase;
-  let provider: jest.Mocked<AnalysisProvider>;
-
-  beforeEach(() => {
-    provider = {
-      analyze: jest.fn()
-    };
-
-    useCase = new AnalyzeUseCase(provider);
-  });
-
-  it("should delegate to provider when input is valid", async () => {
-    provider.analyze.mockResolvedValue({
-      userStory: "As a user...",
-      acceptanceCriteria: ["Criterion 1"],
-      tasks: ["Task 1"]
+describe("parseAnalyzeResponse", () => {
+  it("should parse a valid JSON response", () => {
+    const raw = JSON.stringify({
+      userStory: "As a user, I want OTP login",
+      acceptanceCriteria: ["OTP is sent", "OTP is validated"],
+      tasks: ["Create endpoint", "Validate OTP"]
     });
 
-    const result = await useCase.execute({
-      text: "implement OTP login"
-    });
-
-    expect(provider.analyze).toHaveBeenCalledWith({
-      text: "implement OTP login"
-    });
+    const result = parseAnalyzeResponse(raw);
 
     expect(result).toEqual({
-      userStory: "As a user...",
-      acceptanceCriteria: ["Criterion 1"],
-      tasks: ["Task 1"]
+      userStory: "As a user, I want OTP login",
+      acceptanceCriteria: ["OTP is sent", "OTP is validated"],
+      tasks: ["Create endpoint", "Validate OTP"]
     });
   });
 
-  it("should throw when text is missing", async () => {
-    await expect(useCase.execute({} as any)).rejects.toThrow(BadRequestException);
+  it("should parse JSON wrapped in extra text", () => {
+    const raw = `
+      Here is the response:
+      {
+        "userStory": "As a user, I want OTP login",
+        "acceptanceCriteria": ["OTP is sent"],
+        "tasks": ["Create endpoint"]
+      }
+    `;
+
+    const result = parseAnalyzeResponse(raw);
+
+    expect(result.userStory).toBe("As a user, I want OTP login");
+    expect(result.acceptanceCriteria).toEqual(["OTP is sent"]);
+    expect(result.tasks).toEqual(["Create endpoint"]);
   });
 
-  it("should throw when text is not a string", async () => {
-    await expect(useCase.execute({ text: 123 as any })).rejects.toThrow(BadRequestException);
+  it("should throw when response is empty", () => {
+    expect(() => parseAnalyzeResponse("")).toThrow(BadRequestException);
+  });
+
+  it("should throw when JSON is malformed", () => {
+    const raw = `{"userStory":"x","acceptanceCriteria":["a"],"tasks":[}`;
+    expect(() => parseAnalyzeResponse(raw)).toThrow(BadRequestException);
+  });
+
+  it("should throw when schema is invalid", () => {
+    const raw = JSON.stringify({
+      userStory: "",
+      acceptanceCriteria: [],
+      tasks: ["Create endpoint"]
+    });
+
+    expect(() => parseAnalyzeResponse(raw)).toThrow(BadRequestException);
   });
 });
