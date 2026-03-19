@@ -1,4 +1,4 @@
-# ADR-001: Arquitectura Base del Orquestador
+# ADR-001: Orchestrator Base Architecture
 
 ## Status
 
@@ -8,28 +8,28 @@ Accepted
 
 ## Context
 
-Se requiere construir un sistema capaz de transformar necesidades en lenguaje natural en entregables estructurados para equipos de desarrollo.
+We need to build a system capable of transforming natural language requirements into structured deliverables for development teams.
 
-El sistema debe:
+The system must:
 
-- ser controlable
-- ser predecible
-- evitar comportamientos no determinísticos
-- escalar hacia múltiples agentes en el futuro
+- be controllable
+- be predictable
+- avoid non-deterministic behavior
+- scale to multiple agents in the future
 
-Además, se busca evitar:
+Additionally, we want to avoid:
 
-- lógica distribuida en el modelo
-- ejecución autónoma sin control
-- acoplamiento fuerte con proveedores externos
+- business logic embedded in the model
+- uncontrolled autonomous execution
+- strong coupling with external providers
 
 ---
 
 ## Decision
 
-Se adopta una arquitectura basada en un **Orchestrator central** que controla completamente la ejecución del sistema.
+We adopt an architecture based on a **central Orchestrator** that fully controls the system execution.
 
-### Componentes principales
+### Main Components
 
 - **Client**
 - **Orchestrator API**
@@ -39,38 +39,38 @@ Se adopta una arquitectura basada en un **Orchestrator central** que controla co
 
 ---
 
-### Orchestrator como núcleo del sistema
+### Orchestrator as the system core
 
-El orquestador es responsable de:
+The orchestrator is responsible for:
 
-- recibir requests
-- validar inputs
-- construir prompts
-- invocar el modelo
-- validar outputs
-- manejar errores
-- controlar el flujo completo
+- receiving requests
+- validating inputs
+- building prompts
+- invoking the model
+- validating outputs
+- handling errors
+- controlling the entire execution flow
 
 ---
 
-### Uso de un único agente (MVP)
+### Single agent approach (MVP)
 
-En la primera versión se implementará un único agente:
+In the first version, a single agent will be implemented:
 
 - `AnalysisAgent`
 
-Este agente se encargará de:
+This agent is responsible for:
 
-- interpretar la necesidad
-- generar user story
-- definir criterios de aceptación
-- proponer tareas técnicas
+- interpreting the requirement
+- generating the user story
+- defining acceptance criteria
+- proposing technical tasks
 
 ---
 
-### Contratos estrictos
+### Strict contracts
 
-Toda interacción estará definida por contratos explícitos:
+All interactions are defined through explicit contracts.
 
 Input:
 
@@ -88,94 +88,94 @@ Output:
 
 ---
 
-### Validación obligatoria
+### Mandatory validation
 
-El sistema no confiará en el output del modelo sin validación.
+The system does not trust model outputs without validation.
 
-El orquestador deberá:
+The orchestrator must:
 
-- validar estructura JSON
-- validar campos obligatorios
-- rechazar respuestas inválidas
-- aplicar retries controlados si es necesario
+- validate JSON structure
+- validate required fields
+- reject invalid responses
+- apply controlled retries when necessary
 
 ---
 
-### Sin ejecución directa del modelo
+### No direct model execution
 
-El modelo:
+The model:
 
-- no ejecuta acciones
-- no tiene acceso a sistemas externos
-- no controla el flujo
+- does not execute actions
+- has no access to external systems
+- does not control the workflow
 
-Toda acción pasa por el orquestador.
+All actions go through the orchestrator.
 
 ---
 
 ## Consequences
 
-### Positivas
+### Positive
 
-- alto control sobre el sistema
-- comportamiento predecible
-- facilidad para debuggear
-- base sólida para escalar a múltiples agentes
-- separación clara de responsabilidades
+- high system control
+- predictable behavior
+- easier debugging
+- strong foundation for multi-agent scaling
+- clear separation of responsibilities
 
 ---
 
-### Negativas
+### Negative
 
-- mayor responsabilidad en el orquestador
-- necesidad de implementar validación robusta
-- posible incremento en complejidad al escalar
+- increased responsibility in the orchestrator
+- need for robust validation mechanisms
+- potential increase in complexity as the system scales
 
 ---
 
 ## Alternatives Considered
 
-### 1. Agentes autónomos con tools
+### 1. Autonomous agents with tools
 
-Se descartó porque:
+Rejected because:
 
-- reduce control
-- aumenta complejidad
-- dificulta trazabilidad
-
----
-
-### 2. Lógica distribuida en prompts
-
-Se descartó porque:
-
-- es difícil de mantener
-- es difícil de testear
-- no garantiza consistencia
+- reduces control
+- increases complexity
+- makes traceability harder
 
 ---
 
-### 3. Multi-agent desde el inicio
+### 2. Logic embedded in prompts
 
-Se descartó porque:
+Rejected because:
 
-- introduce complejidad innecesaria
-- dificulta validar el valor del sistema
+- hard to maintain
+- hard to test
+- does not guarantee consistency
+
+---
+
+### 3. Multi-agent from the beginning
+
+Rejected because:
+
+- introduces unnecessary complexity
+- makes it harder to validate system value early
 
 ---
 
 ## Future Evolution
 
-La arquitectura permitirá evolucionar hacia:
+The architecture allows evolution towards:
 
-- múltiples agentes especializados (PO, TL, Dev)
-- uso de tools controladas
-- memoria persistente
-- integración con sistemas externos
-- trazabilidad completa
+- multiple specialized agents (PO, TL, Dev)
+- controlled tool usage
+- persistent memory
+- integration with external systems
+- full traceability
 
 ---
 
 ## Notes
 
-Este ADR establece la base del sistema y no debe romperse sin la creación de un nuevo ADR que justifique el cambio.
+This ADR defines the foundation of the system and should not be changed without creating a new ADR that justifies the decision.

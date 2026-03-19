@@ -2,25 +2,26 @@
 
 ## 🎯 Purpose
 
-Construir una plataforma de agentes de inteligencia artificial que asista en el proceso de análisis, refinamiento y definición técnica de iniciativas dentro de equipos de producto y desarrollo.
+Build an AI agent platform that assists in the analysis, refinement, and technical definition of initiatives within product and engineering teams.
 
-El objetivo es reducir la fricción entre la idea inicial y su implementación, generando entregables claros, estructurados y accionables.
+The goal is to reduce friction between the initial idea and its implementation by generating clear, structured, and actionable deliverables.
 
 ---
 
 ## 🧩 Problem Statement
 
-En el flujo actual de trabajo:
+In the current workflow:
 
-- Las ideas iniciales suelen ser ambiguas o incompletas
-- El proceso de refinamiento requiere múltiples iteraciones entre roles (PO, TL, Dev)
-- Existe inconsistencia en la calidad de historias de usuario y definiciones técnicas
-- Se pierde tiempo en tareas repetitivas de documentación y análisis
+- Initial ideas are often ambiguous or incomplete
+- The refinement process requires multiple iterations across roles (PO, TL, Dev)
+- There is inconsistency in the quality of user stories and technical definitions
+- Time is wasted on repetitive documentation and analysis tasks
 
-Esto genera:
-- Retrasos en la ejecución
-- Falta de claridad en los requerimientos
-- Mayor carga operativa para el equipo
+This leads to:
+
+- Execution delays
+- Lack of clarity in requirements
+- Increased operational load for the team
 
 ---
 
@@ -35,13 +36,14 @@ Esto genera:
 
 ## 🚀 Solution Overview
 
-La solución propone un **orquestador de agentes de IA** que:
+The solution proposes an **AI agent orchestrator** that:
 
-1. Recibe una idea o necesidad en lenguaje natural
-2. La procesa mediante agentes especializados (inicialmente uno solo en el MVP)
-3. Genera salidas estructuradas listas para ser utilizadas en el flujo de desarrollo
+1. Receives an idea or requirement in natural language
+2. Processes it using specialized agents (initially a single agent in the MVP)
+3. Generates structured outputs ready to be used in the development workflow
 
-Ejemplo de output:
+Example outputs:
+
 - User Story
 - Acceptance Criteria
 - Technical Tasks
@@ -50,49 +52,49 @@ Ejemplo de output:
 
 ## ✅ Expected Value
 
-- Reducción del tiempo de refinamiento
-- Mayor consistencia en la calidad de entregables
-- Aceleración del proceso desde idea → implementación
-- Estandarización de documentación técnica
-- Disminución de la carga manual en tareas repetitivas
+- Reduced refinement time
+- Improved consistency in deliverable quality
+- Faster transition from idea → implementation
+- Standardization of technical documentation
+- Reduced manual effort in repetitive tasks
 
 ---
 
 ## 🚫 Out of Scope (MVP)
 
-En la primera versión NO se incluye:
+The first version does NOT include:
 
-- Integración directa con herramientas externas (Jira, GitLab, Confluence)
-- Ejecución automática de acciones en sistemas productivos
-- Memoria persistente o contexto histórico
-- Múltiples agentes trabajando en paralelo
-- Automatización end-to-end del ciclo de desarrollo
+- Direct integration with external tools (Jira, GitLab, Confluence)
+- Automatic execution of actions in production systems
+- Persistent memory or historical context
+- Multiple agents working in parallel
+- End-to-end automation of the development lifecycle
 
 ---
 
 ## 🧠 Design Principles
 
-- **Simplicidad primero**: comenzar con un agente único y un flujo claro
-- **Outputs estructurados**: priorizar JSON y contratos definidos
-- **Control centralizado**: el orquestador define reglas, no los agentes
-- **Iteración incremental**: evolucionar a múltiples agentes y tools solo cuando el valor esté validado
-- **Seguridad por defecto**: sin acceso a sistemas críticos en etapas iniciales
+- **Simplicity first**: start with a single agent and a clear flow
+- **Structured outputs**: prioritize JSON and well-defined contracts
+- **Centralized control**: the orchestrator defines the rules, not the agents
+- **Incremental iteration**: evolve to multiple agents and tools only when value is validated
+- **Security by default**: no access to critical systems in early stages
 
 ---
 
 ## 📈 Success Criteria
 
-- El sistema genera outputs útiles y reutilizables sin intervención manual significativa
-- Reducción perceptible del tiempo de definición de tareas
-- Feedback positivo de usuarios (PO, TL, Dev)
-- Capacidad de procesar casos reales del negocio (ej. onboarding, KYC, fraude)
+- The system generates useful and reusable outputs without significant manual intervention
+- Noticeable reduction in task definition time
+- Positive feedback from users (PO, TL, Dev)
+- Ability to process real business use cases (e.g., onboarding, KYC, fraud)
 
 ---
 
 ## 🔮 Future Vision
 
-- Múltiples agentes especializados (PO, TL, Dev)
-- Integración con herramientas de trabajo (Jira, Slack, Confluence)
-- Automatización parcial del flujo de desarrollo
-- Uso de tools para interacción con sistemas internos
-- Trazabilidad completa de decisiones y outputs
+- Multiple specialized agents (PO, TL, Dev)
+- Integration with work tools (Jira, Slack, Confluence)
+- Partial automation of the development workflow
+- Use of tools for interaction with internal systems
+- Full traceability of decisions and outputs

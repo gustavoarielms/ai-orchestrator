@@ -1,34 +1,34 @@
 # AI Orchestrator
 
-Plataforma para diseñar y construir un orquestador de agentes de inteligencia artificial orientado a flujos de Product & Engineering.
+Platform for designing and building an AI agent orchestrator focused on Product & Engineering workflows.
 
-El sistema transforma necesidades en lenguaje natural en entregables estructurados listos para desarrollo.
+The system transforms natural language requirements into structured deliverables ready for development.
 
 ---
 
 ## 🎯 Purpose
 
-Reducir la fricción entre la idea inicial y su implementación mediante el uso de agentes de IA controlados por un orquestador central.
+Reduce friction between an initial idea and its implementation by using AI agents orchestrated through a central controller.
 
 ---
 
 ## 🚀 MVP Scope
 
-El MVP se enfoca en:
+The MVP focuses on:
 
-- Un único endpoint: `/analyze`
-- Un único agente: `AnalysisAgent`
-- Input: texto libre
-- Output estructurado:
+- A single endpoint: `/analyze`
+- A single agent: `AnalysisAgent`
+- Input: free text
+- Structured output:
   - User Story
   - Acceptance Criteria
   - Technical Tasks
 
-Ejemplo de input:
+Example input:
 
-    Necesito implementar OTP por WhatsApp fallback SMS
+    I need to implement OTP via WhatsApp with SMS fallback
 
-Ejemplo de output:
+Example output:
 
     {
       "userStory": "...",
@@ -67,21 +67,21 @@ For more details, see:
 
 ## 🤖 Agents
 
-En la primera versión se utiliza un único agente:
+In the first version, a single agent is used:
 
 - `AnalysisAgent`
 
-Responsable de transformar una necesidad en:
+Responsible for transforming a requirement into:
 
 - user story
-- criterios de aceptación
-- tareas técnicas
+- acceptance criteria
+- technical tasks
 
 ---
 
 ## 📦 Contracts
 
-El sistema utiliza contratos estrictos para entrada y salida.
+The system uses strict input and output contracts.
 
 Input:
 
@@ -97,53 +97,53 @@ Output:
       "tasks": ["string"]
     }
 
-Todos los outputs son validados antes de ser retornados.
+All outputs are validated before being returned.
 
 ---
 
 ## 📚 Documentation
 
-La documentación del proyecto se encuentra en:
+Project documentation is available at:
 
 - [Vision](docs/vision.md)
 - [MVP Scope](docs/scope-mvp.md)
 - [Architecture](docs/architecture.md)
 - [Agents](docs/agents.md)
 - [Contracts](docs/contracts.md)
-- [ADR-001: Arquitectura base](docs/adr/ADR-001-arquitectura-base.md)
+- [ADR-001: Base Architecture](docs/adr/ADR-001-arquitectura-base.md)
 
 ---
 
 ## 🔐 Design Principles
 
-- Simplicidad primero
-- Control centralizado
-- Contratos estrictos
-- Sin side-effects
-- Evolución incremental
+- Simplicity first
+- Centralized control
+- Strict contracts
+- No side-effects
+- Incremental evolution
 
 ---
 
 ## 🔮 Future Evolution
 
-El sistema evolucionará hacia:
+The system will evolve towards:
 
-- múltiples agentes (PO, TL, Dev)
-- integración con tools (Jira, GitLab, Confluence)
-- memoria persistente
-- trazabilidad completa
-- OpenClaw como gateway
+- multiple agents (PO, TL, Dev)
+- integration with tools (Jira, GitLab, Confluence)
+- persistent memory
+- full traceability
+- OpenClaw as a gateway
 
 ---
 
 ## 🧠 Status
 
-Proyecto en fase de diseño.
+Project in design phase.
 
-Actualmente se está definiendo:
+Currently defining:
 
-- arquitectura
-- contratos
-- comportamiento de agentes
+- architecture
+- contracts
+- agent behavior
 
-Próximo paso: implementación del endpoint `/analyze`.
+Next step: implementation of the `/analyze` endpoint.
