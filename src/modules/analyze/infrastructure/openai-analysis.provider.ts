@@ -11,6 +11,7 @@ import { appConfig } from "../../../config/app.config";
 import { AnalyzeRequest, AnalyzeResponse } from "../domain/analyze.types";
 import { parseAnalyzeResponse } from "../application/services/parse-analyze-response";
 import { AnalysisProvider } from "../application/ports/analysis.provider";
+import { Logger } from "../../../shared/logger/logger";
 
 @Injectable()
 export class OpenAiAnalysisProvider implements AnalysisProvider {
@@ -19,6 +20,7 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
+        Logger.log("Calling OpenAI", { attempt });
         const response = await openai.responses.create({
           model: appConfig.openai.model,
           input: [
@@ -37,7 +39,7 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
         const outputText = response.output_text ?? "";
         return parseAnalyzeResponse(outputText);
       } catch (error: any) {
-        console.error(`OpenAiAnalysisProvider error (attempt ${attempt}):`, error);
+        Logger.error(`OpenAiAnalysisProvider error (attempt ${attempt}):`, error);
 
         const errorResponse =
           error instanceof BadRequestException ? error.getResponse() : null;
