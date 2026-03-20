@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  GatewayTimeoutException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -16,26 +17,34 @@ import { Logger } from "../../../shared/logger/logger";
 @Injectable()
 export class OpenAiAnalysisProvider implements AnalysisProvider {
   async analyze(input: AnalyzeRequest): Promise<AnalyzeResponse> {
-    const maxAttempts = 2;
+    const maxAttempts = appConfig.openai.maxAttempts;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        Logger.log("Calling OpenAI", { attempt });
-
-        const response = await openai.responses.create({
-          model: appConfig.openai.model,
-          input: [
-            {
-              role: "system",
-              content:
-                "You are an analysis agent for product and engineering workflows. Return ONLY a valid JSON object with exactly these fields: userStory (string), acceptanceCriteria (array of non-empty strings), tasks (array of non-empty strings). Do not include markdown, explanations, headings, or extra text."
-            },
-            {
-              role: "user",
-              content: `Analyze this requirement and return the structured output: ${input.text}`
-            }
-          ]
+        Logger.log("Calling OpenAI", {
+          attempt,
+          timeoutMs: appConfig.openai.timeoutMs
         });
+
+        const response = await openai.responses.create(
+          {
+            model: appConfig.openai.model,
+            input: [
+              {
+                role: "system",
+                content:
+                  "You are an analysis agent for product and engineering workflows. Return ONLY a valid JSON object with exactly these fields: userStory (string), acceptanceCriteria (array of non-empty strings), tasks (array of non-empty strings). Do not include markdown, explanations, headings, or extra text."
+              },
+              {
+                role: "user",
+                content: `Analyze this requirement and return the structured output: ${input.text}`
+              }
+            ]
+          },
+          {
+            timeout: appConfig.openai.timeoutMs
+          }
+        );
 
         const outputText = response.output_text ?? "";
         return parseAnalyzeResponse(outputText);
@@ -44,7 +53,8 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
           attempt,
           error: error?.message,
           status: error?.status,
-          code: error?.code
+          code: error?.code,
+          name: error?.name
         });
 
         const errorResponse =
@@ -68,11 +78,20 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
           ].includes(errorCode ?? "");
 
         if (isRecoverableModelOutputError && attempt < maxAttempts) {
-          Logger.log("Retrying due to recoverable error", {
+          Logger.log("Retrying due to recoverable model output error", {
             attempt,
             errorCode
           });
+
           continue;
+        }
+
+        if (error?.name === "APIConnectionTimeoutError") {
+          throw new GatewayTimeoutException({
+            statusCode: HttpStatus.GATEWAY_TIMEOUT,
+            message: "OpenAI request timed out.",
+            code: "openai_timeout"
+          });
         }
 
         if (error?.status === 429 && error?.code === "insufficient_quota") {

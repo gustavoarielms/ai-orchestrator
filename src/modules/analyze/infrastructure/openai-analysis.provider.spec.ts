@@ -8,7 +8,9 @@ jest.mock("../../../config/app.config", () => ({
     nodeEnv: "test",
     openai: {
       apiKey: "test-api-key",
-      model: "gpt-5.4"
+      model: "gpt-5.4",
+      timeoutMs: 10000,
+      maxAttempts: 2
     }
   }
 }));
@@ -81,6 +83,24 @@ describe("OpenAiAnalysisProvider", () => {
     await expect(
       provider.analyze({ text: "implement OTP login" })
     ).rejects.toBeInstanceOf(HttpException);
+
+    expect(openai.responses.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("should map timeout errors to gateway timeout", async () => {
+    (openai.responses.create as jest.Mock).mockRejectedValue({
+      name: "APIConnectionTimeoutError",
+      message: "Request timed out"
+    });
+
+    await expect(
+      provider.analyze({ text: "implement OTP login" })
+    ).rejects.toMatchObject({
+      response: {
+        statusCode: 504,
+        code: "openai_timeout"
+      }
+    });
 
     expect(openai.responses.create).toHaveBeenCalledTimes(1);
   });
