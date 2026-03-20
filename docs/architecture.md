@@ -172,11 +172,13 @@ This approach enables basic observability without introducing external tooling, 
 
 The system includes basic in-memory metrics to provide visibility into runtime behavior.
 
-Tracked metrics:
+Tracked metrics currently include:
 
 - request count
 - error count
 - retry count
+- average request latency
+- error count grouped by technical error code
 
 A `/metrics` endpoint is exposed to retrieve current values.
 
