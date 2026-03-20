@@ -159,6 +159,20 @@ If an incoming `x-request-id` is provided by the caller, the system reuses it. O
 
 This approach enables basic observability without introducing external tooling, and serves as a foundation for future metrics and tracing systems.
 
+### Metrics
+
+The system includes basic in-memory metrics to provide visibility into runtime behavior.
+
+Tracked metrics:
+
+- request count
+- error count
+- retry count
+
+A `/metrics` endpoint is exposed to retrieve current values.
+
+These metrics are implemented in-memory and are intended as a lightweight foundation for future integration with external monitoring systems.
+
 ---
 
 ## Summary

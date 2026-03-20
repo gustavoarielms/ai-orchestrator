@@ -49,6 +49,7 @@ Each module is organized into:
 - domain (types and contracts)
 - infrastructure (external integrations)
 - basic observability (logging + request tracing)
+- basic metrics (requests, errors, retries)
 
 Example structure:
 
