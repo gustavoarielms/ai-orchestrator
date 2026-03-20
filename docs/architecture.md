@@ -62,6 +62,15 @@ It groups all components required for the analyze flow:
 
 This module is imported into the root `AppModule`, keeping the application composition clean and scalable.
 
+### SystemModule
+
+Encapsulates operational endpoints used for runtime visibility and health checks:
+
+- `HealthController`
+- `MetricsController`
+
+This module is imported into the root `AppModule` alongside feature modules.
+
 ---
 
 ## Layer Responsibilities

@@ -1,28 +1,8 @@
-import { Controller, Get, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { AnalyzeModule } from "./modules/analyze/analyze.module";
-import { MetricsService } from "./shared/metrics/metrics.service";
-
-@Controller()
-class HealthController {
-  @Get("/health")
-  getHealth() {
-    return {
-      status: "ok",
-      service: "ai-orchestrator"
-    };
-  } 
-}
-
-@Controller()
-class MetricsController{
-  @Get("/metrics")
-  getMetrics() {
-    return MetricsService.getMetrics();
-  }
-}
+import { SystemModule } from "./modules/system/system.module";
 
 @Module({
-  imports: [AnalyzeModule],
-  controllers: [HealthController, MetricsController]
+  imports: [AnalyzeModule, SystemModule]
 })
 export class AppModule {}
