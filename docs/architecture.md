@@ -146,6 +146,8 @@ The system includes a lightweight observability layer to improve debugging and t
 - each incoming request is assigned a `requestId`
 - logs include `requestId` to allow end-to-end traceability
 
+If an incoming `x-request-id` is provided by the caller, the system reuses it. Otherwise, a new request identifier is generated.
+
 ### Error Visibility
 
 - provider errors are logged with context:

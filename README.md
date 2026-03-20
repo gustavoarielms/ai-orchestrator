@@ -48,6 +48,7 @@ Each module is organized into:
 - application (use cases)
 - domain (types and contracts)
 - infrastructure (external integrations)
+- basic observability (logging + request tracing)
 
 Example structure:
 

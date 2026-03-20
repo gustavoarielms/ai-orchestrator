@@ -21,6 +21,7 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         Logger.log("Calling OpenAI", { attempt });
+
         const response = await openai.responses.create({
           model: appConfig.openai.model,
           input: [
@@ -39,7 +40,12 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
         const outputText = response.output_text ?? "";
         return parseAnalyzeResponse(outputText);
       } catch (error: any) {
-        Logger.error(`OpenAiAnalysisProvider error (attempt ${attempt}):`, error);
+        Logger.error("OpenAI provider error", {
+          attempt,
+          error: error?.message,
+          status: error?.status,
+          code: error?.code
+        });
 
         const errorResponse =
           error instanceof BadRequestException ? error.getResponse() : null;
@@ -62,6 +68,10 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
           ].includes(errorCode ?? "");
 
         if (isRecoverableModelOutputError && attempt < maxAttempts) {
+          Logger.log("Retrying due to recoverable error", {
+            attempt,
+            errorCode
+          });
           continue;
         }
 
