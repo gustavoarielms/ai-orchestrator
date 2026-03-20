@@ -1,5 +1,6 @@
 import OpenAI from "openai";
+import { appConfig } from "../../config/app.config";
 
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: appConfig.openai.apiKey
 });
