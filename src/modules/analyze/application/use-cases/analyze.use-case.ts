@@ -3,6 +3,7 @@ import { AnalyzeRequest, AnalyzeResponse } from "../../domain/analyze.types";
 import { AnalysisProvider } from "../ports/analysis.provider";
 import { ANALYSIS_PROVIDER } from "../tokens/analysis-provider.token";
 import { Logger } from "../../../../shared/logger/logger";
+import { MetricsService } from "../../../../shared/metrics/metrics.service";
 
 @Injectable()
 export class AnalyzeUseCase {
@@ -19,10 +20,15 @@ export class AnalyzeUseCase {
       throw new BadRequestException("Invalid input: 'text' is required");
     }
 
-    const result = await this.analysisProvider.analyze(input);
+    try {
+      const result = await this.analysisProvider.analyze(input);
+      Logger.log("Analyze use case completed");
+      return result;
+    } catch (error) {
+      MetricsService.incrementError();
+      Logger.error("Analyze use case completed");
+      throw error;
+    }
 
-    Logger.log("Analyze use case completed");
-
-    return result;
   }
 }

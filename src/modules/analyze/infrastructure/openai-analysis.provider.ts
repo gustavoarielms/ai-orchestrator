@@ -13,6 +13,7 @@ import { AnalyzeRequest, AnalyzeResponse } from "../domain/analyze.types";
 import { parseAnalyzeResponse } from "../application/services/parse-analyze-response";
 import { AnalysisProvider } from "../application/ports/analysis.provider";
 import { Logger } from "../../../shared/logger/logger";
+import { MetricsService } from "../../../shared/metrics/metrics.service";
 
 @Injectable()
 export class OpenAiAnalysisProvider implements AnalysisProvider {
@@ -36,6 +37,7 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
             attempt,
             errorCode: this.extractErrorCode(error)
           });
+          MetricsService.incrementRetry();
 
           continue;
         }
