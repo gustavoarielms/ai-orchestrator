@@ -25,7 +25,7 @@ This means:
 ## High-Level Flow
 
     HTTP Request
-       ↓
+       ↓ 
     Controller (Entrypoint)
        ↓
     Use Case (Application)
@@ -46,6 +46,21 @@ Each module follows this structure:
         application/
         domain/
         infrastructure/
+
+---
+
+### AnalyzeModule
+
+The `analyze` domain is encapsulated as a dedicated feature module.
+
+It groups all components required for the analyze flow:
+
+- `AnalyzeController` (entrypoint)
+- `AnalyzeUseCase` (application logic)
+- `AnalysisProvider` (port)
+- `OpenAiAnalysisProvider` (infrastructure implementation)
+
+This module is imported into the root `AppModule`, keeping the application composition clean and scalable.
 
 ---
 
