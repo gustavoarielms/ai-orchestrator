@@ -131,6 +131,34 @@ The architecture may evolve towards:
 
 ---
 
+## Observability
+
+The system includes a lightweight observability layer to improve debugging and traceability.
+
+### Logging
+
+- structured logs (JSON format)
+- log levels: info, error
+- consistent log shape across modules
+
+### Request Tracing
+
+- each incoming request is assigned a `requestId`
+- logs include `requestId` to allow end-to-end traceability
+
+If an incoming `x-request-id` is provided by the caller, the system reuses it. Otherwise, a new request identifier is generated.
+
+### Error Visibility
+
+- provider errors are logged with context:
+  - attempt number
+  - error type
+  - status codes
+
+This approach enables basic observability without introducing external tooling, and serves as a foundation for future metrics and tracing systems.
+
+---
+
 ## Summary
 
 This architecture provides a balance between:
