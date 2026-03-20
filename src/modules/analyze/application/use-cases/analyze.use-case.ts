@@ -22,11 +22,18 @@ export class AnalyzeUseCase {
 
     try {
       const result = await this.analysisProvider.analyze(input);
-      Logger.log("Analyze use case completed");
       return result;
-    } catch (error) {
-      MetricsService.incrementError();
-      Logger.error("Analyze use case completed");
+    } catch (error: any) {
+      const errorCode = error?.response?.code ?? error?.code ?? "unknown_error";
+
+      MetricsService.incrementError(errorCode);
+
+      Logger.error("Analyze use case failed", {
+        error: error?.message,
+        status: error?.status,
+        code: errorCode
+      });
+
       throw error;
     }
 
