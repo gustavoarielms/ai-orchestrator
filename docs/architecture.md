@@ -128,6 +128,8 @@ The architecture may evolve towards:
 - retry and fallback strategies
 - structured validation layer
 - observability and metrics
+- configurable retries
+- timeout handling for external provider calls
 
 ---
 
