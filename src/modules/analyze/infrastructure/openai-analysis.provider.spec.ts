@@ -2,6 +2,17 @@ import { HttpException } from "@nestjs/common";
 import { OpenAiAnalysisProvider } from "./openai-analysis.provider";
 import { openai } from "../../../shared/openai/openai.client";
 
+jest.mock("../../../config/app.config", () => ({
+  appConfig: {
+    port: 3000,
+    nodeEnv: "test",
+    openai: {
+      apiKey: "test-api-key",
+      model: "gpt-5.4"
+    }
+  }
+}));
+
 jest.mock("../../../shared/openai/openai.client", () => ({
   openai: {
     responses: {
