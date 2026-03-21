@@ -86,8 +86,28 @@ Current implementations:
 
 The active provider is selected via configuration:
 
-`env`
 AI_PROVIDER=openai | claude
+
+### Provider Fallback
+
+The system supports a configurable fallback strategy between providers.
+
+If the primary provider fails and fallback is enabled, the system attempts the fallback provider before returning an error.
+
+Relevant configuration:
+
+AI_PROVIDER=openai  
+AI_FALLBACK_ENABLED=true  
+AI_FALLBACK_PROVIDER=claude  
+
+Fallback behavior:
+
+- primary provider is executed first  
+- if it fails, fallback provider is invoked  
+- fallback attempts are logged and tracked via metrics  
+- if fallback also fails, the error is returned  
+
+Provider resolution and fallback orchestration are handled at module level (`AnalyzeModule`).
 
 ### SystemModule
 
@@ -204,6 +224,7 @@ Tracked metrics currently include:
 - request count
 - error count
 - retry count
+- fallback count
 - average request latency
 - error count grouped by technical error code
 

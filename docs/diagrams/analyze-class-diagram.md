@@ -2,58 +2,39 @@
 
 ```mermaid
 classDiagram
-    class AnalyzeController {
-      +analyze(body)
-    }
-
-    class AnalyzeUseCase {
-      -analysisProvider: AnalysisProvider
-      -metricsRecorder: MetricsRecorder
-      +execute(input)
-    }
+    class AnalyzeController
+    class AnalyzeUseCase
 
     class AnalysisProvider {
       <<interface>>
       +analyze(input)
     }
 
-    class OpenAiAnalysisProvider {
-      -metricsRecorder: MetricsRecorder
-      +analyze(input)
-    }
-
-    class ClaudeAnalysisProvider {
-      +analyze(input)
-    }
+    class FallbackAnalysisProvider
+    class OpenAiAnalysisProvider
+    class ClaudeAnalysisProvider
 
     class MetricsRecorder {
       <<interface>>
       +incrementRequest()
       +incrementError(code)
       +incrementRetry()
+      +incrementFallback()
       +recordLatency(durationMs)
       +getMetrics()
     }
 
-    class InMemoryMetricsService {
-      +incrementRequest()
-      +incrementError(code)
-      +incrementRetry()
-      +recordLatency(durationMs)
-      +getMetrics()
-    }
-
-    class AnalyzeRequest
-    class AnalyzeResponse
+    class InMemoryMetricsService
 
     AnalyzeController --> AnalyzeUseCase
     AnalyzeUseCase --> AnalysisProvider
+
+    FallbackAnalysisProvider ..|> AnalysisProvider
     OpenAiAnalysisProvider ..|> AnalysisProvider
     ClaudeAnalysisProvider ..|> AnalysisProvider
 
-    AnalyzeUseCase --> MetricsRecorder
-    OpenAiAnalysisProvider --> MetricsRecorder
-    InMemoryMetricsService ..|> MetricsRecorder
+    FallbackAnalysisProvider --> AnalysisProvider : primary
+    FallbackAnalysisProvider --> AnalysisProvider : fallback
+    FallbackAnalysisProvider --> MetricsRecorder
 
-    AnalyzeUseCase --> AnalyzeRequest
-    AnalyzeUseCase --> AnalyzeResponse
+    InMemoryMetricsService ..|> MetricsRecorder
