@@ -180,6 +180,15 @@ Tracked metrics currently include:
 - average request latency
 - error count grouped by technical error code
 
+### Metrics Implementation
+
+Metrics are implemented using a port-based approach.
+
+- `MetricsRecorder` defines the contract for recording metrics
+- `InMemoryMetricsService` provides a default in-memory implementation
+
+This design allows replacing the metrics backend (e.g. Prometheus, external services) without affecting application logic.
+
 A `/metrics` endpoint is exposed to retrieve current values.
 
 These metrics are implemented in-memory and are intended as a lightweight foundation for future integration with external monitoring systems.

@@ -13,10 +13,16 @@ import { AnalyzeRequest, AnalyzeResponse } from "../domain/analyze.types";
 import { parseAnalyzeResponse } from "../application/services/parse-analyze-response";
 import { AnalysisProvider } from "../application/ports/analysis.provider";
 import { Logger } from "../../../shared/logger/logger";
-import { MetricsService } from "../../../shared/metrics/metrics.service";
+import { Inject } from "@nestjs/common";
+import { MetricsRecorder } from "../../../shared/metrics/ports/metrics-recorder";
+import { METRICS_RECORDER } from "../../../shared/metrics/tokens/metrics-recorder.token";
 
 @Injectable()
 export class OpenAiAnalysisProvider implements AnalysisProvider {
+  constructor(
+    @Inject(METRICS_RECORDER)
+    private readonly metricsRecorder: MetricsRecorder
+  ) {}
   async analyze(input: AnalyzeRequest): Promise<AnalyzeResponse> {
     const maxAttempts = appConfig.openai.maxAttempts;
 
@@ -37,7 +43,7 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
             attempt,
             errorCode: this.extractErrorCode(error)
           });
-          MetricsService.incrementRetry();
+          this.metricsRecorder.incrementRetry();
 
           continue;
         }

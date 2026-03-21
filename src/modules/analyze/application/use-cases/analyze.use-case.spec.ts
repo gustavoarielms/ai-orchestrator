@@ -1,17 +1,27 @@
 import { BadRequestException } from "@nestjs/common";
 import { AnalyzeUseCase } from "./analyze.use-case";
 import { AnalysisProvider } from "../ports/analysis.provider";
+import { MetricsRecorder } from "../../../../shared/metrics/ports/metrics-recorder";
 
 describe("AnalyzeUseCase", () => {
   let useCase: AnalyzeUseCase;
   let provider: jest.Mocked<AnalysisProvider>;
+  let metricsRecorder: jest.Mocked<MetricsRecorder>;
 
   beforeEach(() => {
     provider = {
       analyze: jest.fn()
     };
 
-    useCase = new AnalyzeUseCase(provider);
+    metricsRecorder = {
+      incrementRequest: jest.fn(),
+      incrementError: jest.fn(),
+      incrementRetry: jest.fn(),
+      recordLatency: jest.fn(),
+      getMetrics: jest.fn()
+    };
+
+    useCase = new AnalyzeUseCase(provider, metricsRecorder);
   });
 
   it("should delegate to provider when input is valid", async () => {
