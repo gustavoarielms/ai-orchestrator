@@ -12,7 +12,13 @@ export const EnvSchema = z.object({
   AI_FALLBACK_ENABLED: z.preprocess(
     (value) => (value === undefined ? "true" : value),
     z.string().transform((value) => value === "true")
-  )
+  ),
+  AI_CIRCUIT_BREAKER_ENABLED: z.preprocess(
+    (value) => (value === undefined ? "true" : value),
+    z.string().transform((value) => value === "true")
+  ),
+  AI_CIRCUIT_BREAKER_FAILURE_THRESHOLD: z.coerce.number().default(3),
+  AI_CIRCUIT_BREAKER_RESET_TIMEOUT_MS: z.coerce.number().default(30000),
 });
 
 export type EnvSchemaType = z.infer<typeof EnvSchema>;
