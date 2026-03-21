@@ -36,6 +36,17 @@ This means:
 
 ---
 
+## Diagrams
+
+Detailed diagrams are available in:
+
+- `docs/diagrams/architecture-overview.md`
+- `docs/diagrams/analyze-sequence.md`
+- `docs/diagrams/analyze-class-diagram.md`
+- `docs/diagrams/module-diagram.md`
+
+---
+
 ## Module Structure
 
 Each module follows this structure:
