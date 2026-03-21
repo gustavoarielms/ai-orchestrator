@@ -1,7 +1,7 @@
 import { FallbackAnalysisProvider } from "./fallback-analysis.provider";
 import { AnalysisProvider } from "../../application/ports/analysis.provider";
 import { MetricsRecorder } from "../../../../shared/metrics/ports/metrics-recorder";
-import { appConfig } from "../../../../config/app.config";
+import { CircuitBreaker } from "../../../../shared/resilience/ports/circuit-breaker";
 
 jest.mock("../../../../config/app.config", () => ({
   appConfig: {
@@ -17,6 +17,7 @@ describe("FallbackAnalysisProvider", () => {
   let primaryProvider: jest.Mocked<AnalysisProvider>;
   let fallbackProvider: jest.Mocked<AnalysisProvider>;
   let metricsRecorder: jest.Mocked<MetricsRecorder>;
+  let circuitBreaker: jest.Mocked<CircuitBreaker>;
   let provider: FallbackAnalysisProvider;
 
   beforeEach(() => {
@@ -37,10 +38,19 @@ describe("FallbackAnalysisProvider", () => {
       getMetrics: jest.fn()
     };
 
+    circuitBreaker = {
+      canExecute: jest.fn().mockReturnValue(true),
+      recordSuccess: jest.fn(),
+      recordFailure: jest.fn(),
+      getState: jest.fn(),
+      getAllStates: jest.fn()
+    };
+
     provider = new FallbackAnalysisProvider(
       primaryProvider,
       fallbackProvider,
-      metricsRecorder
+      metricsRecorder,
+      circuitBreaker
     );
   });
 
@@ -55,6 +65,7 @@ describe("FallbackAnalysisProvider", () => {
 
     expect(primaryProvider.analyze).toHaveBeenCalledTimes(1);
     expect(fallbackProvider.analyze).not.toHaveBeenCalled();
+    expect(circuitBreaker.recordSuccess).toHaveBeenCalledWith("openai");
     expect(result.userStory).toBe("As a user...");
   });
 
@@ -72,6 +83,8 @@ describe("FallbackAnalysisProvider", () => {
     expect(primaryProvider.analyze).toHaveBeenCalledTimes(1);
     expect(fallbackProvider.analyze).toHaveBeenCalledTimes(1);
     expect(metricsRecorder.incrementFallback).toHaveBeenCalledTimes(1);
+    expect(circuitBreaker.recordFailure).toHaveBeenCalledWith("openai");
+    expect(circuitBreaker.recordSuccess).toHaveBeenCalledWith("claude");
     expect(result.userStory).toBe("Fallback user story");
   });
 });
