@@ -35,7 +35,8 @@ describe("OpenAiAnalysisProvider", () => {
       incrementError: jest.fn(),
       incrementRetry: jest.fn(),
       recordLatency: jest.fn(),
-      getMetrics: jest.fn()
+      getMetrics: jest.fn(),
+      incrementFallback: jest.fn(),
     };
 
     provider = new OpenAiAnalysisProvider(metricsRecorder);

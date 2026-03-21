@@ -5,44 +5,42 @@ sequenceDiagram
     participant Client
     participant Controller as AnalyzeController
     participant UseCase as AnalyzeUseCase
-    participant ProviderPort as AnalysisProvider
-    participant OpenAIProvider as OpenAiAnalysisProvider
-    participant OpenAI as OpenAI API
-    participant Parser as parseAnalyzeResponse
+    participant Provider as FallbackAnalysisProvider
+    participant Primary as Primary Provider
+    participant Secondary as Fallback Provider
     participant Metrics as MetricsRecorder
     participant Logger as Logger
 
     Client->>Controller: POST /analyze
     Controller->>Metrics: incrementRequest()
-    Controller->>Logger: log request received
     Controller->>UseCase: execute(input)
 
-    UseCase->>Logger: log use case started
-    UseCase->>ProviderPort: analyze(input)
+    UseCase->>Provider: analyze(input)
+    Provider->>Primary: analyze(input)
 
-    ProviderPort->>OpenAIProvider: delegated call
-    OpenAIProvider->>Logger: log provider call
-    OpenAIProvider->>OpenAI: responses.create(...)
-    OpenAI-->>OpenAIProvider: raw response
-    OpenAIProvider->>Parser: parseAnalyzeResponse(output)
-
-    alt valid response
-        Parser-->>OpenAIProvider: AnalyzeResponse
-        OpenAIProvider-->>UseCase: AnalyzeResponse
+    alt primary success
+        Primary-->>Provider: AnalyzeResponse
+        Provider-->>UseCase: AnalyzeResponse
         UseCase-->>Controller: AnalyzeResponse
         Controller->>Metrics: recordLatency()
-        Controller->>Logger: log request completed
-        Controller-->>Client: 200 OK
-    else invalid response
-        Parser-->>OpenAIProvider: throws BadRequestException
-        OpenAIProvider->>Metrics: incrementRetry()
-        OpenAIProvider->>Logger: log retry
-        OpenAIProvider->>OpenAI: retry request
-    else provider failure
-        OpenAIProvider->>Logger: log provider error
-        OpenAIProvider-->>UseCase: mapped exception
-        UseCase->>Metrics: incrementError(code)
-        UseCase->>Logger: log use case failed
-        Controller->>Metrics: recordLatency()
-        Controller-->>Client: error response
+        Controller-->>Client: 201 Created
+    else primary failure
+        Primary-->>Provider: error
+        Provider->>Logger: log fallback attempt
+        Provider->>Metrics: incrementFallback()
+        Provider->>Secondary: analyze(input)
+
+        alt fallback success
+            Secondary-->>Provider: AnalyzeResponse
+            Provider-->>UseCase: AnalyzeResponse
+            UseCase-->>Controller: AnalyzeResponse
+            Controller->>Metrics: recordLatency()
+            Controller-->>Client: 201 Created
+        else fallback failure
+            Secondary-->>Provider: error
+            Provider-->>UseCase: error
+            UseCase->>Metrics: incrementError(code)
+            Controller->>Metrics: recordLatency()
+            Controller-->>Client: error response
+        end
     end

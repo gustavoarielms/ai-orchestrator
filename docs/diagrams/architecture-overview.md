@@ -12,8 +12,16 @@ flowchart TD
     AnalyzeController --> AnalyzeUseCase[AnalyzeUseCase]
     AnalyzeUseCase --> AnalysisProvider[AnalysisProvider Port]
 
-    AnalysisProvider --> OpenAIProvider[OpenAiAnalysisProvider]
-    AnalysisProvider --> ClaudeProvider[ClaudeAnalysisProvider]
+    AnalysisProvider --> FallbackProvider[FallbackAnalysisProvider]
+
+    FallbackProvider --> PrimaryProvider[Primary Provider]
+    FallbackProvider --> SecondaryProvider[Fallback Provider]
+
+    PrimaryProvider --> OpenAIProvider[OpenAiAnalysisProvider]
+    PrimaryProvider --> ClaudeProvider[ClaudeAnalysisProvider]
+
+    SecondaryProvider --> OpenAIProvider
+    SecondaryProvider --> ClaudeProvider
 
     OpenAIProvider --> OpenAI[OpenAI API]
 
@@ -23,6 +31,4 @@ flowchart TD
     MetricsController --> MetricsRecorder[MetricsRecorder Port]
     MetricsRecorder --> InMemoryMetrics[InMemoryMetricsService]
 
-    AnalyzeController --> MetricsRecorder
-    AnalyzeUseCase --> MetricsRecorder
-    OpenAIProvider --> MetricsRecorder
+    FallbackProvider --> MetricsRecorder
