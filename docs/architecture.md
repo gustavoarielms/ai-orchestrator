@@ -62,6 +62,22 @@ It groups all components required for the analyze flow:
 
 This module is imported into the root `AppModule`, keeping the application composition clean and scalable.
 
+### AI Providers
+
+The system uses a provider-based approach to interact with external AI services.
+
+A shared port (`AnalysisProvider`) defines the contract for all providers.
+
+Current implementations:
+
+- `OpenAiAnalysisProvider` (default)
+- `ClaudeAnalysisProvider` (placeholder)
+
+The active provider is selected via configuration:
+
+`env`
+AI_PROVIDER=openai | claude
+
 ### SystemModule
 
 Encapsulates operational endpoints used for runtime visibility and health checks:
