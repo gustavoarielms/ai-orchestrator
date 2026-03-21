@@ -7,6 +7,10 @@ export const appConfig = {
   port: parsedEnv.PORT,
   nodeEnv: parsedEnv.NODE_ENV,
   aiProvider: parsedEnv.AI_PROVIDER,
+  fallback: {
+    enabled: parsedEnv.AI_FALLBACK_ENABLED,
+    provider: parsedEnv.AI_FALLBACK_PROVIDER
+  },
   openai: {
     apiKey: parsedEnv.OPENAI_API_KEY,
     model: parsedEnv.OPENAI_MODEL,

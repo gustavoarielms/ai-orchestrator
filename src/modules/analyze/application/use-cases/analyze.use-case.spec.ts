@@ -18,7 +18,8 @@ describe("AnalyzeUseCase", () => {
       incrementError: jest.fn(),
       incrementRetry: jest.fn(),
       recordLatency: jest.fn(),
-      getMetrics: jest.fn()
+      getMetrics: jest.fn(),
+      incrementFallback: jest.fn(),
     };
 
     useCase = new AnalyzeUseCase(provider, metricsRecorder);

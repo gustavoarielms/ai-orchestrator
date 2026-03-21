@@ -6,6 +6,7 @@ export class InMemoryMetricsService implements MetricsRecorder {
   private requestCount = 0;
   private errorCount = 0;
   private retryCount = 0;
+  private fallbackCount = 0;
   private totalLatencyMs = 0;
   private latencySamples = 0;
   private errorByCode: Record<string, number> = {};
@@ -23,6 +24,10 @@ export class InMemoryMetricsService implements MetricsRecorder {
     this.retryCount++;
   }
 
+  incrementFallback(): void {
+    this.fallbackCount++;
+  }
+
   recordLatency(durationMs: number): void {
     this.totalLatencyMs += durationMs;
     this.latencySamples++;
@@ -33,6 +38,7 @@ export class InMemoryMetricsService implements MetricsRecorder {
       requests: this.requestCount,
       errors: this.errorCount,
       retries: this.retryCount,
+      fallbacks: this.fallbackCount,
       avgLatencyMs:
         this.latencySamples > 0
           ? Number((this.totalLatencyMs / this.latencySamples).toFixed(2))
