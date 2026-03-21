@@ -26,6 +26,17 @@ classDiagram
 
     class InMemoryMetricsService
 
+    class CircuitBreaker {
+      <<interface>>
+      +canExecute(provider)
+      +recordSuccess(provider)
+      +recordFailure(provider)
+      +getState(provider)
+      +getAllStates()
+    }
+
+    class InMemoryCircuitBreakerService
+
     AnalyzeController --> AnalyzeUseCase
     AnalyzeUseCase --> AnalysisProvider
 
@@ -36,5 +47,7 @@ classDiagram
     FallbackAnalysisProvider --> AnalysisProvider : primary
     FallbackAnalysisProvider --> AnalysisProvider : fallback
     FallbackAnalysisProvider --> MetricsRecorder
+    FallbackAnalysisProvider --> CircuitBreaker
 
     InMemoryMetricsService ..|> MetricsRecorder
+    InMemoryCircuitBreakerService ..|> CircuitBreaker

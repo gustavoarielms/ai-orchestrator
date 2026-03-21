@@ -241,6 +241,33 @@ A `/metrics` endpoint is exposed to retrieve current values.
 
 These metrics are implemented in-memory and are intended as a lightweight foundation for future integration with external monitoring systems.
 
+### Circuit Breaker
+
+The system includes a circuit breaker strategy for AI providers.
+
+Its purpose is to avoid repeatedly calling providers that are currently failing.
+
+Behavior:
+
+- each provider has its own circuit state
+- repeated failures increase the failure count
+- once the configured threshold is reached, the circuit is opened
+- while the circuit is open, execution against that provider is blocked
+- after the configured reset timeout, the provider can be tried again in half-open mode
+- a successful execution closes the circuit and resets the failure count
+
+Relevant configuration:
+
+AI_CIRCUIT_BREAKER_ENABLED=true  
+AI_CIRCUIT_BREAKER_FAILURE_THRESHOLD=3  
+AI_CIRCUIT_BREAKER_RESET_TIMEOUT_MS=30000  
+
+The circuit breaker is applied during provider execution and works together with the fallback strategy.
+
+Current circuit states can be inspected through:
+
+`GET /resilience/circuits`
+
 ---
 
 ## Summary
