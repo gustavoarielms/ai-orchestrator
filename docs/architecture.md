@@ -118,6 +118,42 @@ Encapsulates operational endpoints used for runtime visibility and health checks
 
 This module is imported into the root `AppModule` alongside feature modules.
 
+### Health Endpoints
+
+The system exposes two health endpoints with different levels of detail.
+
+#### Basic Health
+
+`GET /health`
+
+Returns a lightweight response intended for simple liveness checks.
+
+Example response:
+
+status: `ok`  
+service: `ai-orchestrator`
+
+#### Detailed Health
+
+`GET /health/details`
+
+Returns an extended runtime view of the system, including:
+
+- overall system status (`ok` or `degraded`)
+- configured primary provider
+- fallback configuration
+- circuit breaker states
+- metrics snapshot
+
+The detailed health status is calculated dynamically.
+
+Current behavior:
+
+- `ok` when all provider circuits are closed
+- `degraded` when at least one provider circuit is open
+
+This endpoint is intended for operational visibility and debugging, while `/health` remains suitable for simple probes.
+
 ---
 
 ## Layer Responsibilities
