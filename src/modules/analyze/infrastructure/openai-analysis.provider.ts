@@ -1,11 +1,7 @@
 import {
-  BadRequestException,
-  GatewayTimeoutException,
-  HttpException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
-  UnauthorizedException
+  Inject
 } from "@nestjs/common";
 import { openai } from "../../../shared/openai/openai.client";
 import { appConfig } from "../../../config/app.config";
@@ -13,10 +9,14 @@ import { AnalyzeRequest, AnalyzeResponse } from "../domain/analyze.types";
 import { parseAnalyzeResponse } from "../application/services/parse-analyze-response";
 import { AnalysisProvider } from "../application/ports/analysis.provider";
 import { Logger } from "../../../shared/logger/logger";
-import { Inject } from "@nestjs/common";
 import { MetricsRecorder } from "../../../shared/metrics/ports/metrics-recorder";
 import { METRICS_RECORDER } from "../../../shared/metrics/tokens/metrics-recorder.token";
 import { buildAnalyzePrompt } from "./prompts/analyze.prompt";
+import {
+  extractErrorCode,
+  mapOpenAiErrorToHttpException,
+  shouldRetryOpenAiError
+} from "./errors/openai-error.mapper";
 
 @Injectable()
 export class OpenAiAnalysisProvider implements AnalysisProvider {
@@ -24,6 +24,7 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
     @Inject(METRICS_RECORDER)
     private readonly metricsRecorder: MetricsRecorder
   ) {}
+
   async analyze(input: AnalyzeRequest): Promise<AnalyzeResponse> {
     const maxAttempts = appConfig.openai.maxAttempts;
 
@@ -39,22 +40,23 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
       } catch (error: any) {
         this.logProviderError(error, attempt);
 
-        if (this.shouldRetry(error) && attempt < maxAttempts) {
+        if (shouldRetryOpenAiError(error) && attempt < maxAttempts) {
+          this.metricsRecorder.incrementRetry();
+
           Logger.log("Retrying due to recoverable model output error", {
             attempt,
-            errorCode: this.extractErrorCode(error)
+            errorCode: extractErrorCode(error)
           });
-          this.metricsRecorder.incrementRetry();
 
           continue;
         }
 
-        throw this.mapToHttpException(error);
+        throw mapOpenAiErrorToHttpException(error);
       }
     }
 
     throw new InternalServerErrorException({
-      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      statusCode: 500,
       message: "Failed to analyze request after retry attempts.",
       code: "analyze_request_failed_after_retries"
     });
@@ -81,86 +83,6 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
       status: error?.status,
       code: error?.code,
       name: error?.name
-    });
-  }
-
-  private extractErrorCode(error: any): string | null {
-    const errorResponse =
-      error instanceof BadRequestException ? error.getResponse() : null;
-
-    if (
-      typeof errorResponse === "object" &&
-      errorResponse !== null &&
-      "code" in errorResponse &&
-      typeof errorResponse.code === "string"
-    ) {
-      return errorResponse.code;
-    }
-
-    return null;
-  }
-
-  private shouldRetry(error: any): boolean {
-    const errorCode = this.extractErrorCode(error);
-
-    return (
-      error instanceof BadRequestException &&
-      [
-        "openai_empty_response",
-        "openai_invalid_json",
-        "openai_malformed_json",
-        "openai_schema_validation_failed"
-      ].includes(errorCode ?? "")
-    );
-  }
-
-  private mapToHttpException(error: any): Error {
-    if (error?.name === "APIConnectionTimeoutError") {
-      return new GatewayTimeoutException({
-        statusCode: HttpStatus.GATEWAY_TIMEOUT,
-        message: "OpenAI request timed out.",
-        code: "openai_timeout"
-      });
-    }
-
-    if (error?.status === 429 && error?.code === "insufficient_quota") {
-      return new HttpException(
-        {
-          statusCode: HttpStatus.TOO_MANY_REQUESTS,
-          message: "OpenAI quota exceeded. Check billing or API usage limits.",
-          code: "openai_insufficient_quota"
-        },
-        HttpStatus.TOO_MANY_REQUESTS
-      );
-    }
-
-    if (error?.status === 429) {
-      return new HttpException(
-        {
-          statusCode: HttpStatus.TOO_MANY_REQUESTS,
-          message: "OpenAI rate limit exceeded. Please try again later.",
-          code: "openai_rate_limit_exceeded"
-        },
-        HttpStatus.TOO_MANY_REQUESTS
-      );
-    }
-
-    if (error?.status === 401) {
-      return new UnauthorizedException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: "OpenAI authentication failed. Check API key configuration.",
-        code: "openai_authentication_failed"
-      });
-    }
-
-    if (error instanceof BadRequestException) {
-      return error;
-    }
-
-    return new InternalServerErrorException({
-      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: "Failed to analyze request.",
-      code: "analyze_request_failed"
     });
   }
 }
