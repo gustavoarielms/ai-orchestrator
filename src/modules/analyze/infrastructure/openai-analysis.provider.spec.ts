@@ -1,7 +1,3 @@
-import { HttpException } from "@nestjs/common";
-import { OpenAiAnalysisProvider } from "./openai-analysis.provider";
-import { openai } from "../../../shared/openai/openai.client";
-
 jest.mock("../../../config/app.config", () => ({
   appConfig: {
     port: 3000,
@@ -23,12 +19,26 @@ jest.mock("../../../shared/openai/openai.client", () => ({
   }
 }));
 
+import { HttpException } from "@nestjs/common";
+import { OpenAiAnalysisProvider } from "./openai-analysis.provider";
+import { openai } from "../../../shared/openai/openai.client";
+import { MetricsRecorder } from "../../../shared/metrics/ports/metrics-recorder";
+
 describe("OpenAiAnalysisProvider", () => {
   let provider: OpenAiAnalysisProvider;
   let consoleErrorSpy: jest.SpyInstance;
+  let metricsRecorder: jest.Mocked<MetricsRecorder>;
 
   beforeEach(() => {
-    provider = new OpenAiAnalysisProvider();
+    metricsRecorder = {
+      incrementRequest: jest.fn(),
+      incrementError: jest.fn(),
+      incrementRetry: jest.fn(),
+      recordLatency: jest.fn(),
+      getMetrics: jest.fn()
+    };
+
+    provider = new OpenAiAnalysisProvider(metricsRecorder);
     jest.clearAllMocks();
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
@@ -71,6 +81,7 @@ describe("OpenAiAnalysisProvider", () => {
     const result = await provider.analyze({ text: "implement OTP login" });
 
     expect(openai.responses.create).toHaveBeenCalledTimes(2);
+    expect(metricsRecorder.incrementRetry).toHaveBeenCalledTimes(1);
     expect(result.userStory).toBe("As a user, I want OTP login");
   });
 

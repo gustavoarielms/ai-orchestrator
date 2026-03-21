@@ -3,13 +3,16 @@ import { AnalyzeRequest, AnalyzeResponse } from "../../domain/analyze.types";
 import { AnalysisProvider } from "../ports/analysis.provider";
 import { ANALYSIS_PROVIDER } from "../tokens/analysis-provider.token";
 import { Logger } from "../../../../shared/logger/logger";
-import { MetricsService } from "../../../../shared/metrics/metrics.service";
+import { MetricsRecorder } from "../../../../shared/metrics/ports/metrics-recorder";
+import { METRICS_RECORDER } from "../../../../shared/metrics/tokens/metrics-recorder.token";
 
 @Injectable()
 export class AnalyzeUseCase {
   constructor(
     @Inject(ANALYSIS_PROVIDER)
-    private readonly analysisProvider: AnalysisProvider
+    private readonly analysisProvider: AnalysisProvider,
+    @Inject(METRICS_RECORDER)
+    private readonly metricsRecorder: MetricsRecorder
   ) {}
 
   async execute(input: AnalyzeRequest): Promise<AnalyzeResponse> {
@@ -26,7 +29,7 @@ export class AnalyzeUseCase {
     } catch (error: any) {
       const errorCode = error?.response?.code ?? error?.code ?? "unknown_error";
 
-      MetricsService.incrementError(errorCode);
+      this.metricsRecorder.incrementError(errorCode);
 
       Logger.error("Analyze use case failed", {
         error: error?.message,
@@ -36,6 +39,5 @@ export class AnalyzeUseCase {
 
       throw error;
     }
-
   }
 }

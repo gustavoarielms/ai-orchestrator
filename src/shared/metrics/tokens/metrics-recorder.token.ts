@@ -1,0 +1,1 @@
+export const METRICS_RECORDER = "MetricsRecorder";
