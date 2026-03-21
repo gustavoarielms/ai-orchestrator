@@ -16,6 +16,7 @@ import { Logger } from "../../../shared/logger/logger";
 import { Inject } from "@nestjs/common";
 import { MetricsRecorder } from "../../../shared/metrics/ports/metrics-recorder";
 import { METRICS_RECORDER } from "../../../shared/metrics/tokens/metrics-recorder.token";
+import { buildAnalyzePrompt } from "./prompts/analyze.prompt";
 
 @Injectable()
 export class OpenAiAnalysisProvider implements AnalysisProvider {
@@ -63,17 +64,7 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
     const response = await openai.responses.create(
       {
         model: appConfig.openai.model,
-        input: [
-          {
-            role: "system",
-            content:
-              "You are an analysis agent for product and engineering workflows. Return ONLY a valid JSON object with exactly these fields: userStory (string), acceptanceCriteria (array of non-empty strings), tasks (array of non-empty strings). Do not include markdown, explanations, headings, or extra text."
-          },
-          {
-            role: "user",
-            content: `Analyze this requirement and return the structured output: ${input.text}`
-          }
-        ]
+        input: buildAnalyzePrompt(input)
       },
       {
         timeout: appConfig.openai.timeoutMs
