@@ -29,8 +29,10 @@ export class FallbackAnalysisProvider implements AnalysisProvider {
     const primaryProviderName = appConfig.aiProvider;
     const fallbackProviderName = appConfig.fallback.provider;
 
+    // Validar circuito del primario antes de intentar ejecutar
+    this.assertCircuitAllowsExecution(primaryProviderName);
+
     try {
-      this.assertCircuitAllowsExecution(primaryProviderName);
       const result = await this.primaryProvider.analyze(input);
       this.circuitBreaker.recordSuccess(primaryProviderName);
       return result;
@@ -48,9 +50,10 @@ export class FallbackAnalysisProvider implements AnalysisProvider {
         code: primaryError?.response?.code ?? primaryError?.code
       });
 
-      this.metricsRecorder.incrementFallback();
-
+      // Validar circuito del fallback antes de contar fallback real
       this.assertCircuitAllowsExecution(fallbackProviderName);
+
+      this.metricsRecorder.incrementFallback();
 
       try {
         const result = await this.fallbackProvider.analyze(input);
