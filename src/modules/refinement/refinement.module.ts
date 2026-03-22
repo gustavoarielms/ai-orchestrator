@@ -13,6 +13,7 @@ import { REFINEMENT_PROVIDER } from "./application/tokens/refinement-provider.to
       provide: REFINEMENT_PROVIDER,
       useExisting: OpenAiRefinementProvider
     }
-  ]
+  ],
+  exports: [RefineUseCase]
 })
 export class RefinementModule {}
