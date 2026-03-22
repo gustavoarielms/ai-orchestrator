@@ -56,7 +56,29 @@ POST `/refine`
 
 ---
 
+### Endpoint
+
+POST `/plan`
+
+### Request Body
+
+    {
+      "text": "string"
+    }
+
+### Rules
+
+- `text` is required
+- Must be a non-empty string
+- Represents a requirement to be refined and analyzed through an orchestration flow
+
+---
+
 ## 📤 Output Contract
+
+### Endpoint
+
+POST `/analyze`
 
 ### Response Body
 
@@ -133,6 +155,43 @@ POST `/refine`
 - List of relevant edge scenarios
 - Must capture boundary or exceptional conditions
 - Must not contain empty values
+
+---
+
+### Endpoint
+
+POST `/plan`
+
+### Response Body
+
+    {
+      "refinement": {
+        "problem": "string",
+        "goal": "string",
+        "userStory": "string",
+        "acceptanceCriteria": ["string"],
+        "edgeCases": ["string"]
+      },
+      "analysis": {
+        "userStory": "string",
+        "acceptanceCriteria": ["string"],
+        "tasks": ["string"]
+      }
+    }
+
+### Field Definitions
+
+#### refinement
+
+- Structured functional refinement result
+- Must follow the `/refine` response contract exactly
+- Must not be null
+
+#### analysis
+
+- Structured technical analysis result
+- Must follow the `/analyze` response contract exactly
+- Must not be null
 
 ---
 

@@ -25,10 +25,12 @@ This means:
 ## High-Level Flow
 
     HTTP Request
-       ↓ 
+       ↓
     Controller (Entrypoint)
        ↓
     Use Case (Application)
+       ↓
+    Orchestration Layer (optional)
        ↓
     Provider (Infrastructure)
        ↓
@@ -62,6 +64,10 @@ Each module follows this structure:
         application/
         domain/
         infrastructure/
+      planning/
+        entrypoints/
+        application/
+        domain/
 
 ---
 
@@ -90,6 +96,25 @@ It groups all components required for the refinement flow:
 - `OpenAiRefinementProvider` (infrastructure implementation)
 
 This module is responsible for transforming raw input into structured functional requirements and is imported into the root `AppModule`.
+
+### PlanningModule
+
+The `planning` domain is responsible for orchestrating multiple agents to produce a consolidated result.
+
+It groups all components required for orchestration flows:
+
+- `PlanningController` (entrypoint)
+- `PlanRequirementUseCase` (application logic)
+
+This module composes existing use cases (e.g. refinement and analysis) without coupling endpoints, enabling agent orchestration.
+
+Example flow:
+
+- input is received via `/plan`
+- `RefineUseCase` is executed
+- refinement output is transformed into enriched input
+- `AnalyzeUseCase` is executed
+- a consolidated response is returned
 
 ### AI Providers
 
@@ -192,6 +217,7 @@ Example:
 
 - Contains use cases
 - Orchestrates domain logic
+- Can compose multiple use cases to implement agent orchestration flows
 - Calls infrastructure providers
 
 Example:
@@ -244,6 +270,7 @@ The architecture may evolve towards:
 - observability and metrics
 - configurable retries
 - timeout handling for external provider calls
+- agent orchestration pipelines (multi-step workflows)
 
 ---
 

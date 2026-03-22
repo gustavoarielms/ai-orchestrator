@@ -17,6 +17,8 @@ The system currently supports multiple focused agents for requirement processing
 
 These agents represent the first step toward a more specialized multi-agent architecture.
 
+These agents can be composed through orchestration flows to produce consolidated outputs.
+
 ---
 
 ## 🤖 RefinementAgent
@@ -140,6 +142,25 @@ The agent must return a valid JSON with the following structure:
 
 ---
 
+## 🔁 Orchestration Flow (Current)
+
+    Input
+      ↓
+    RefinementAgent
+      ↓
+    AnalysisAgent
+      ↓
+    Consolidated Output
+
+### Notes
+
+- Orchestration is implemented through the `PlanningModule`
+- The `/plan` endpoint composes multiple agents
+- Agents remain independent and reusable
+- Orchestration is handled at the application layer (use cases), not at the API level
+
+---
+
 ## 🔮 Future Evolution (Multi-Agent Model)
 
 The system will evolve toward more specialized agents with clear responsibilities.
@@ -190,22 +211,6 @@ Technical breakdown and implementation planning.
       "tests": ["string"],
       "definitionOfDone": ["string"]
     }
-
----
-
-## 🔁 Orchestration Flow (Future)
-
-    Input
-      ↓
-    RefinementAgent
-      ↓
-    AnalysisAgent
-      ↓
-    Technical Design Agent
-      ↓
-    Task Breakdown Agent
-      ↓
-    Final Output
 
 ---
 

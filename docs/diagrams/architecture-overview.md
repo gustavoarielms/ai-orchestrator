@@ -6,6 +6,7 @@ flowchart TD
 
     App --> AnalyzeModule[AnalyzeModule]
     App --> RefinementModule[RefinementModule]
+    App --> PlanningModule[PlanningModule]
     App --> SystemModule[SystemModule]
     App --> MetricsModule[MetricsModule]
     App --> ResilienceModule[ResilienceModule]
@@ -19,6 +20,11 @@ flowchart TD
     RefineUseCase --> RefinementProvider[RefinementProvider Port]
     RefinementProvider --> OpenAiRefinementProvider[OpenAiRefinementProvider]
     OpenAiRefinementProvider --> OpenAI
+
+    PlanningModule --> PlanningController[PlanningController]
+    PlanningController --> PlanUseCase[PlanRequirementUseCase]
+    PlanUseCase --> RefineUseCase
+    PlanUseCase --> AnalyzeUseCase
 
     AnalysisProvider --> FallbackProvider[FallbackAnalysisProvider]
 
