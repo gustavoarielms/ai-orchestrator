@@ -8,12 +8,14 @@ import { AnalysisProvider } from "./application/ports/analysis.provider";
 import { ANALYSIS_PROVIDER } from "./application/tokens/analysis-provider.token";
 import { MetricsModule } from "../../shared/metrics/metrics.module";
 import { appConfig } from "../../config/app.config";
+import { OpenAiStructuredExecutor } from "../../shared/ai/openai/openai-structured-executor";
 
 @Module({
   imports: [MetricsModule],
   controllers: [AnalyzeController],
   providers: [
     AnalyzeUseCase,
+    OpenAiStructuredExecutor,
     OpenAiAnalysisProvider,
     ClaudeAnalysisProvider,
     FallbackAnalysisProvider,
