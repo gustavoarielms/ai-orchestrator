@@ -16,9 +16,10 @@ Reduce friction between an initial idea and its implementation by using AI agent
 
 The MVP currently supports:
 
-- Two endpoints:
+- Three endpoints:
   - `POST /analyze`
   - `POST /refine`
+  - `POST /plan`
 - Two initial agents:
   - `AnalysisAgent`
   - `RefinementAgent`
@@ -42,6 +43,23 @@ The MVP currently supports:
       "userStory": "...",
       "acceptanceCriteria": ["..."],
       "edgeCases": ["..."]
+    }
+
+**Plan (orchestrated flow):**
+
+    {
+      "refinement": {
+        "problem": "...",
+        "goal": "...",
+        "userStory": "...",
+        "acceptanceCriteria": ["..."],
+        "edgeCases": ["..."]
+      },
+      "analysis": {
+        "userStory": "...",
+        "acceptanceCriteria": ["..."],
+        "tasks": ["..."]
+      }
     }
 
 ---
@@ -77,6 +95,10 @@ Example structure:
         application/
         domain/
         infrastructure/
+      planning/
+        entrypoints/
+        application/
+        domain/
 
 For more details, see:
 - `docs/architecture.md`
@@ -92,7 +114,7 @@ The system currently includes:
 - `RefinementAgent` → functional definition (problem, goal, user story, acceptance criteria, edge cases)
 - `AnalysisAgent` → technical analysis (user story, acceptance criteria, tasks)
 
-These agents are designed to be composed in future workflows.
+These agents can be composed through orchestration flows to produce consolidated outputs.
 
 ---
 
@@ -159,6 +181,9 @@ Current capabilities:
 - circuit breaker for resilience
 - metrics and health visibility
 
+- agent orchestration (`/plan`)
+
 Next step:
 
-- agent orchestration (refine → analyze pipeline)
+- expand orchestration flows (multi-step pipelines)
+- refactor shared AI execution layer

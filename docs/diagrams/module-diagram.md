@@ -4,6 +4,7 @@
 flowchart LR
     AppModule --> AnalyzeModule
     AppModule --> RefinementModule
+    AppModule --> PlanningModule
     AppModule --> SystemModule
     AppModule --> MetricsModule
 
@@ -16,9 +17,12 @@ flowchart LR
     RefinementModule --> RefineUseCase
     RefinementModule --> OpenAiRefinementProvider
 
+    PlanningModule --> PlanningController
+    PlanningModule --> PlanRequirementUseCase
+
     SystemModule --> HealthController
     SystemModule --> MetricsController
 
     MetricsModule --> MetricsRecorder
-    MetricsModule --> InMemoryMetricsServicex
+    MetricsModule --> InMemoryMetricsService
 ```
