@@ -10,7 +10,7 @@ export class RefinementController {
   @Post()
   async refine(@Body() body: RefineRequest) {
     Logger.log("Refine request received", {
-      input: body.text
+      input: body?.text
     });
 
     const result = await this.refineUseCase.execute(body);

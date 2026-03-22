@@ -20,7 +20,7 @@ export class AnalyzeController {
     this.metricsRecorder.incrementRequest();
 
     Logger.log("Analyze request received", {
-      input: body.text
+      input: body?.text
     });
 
     try {
