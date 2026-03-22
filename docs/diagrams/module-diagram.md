@@ -3,6 +3,7 @@
 ```mermaid
 flowchart LR
     AppModule --> AnalyzeModule
+    AppModule --> RefinementModule
     AppModule --> SystemModule
     AppModule --> MetricsModule
 
@@ -11,8 +12,13 @@ flowchart LR
     AnalyzeModule --> OpenAiAnalysisProvider
     AnalyzeModule --> ClaudeAnalysisProvider
 
+    RefinementModule --> RefinementController
+    RefinementModule --> RefineUseCase
+    RefinementModule --> OpenAiRefinementProvider
+
     SystemModule --> HealthController
     SystemModule --> MetricsController
 
     MetricsModule --> MetricsRecorder
-    MetricsModule --> InMemoryMetricsService
+    MetricsModule --> InMemoryMetricsServicex
+```

@@ -5,6 +5,7 @@ flowchart TD
     Client[Client] --> App[AppModule]
 
     App --> AnalyzeModule[AnalyzeModule]
+    App --> RefinementModule[RefinementModule]
     App --> SystemModule[SystemModule]
     App --> MetricsModule[MetricsModule]
     App --> ResilienceModule[ResilienceModule]
@@ -12,6 +13,12 @@ flowchart TD
     AnalyzeModule --> AnalyzeController[AnalyzeController]
     AnalyzeController --> AnalyzeUseCase[AnalyzeUseCase]
     AnalyzeUseCase --> AnalysisProvider[AnalysisProvider Port]
+
+    RefinementModule --> RefinementController[RefinementController]
+    RefinementController --> RefineUseCase[RefineUseCase]
+    RefineUseCase --> RefinementProvider[RefinementProvider Port]
+    RefinementProvider --> OpenAiRefinementProvider[OpenAiRefinementProvider]
+    OpenAiRefinementProvider --> OpenAI
 
     AnalysisProvider --> FallbackProvider[FallbackAnalysisProvider]
 
@@ -38,3 +45,4 @@ flowchart TD
 
     ResilienceController --> CircuitBreaker
     FallbackProvider --> MetricsRecorder
+```

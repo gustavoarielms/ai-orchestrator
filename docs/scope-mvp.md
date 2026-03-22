@@ -8,19 +8,30 @@ Validate that the system can transform a natural language requirement into a str
 
 The first version of the system will include:
 
-- A single input endpoint
-- A single analysis agent
+- Two input endpoints:
+  - `POST /analyze`
+  - `POST /refine`
+- Two initial agents:
+  - `AnalysisAgent`
+  - `RefinementAgent`
 - Integration with OpenAI for text processing
-- Generation of a structured output containing:
-  - User Story
-  - Acceptance Criteria
-  - Technical Tasks
+- Generation of structured outputs:
+  - Technical analysis (analyze)
+    - User Story
+    - Acceptance Criteria
+    - Technical Tasks
+  - Functional refinement (refine)
+    - Problem
+    - Goal
+    - User Story
+    - Acceptance Criteria
+    - Edge Cases
 
 ## Out of Scope
 
 The first version will not include:
 
-- Multiple specialized agents
+- Additional specialized agents beyond Analysis and Refinement (e.g., Technical Design, Task Breakdown)
 - Integration with Jira, GitLab, or Confluence
 - Persistent memory
 - Automatic action execution
@@ -38,11 +49,20 @@ Example:
 
 ## Output
 
-Structured JSON with the following format:
-
 ```json
+// /analyze
 {
   "userStory": "string",
   "acceptanceCriteria": ["string"],
   "tasks": ["string"]
 }
+
+// /refine
+{
+  "problem": "string",
+  "goal": "string",
+  "userStory": "string",
+  "acceptanceCriteria": ["string"],
+  "edgeCases": ["string"]
+}
+```

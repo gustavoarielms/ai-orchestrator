@@ -57,6 +57,11 @@ Each module follows this structure:
         application/
         domain/
         infrastructure/
+      refinement/
+        entrypoints/
+        application/
+        domain/
+        infrastructure/
 
 ---
 
@@ -72,6 +77,19 @@ It groups all components required for the analyze flow:
 - `OpenAiAnalysisProvider` (infrastructure implementation)
 
 This module is imported into the root `AppModule`, keeping the application composition clean and scalable.
+
+### RefinementModule
+
+The `refinement` domain is encapsulated as a dedicated feature module.
+
+It groups all components required for the refinement flow:
+
+- `RefinementController` (entrypoint)
+- `RefineUseCase` (application logic)
+- `RefinementProvider` (port)
+- `OpenAiRefinementProvider` (infrastructure implementation)
+
+This module is responsible for transforming raw input into structured functional requirements and is imported into the root `AppModule`.
 
 ### AI Providers
 
@@ -166,6 +184,7 @@ This endpoint is intended for operational visibility and debugging, while `/heal
 
 Example:
 - `analyze.controller.ts`
+- `refinement.controller.ts`
 
 ---
 
@@ -177,6 +196,7 @@ Example:
 
 Example:
 - `analyze.use-case.ts`
+- `refine.use-case.ts`
 
 ---
 
@@ -187,6 +207,7 @@ Example:
 
 Example:
 - `analyze.types.ts`
+- `refinement.types.ts`
 
 ---
 
@@ -198,6 +219,7 @@ Example:
 
 Example:
 - `openai-analysis.provider.ts`
+- `openai-refinement.provider.ts`
 
 ---
 
