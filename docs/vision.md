@@ -39,7 +39,7 @@ This leads to:
 The solution proposes an **AI agent orchestrator** that:
 
 1. Receives an idea or requirement in natural language
-2. Processes it using specialized agents (initially a single agent in the MVP)
+2. Processes it using specialized agents
 3. Generates structured outputs ready to be used in the development workflow
 
 Example outputs:
@@ -74,7 +74,8 @@ The first version does NOT include:
 
 ## 🧠 Design Principles
 
-- **Simplicity first**: start with a single agent and a clear flow
+- **Simplicity first**: start with a small number of focused agents and a clear flow
+- **Incremental orchestration**: start with focused agents and compose them through simple flows
 - **Structured outputs**: prioritize JSON and well-defined contracts
 - **Centralized control**: the orchestrator defines the rules, not the agents
 - **Incremental iteration**: evolve to multiple agents and tools only when value is validated

@@ -14,12 +14,15 @@ flowchart TD
     AnalyzeModule --> AnalyzeController[AnalyzeController]
     AnalyzeController --> AnalyzeUseCase[AnalyzeUseCase]
     AnalyzeUseCase --> AnalysisProvider[AnalysisProvider Port]
+    AnalyzeController --> MetricsRecorder[MetricsRecorder Port]
+    AnalyzeUseCase --> MetricsRecorder
 
     RefinementModule --> RefinementController[RefinementController]
     RefinementController --> RefineUseCase[RefineUseCase]
     RefineUseCase --> RefinementProvider[RefinementProvider Port]
     RefinementProvider --> OpenAiRefinementProvider[OpenAiRefinementProvider]
-    OpenAiRefinementProvider --> OpenAI
+    OpenAiRefinementProvider --> RefinementExecutor[OpenAiStructuredExecutor]
+    RefinementExecutor --> OpenAI[OpenAI API]
 
     PlanningModule --> PlanningController[PlanningController]
     PlanningController --> PlanUseCase[PlanRequirementUseCase]
@@ -40,15 +43,14 @@ flowchart TD
     SecondaryProvider --> OpenAIProvider
     SecondaryProvider --> ClaudeProvider
 
-    OpenAIProvider --> OpenAI[OpenAI API]
+    OpenAIProvider --> AnalyzeExecutor[OpenAiStructuredExecutor]
+    AnalyzeExecutor --> OpenAI
 
     SystemModule --> HealthController[HealthController]
     SystemModule --> MetricsController[MetricsController]
     SystemModule --> ResilienceController[ResilienceController]
 
-    MetricsController --> MetricsRecorder[MetricsRecorder Port]
     MetricsRecorder --> InMemoryMetrics[InMemoryMetricsService]
-
     ResilienceController --> CircuitBreaker
     FallbackProvider --> MetricsRecorder
 ```

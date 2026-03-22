@@ -4,6 +4,7 @@
 classDiagram
     class AnalyzeController
     class AnalyzeUseCase
+    class OpenAiStructuredExecutor
 
     class AnalysisProvider {
       <<interface>>
@@ -38,7 +39,9 @@ classDiagram
     class InMemoryCircuitBreakerService
 
     AnalyzeController --> AnalyzeUseCase
+    AnalyzeController --> MetricsRecorder
     AnalyzeUseCase --> AnalysisProvider
+    AnalyzeUseCase --> MetricsRecorder
 
     FallbackAnalysisProvider ..|> AnalysisProvider
     OpenAiAnalysisProvider ..|> AnalysisProvider
@@ -48,6 +51,7 @@ classDiagram
     FallbackAnalysisProvider --> ClaudeAnalysisProvider : primary/fallback
     FallbackAnalysisProvider --> MetricsRecorder
     FallbackAnalysisProvider --> CircuitBreaker
+    OpenAiAnalysisProvider --> OpenAiStructuredExecutor
 
     InMemoryMetricsService ..|> MetricsRecorder
     InMemoryCircuitBreakerService ..|> CircuitBreaker

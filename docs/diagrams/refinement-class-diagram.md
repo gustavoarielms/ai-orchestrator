@@ -4,6 +4,7 @@
 classDiagram
     class RefinementController
     class RefineUseCase
+    class OpenAiStructuredExecutor
 
     class RefinementProvider {
       <<interface>>
@@ -16,3 +17,5 @@ classDiagram
     RefineUseCase --> RefinementProvider
 
     OpenAiRefinementProvider ..|> RefinementProvider
+    OpenAiRefinementProvider --> OpenAiStructuredExecutor
+```

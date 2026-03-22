@@ -152,12 +152,19 @@ Fallback behavior:
 
 Provider resolution and fallback orchestration are handled at module level (`AnalyzeModule`).
 
+Current scope note:
+
+- provider fallback and circuit breaker orchestration are currently implemented for the analyze flow
+- refinement uses the shared OpenAI execution layer but does not implement multi-provider fallback
+- `ClaudeAnalysisProvider` is currently a placeholder that returns `501 Not Implemented`
+
 ### SystemModule
 
 Encapsulates operational endpoints used for runtime visibility and health checks:
 
 - `HealthController`
 - `MetricsController`
+- `ResilienceController`
 
 This module is imported into the root `AppModule` alongside feature modules.
 
@@ -197,6 +204,12 @@ Current behavior:
 
 This endpoint is intended for operational visibility and debugging, while `/health` remains suitable for simple probes.
 
+#### Resilience Details
+
+`GET /resilience/circuits`
+
+Returns the current circuit breaker state for each known provider.
+
 ---
 
 ## Layer Responsibilities
@@ -204,8 +217,13 @@ This endpoint is intended for operational visibility and debugging, while `/heal
 ### Entrypoints
 
 - Handle incoming requests (HTTP, events)
-- Validate input format
 - Delegate to use cases
+
+In the current implementation:
+
+- controllers are intentionally thin
+- use cases perform the explicit `text` presence/type validation
+- analyze controller also records request count and latency metrics
 
 Example:
 - `analyze.controller.ts`
@@ -242,6 +260,7 @@ Example:
 - Handles external integrations
 - Calls OpenAI or other providers
 - Maps external responses to domain models
+- Validates structured AI outputs before returning them upstream
 
 Example:
 - `openai-analysis.provider.ts`
@@ -285,8 +304,8 @@ The architecture may evolve towards:
 
 - full hexagonal architecture (ports & adapters)
 - multiple providers (OpenAI, Anthropic, etc.)
-- retry and fallback strategies
-- structured validation layer
+- broader retry and fallback strategies
+- richer structured validation layer
 - observability and metrics
 - configurable retries
 - timeout handling for external provider calls

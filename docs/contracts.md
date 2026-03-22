@@ -210,16 +210,22 @@ POST `/plan`
 ### Error Response
 
     {
-      "error": {
-        "message": "string",
-        "code": "string"
-      }
+      "statusCode": 400,
+      "message": "string",
+      "code": "string"
     }
 
 ### Rules
 
+- `statusCode` must represent the HTTP status returned by the API
 - `message` must clearly describe the error
 - `code` must be a technical identifier of the error
+
+### Notes
+
+- The service uses NestJS HTTP exceptions
+- Error responses are returned as flat JSON payloads
+- Validation and provider errors may include different `code` values depending on the failure
 
 ---
 
