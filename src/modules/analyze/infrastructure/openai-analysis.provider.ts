@@ -3,10 +3,8 @@ import {
   InternalServerErrorException,
   Inject
 } from "@nestjs/common";
-import { openai } from "../../../shared/openai/openai.client";
 import { appConfig } from "../../../config/app.config";
 import { AnalyzeRequest, AnalyzeResponse } from "../domain/analyze.types";
-import { parseAnalyzeResponse } from "../application/services/parse-analyze-response";
 import { AnalysisProvider } from "../application/ports/analysis.provider";
 import { Logger } from "../../../shared/logger/logger";
 import { MetricsRecorder } from "../../../shared/metrics/ports/metrics-recorder";
@@ -17,12 +15,15 @@ import {
   mapOpenAiErrorToHttpException,
   shouldRetryOpenAiError
 } from "./errors/openai-error.mapper";
+import { OpenAiStructuredExecutor } from "../../../shared/ai/openai/openai-structured-executor";
+import { AnalyzeResponseSchema } from "../domain/analyze.schema";
 
 @Injectable()
 export class OpenAiAnalysisProvider implements AnalysisProvider {
   constructor(
     @Inject(METRICS_RECORDER)
-    private readonly metricsRecorder: MetricsRecorder
+    private readonly metricsRecorder: MetricsRecorder,
+    private readonly openAiStructuredExecutor: OpenAiStructuredExecutor
   ) {}
 
   async analyze(input: AnalyzeRequest): Promise<AnalyzeResponse> {
@@ -35,8 +36,7 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
           timeoutMs: appConfig.openai.timeoutMs
         });
 
-        const outputText = await this.callOpenAi(input);
-        return parseAnalyzeResponse(outputText);
+        return await this.callOpenAi(input);
       } catch (error: any) {
         this.logProviderError(error, attempt);
 
@@ -62,18 +62,12 @@ export class OpenAiAnalysisProvider implements AnalysisProvider {
     });
   }
 
-  private async callOpenAi(input: AnalyzeRequest): Promise<string> {
-    const response = await openai.responses.create(
-      {
-        model: appConfig.openai.model,
-        input: buildAnalyzePrompt(input)
-      },
-      {
-        timeout: appConfig.openai.timeoutMs
-      }
-    );
-
-    return response.output_text ?? "";
+  private async callOpenAi(input: AnalyzeRequest): Promise<AnalyzeResponse> {
+    return this.openAiStructuredExecutor.execute({
+      operationName: "analyze_request",
+      prompt: buildAnalyzePrompt(input),
+      schema: AnalyzeResponseSchema
+    });
   }
 
   private logProviderError(error: any, attempt: number): void {

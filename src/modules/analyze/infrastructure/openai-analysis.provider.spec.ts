@@ -11,23 +11,21 @@ jest.mock("../../../config/app.config", () => ({
   }
 }));
 
-jest.mock("../../../shared/openai/openai.client", () => ({
-  openai: {
-    responses: {
-      create: jest.fn()
-    }
-  }
-}));
-
-import { HttpException } from "@nestjs/common";
+import { BadRequestException, HttpException } from "@nestjs/common";
 import { OpenAiAnalysisProvider } from "./openai-analysis.provider";
-import { openai } from "../../../shared/openai/openai.client";
 import { MetricsRecorder } from "../../../shared/metrics/ports/metrics-recorder";
+import { OpenAiStructuredExecutor } from "../../../shared/ai/openai/openai-structured-executor";
+
+type MockOpenAiStructuredExecutor = Pick<
+  jest.Mocked<OpenAiStructuredExecutor>,
+  "execute"
+>;
 
 describe("OpenAiAnalysisProvider", () => {
   let provider: OpenAiAnalysisProvider;
   let consoleErrorSpy: jest.SpyInstance;
   let metricsRecorder: jest.Mocked<MetricsRecorder>;
+  let openAiStructuredExecutor: MockOpenAiStructuredExecutor;
 
   beforeEach(() => {
     metricsRecorder = {
@@ -39,9 +37,15 @@ describe("OpenAiAnalysisProvider", () => {
       incrementFallback: jest.fn(),
     };
 
-    provider = new OpenAiAnalysisProvider(metricsRecorder);
     jest.clearAllMocks();
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    openAiStructuredExecutor = {
+      execute: jest.fn()
+    };
+    provider = new OpenAiAnalysisProvider(
+      metricsRecorder,
+      openAiStructuredExecutor as unknown as OpenAiStructuredExecutor
+    );
   });
 
   afterEach(() => {
@@ -49,12 +53,10 @@ describe("OpenAiAnalysisProvider", () => {
   });
 
   it("should return parsed response when model output is valid", async () => {
-    (openai.responses.create as jest.Mock).mockResolvedValue({
-      output_text: JSON.stringify({
-        userStory: "As a user, I want OTP login",
-        acceptanceCriteria: ["OTP is sent"],
-        tasks: ["Create endpoint"]
-      })
+    openAiStructuredExecutor.execute.mockResolvedValue({
+      userStory: "As a user, I want OTP login",
+      acceptanceCriteria: ["OTP is sent"],
+      tasks: ["Create endpoint"]
     });
 
     const result = await provider.analyze({ text: "implement OTP login" });
@@ -67,27 +69,29 @@ describe("OpenAiAnalysisProvider", () => {
   });
 
   it("should retry once when model output is invalid", async () => {
-    (openai.responses.create as jest.Mock)
-      .mockResolvedValueOnce({
-        output_text: "not valid json"
-      })
-      .mockResolvedValueOnce({
-        output_text: JSON.stringify({
-          userStory: "As a user, I want OTP login",
-          acceptanceCriteria: ["OTP is sent"],
-          tasks: ["Create endpoint"]
+    openAiStructuredExecutor.execute
+      .mockRejectedValueOnce(
+        new BadRequestException({
+          statusCode: 400,
+          message: "Model returned malformed JSON.",
+          code: "openai_malformed_json"
         })
+      )
+      .mockResolvedValueOnce({
+        userStory: "As a user, I want OTP login",
+        acceptanceCriteria: ["OTP is sent"],
+        tasks: ["Create endpoint"]
       });
 
     const result = await provider.analyze({ text: "implement OTP login" });
 
-    expect(openai.responses.create).toHaveBeenCalledTimes(2);
+    expect(openAiStructuredExecutor.execute).toHaveBeenCalledTimes(2);
     expect(metricsRecorder.incrementRetry).toHaveBeenCalledTimes(1);
     expect(result.userStory).toBe("As a user, I want OTP login");
   });
 
   it("should not retry when quota is exceeded", async () => {
-    (openai.responses.create as jest.Mock).mockRejectedValue({
+    openAiStructuredExecutor.execute.mockRejectedValue({
       status: 429,
       code: "insufficient_quota"
     });
@@ -96,11 +100,11 @@ describe("OpenAiAnalysisProvider", () => {
       provider.analyze({ text: "implement OTP login" })
     ).rejects.toBeInstanceOf(HttpException);
 
-    expect(openai.responses.create).toHaveBeenCalledTimes(1);
+    expect(openAiStructuredExecutor.execute).toHaveBeenCalledTimes(1);
   });
 
   it("should map timeout errors to gateway timeout", async () => {
-    (openai.responses.create as jest.Mock).mockRejectedValue({
+    openAiStructuredExecutor.execute.mockRejectedValue({
       name: "APIConnectionTimeoutError",
       message: "Request timed out"
     });
@@ -114,6 +118,6 @@ describe("OpenAiAnalysisProvider", () => {
       }
     });
 
-    expect(openai.responses.create).toHaveBeenCalledTimes(1);
+    expect(openAiStructuredExecutor.execute).toHaveBeenCalledTimes(1);
   });
 });
