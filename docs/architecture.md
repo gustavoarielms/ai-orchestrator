@@ -247,6 +247,26 @@ Example:
 - `openai-analysis.provider.ts`
 - `openai-refinement.provider.ts`
 
+### AI Execution Layer
+
+The system includes a shared execution layer for AI providers.
+
+- `OpenAiStructuredExecutor` centralizes:
+  - OpenAI API calls
+  - timeout handling
+  - structured response parsing
+  - schema validation
+  - error mapping
+
+This prevents duplication across providers and ensures consistent behavior.
+
+Providers are responsible only for:
+- defining prompts
+- defining schemas
+- invoking the executor
+
+This design enables easier extension for future agents and shared configuration (e.g. language, retries).
+
 ---
 
 ## Design Principles
