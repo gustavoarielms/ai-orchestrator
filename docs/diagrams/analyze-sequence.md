@@ -75,3 +75,4 @@ sequenceDiagram
         Controller->>Metrics: recordLatency()
         Controller-->>Client: 503 Service Unavailable
     end
+```

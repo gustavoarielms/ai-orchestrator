@@ -14,21 +14,19 @@ Reduce friction between an initial idea and its implementation by using AI agent
 
 ## 🚀 MVP Scope
 
-The MVP focuses on:
+The MVP currently supports:
 
-- A single endpoint: `/analyze`
-- A single agent: `AnalysisAgent`
+- Two endpoints:
+  - `POST /analyze`
+  - `POST /refine`
+- Two initial agents:
+  - `AnalysisAgent`
+  - `RefinementAgent`
 - Input: free text
-- Structured output:
-  - User Story
-  - Acceptance Criteria
-  - Technical Tasks
 
-Example input:
+### Outputs
 
-    I need to implement OTP via WhatsApp with SMS fallback
-
-Example output:
+**Analyze (technical perspective):**
 
     {
       "userStory": "...",
@@ -36,9 +34,19 @@ Example output:
       "tasks": ["..."]
     }
 
+**Refine (functional perspective):**
+
+    {
+      "problem": "...",
+      "goal": "...",
+      "userStory": "...",
+      "acceptanceCriteria": ["..."],
+      "edgeCases": ["..."]
+    }
+
 ---
 
-## Architecture
+## 🏗 Architecture
 
 The project follows a modular architecture with hexagonal tendencies (hexagonal-light).
 
@@ -48,13 +56,23 @@ Each module is organized into:
 - application (use cases)
 - domain (types and contracts)
 - infrastructure (external integrations)
-- basic observability (logging + request tracing)
-- basic metrics (requests, errors, retries)
+
+The system also includes:
+
+- structured logging
+- request tracing
+- basic metrics (requests, errors, retries, fallback)
+- resilience mechanisms (fallback + circuit breaker)
 
 Example structure:
 
     modules/
       analyze/
+        entrypoints/
+        application/
+        domain/
+        infrastructure/
+      refinement/
         entrypoints/
         application/
         domain/
@@ -69,37 +87,28 @@ For more details, see:
 
 ## 🤖 Agents
 
-In the first version, a single agent is used:
+The system currently includes:
 
-- `AnalysisAgent`
+- `RefinementAgent` → functional definition (problem, goal, user story, acceptance criteria, edge cases)
+- `AnalysisAgent` → technical analysis (user story, acceptance criteria, tasks)
 
-Responsible for transforming a requirement into:
-
-- user story
-- acceptance criteria
-- technical tasks
+These agents are designed to be composed in future workflows.
 
 ---
 
 ## 📦 Contracts
 
-The system uses strict input and output contracts.
-
-Input:
+All endpoints share a common input:
 
     {
       "text": "string"
     }
 
-Output:
+Outputs are strictly validated JSON structures defined per endpoint.
 
-    {
-      "userStory": "string",
-      "acceptanceCriteria": ["string"],
-      "tasks": ["string"]
-    }
+See full contracts in:
 
-All outputs are validated before being returned.
+- `docs/contracts.md`
 
 ---
 
@@ -130,22 +139,26 @@ Project documentation is available at:
 
 The system will evolve towards:
 
-- multiple agents (PO, TL, Dev)
+- specialized agents (technical design, task breakdown)
+- agent orchestration pipelines
 - integration with tools (Jira, GitLab, Confluence)
 - persistent memory
 - full traceability
-- OpenClaw as a gateway
 
 ---
 
 ## 🧠 Status
 
-Project in design phase.
+Project in active development.
 
-Currently defining:
+Current capabilities:
 
-- architecture
-- contracts
-- agent behavior
+- requirement refinement (`/refine`)
+- technical analysis (`/analyze`)
+- provider abstraction with fallback
+- circuit breaker for resilience
+- metrics and health visibility
 
-Next step: implementation of the `/analyze` endpoint.
+Next step:
+
+- agent orchestration (refine → analyze pipeline)

@@ -38,6 +38,24 @@ POST `/analyze`
 
 ---
 
+### Endpoint
+
+POST `/refine`
+
+### Request Body
+
+    {
+      "text": "string"
+    }
+
+### Rules
+
+- `text` is required
+- Must be a non-empty string
+- Represents a functional requirement to be refined
+
+---
+
 ## 📤 Output Contract
 
 ### Response Body
@@ -66,6 +84,54 @@ POST `/analyze`
 
 - List of technical tasks required to implement the solution
 - Each task must be actionable by a developer
+- Must not contain empty values
+
+---
+
+### Endpoint
+
+POST `/refine`
+
+### Response Body
+
+    {
+      "problem": "string",
+      "goal": "string",
+      "userStory": "string",
+      "acceptanceCriteria": ["string"],
+      "edgeCases": ["string"]
+    }
+
+### Field Definitions
+
+#### problem
+
+- Description of the underlying problem
+- Must be clear and concise
+- Must not be empty
+
+#### goal
+
+- Desired outcome or objective
+- Must be aligned with the problem
+- Must not be empty
+
+#### userStory
+
+- User-centered description of the requirement
+- Must be understandable for both business and engineering
+- Must not be empty
+
+#### acceptanceCriteria
+
+- List of verifiable functional criteria
+- Each item must be a clear string
+- Must not contain empty values
+
+#### edgeCases
+
+- List of relevant edge scenarios
+- Must capture boundary or exceptional conditions
 - Must not contain empty values
 
 ---

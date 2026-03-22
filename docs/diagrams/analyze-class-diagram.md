@@ -44,10 +44,11 @@ classDiagram
     OpenAiAnalysisProvider ..|> AnalysisProvider
     ClaudeAnalysisProvider ..|> AnalysisProvider
 
-    FallbackAnalysisProvider --> AnalysisProvider : primary
-    FallbackAnalysisProvider --> AnalysisProvider : fallback
+    FallbackAnalysisProvider --> OpenAiAnalysisProvider : primary/fallback
+    FallbackAnalysisProvider --> ClaudeAnalysisProvider : primary/fallback
     FallbackAnalysisProvider --> MetricsRecorder
     FallbackAnalysisProvider --> CircuitBreaker
 
     InMemoryMetricsService ..|> MetricsRecorder
     InMemoryCircuitBreakerService ..|> CircuitBreaker
+```
