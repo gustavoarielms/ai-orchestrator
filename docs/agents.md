@@ -19,6 +19,8 @@ These agents represent the first step toward a more specialized multi-agent arch
 
 These agents can be composed through orchestration flows to produce consolidated outputs.
 
+In the current codebase, these agents are implemented as application flows backed by providers rather than autonomous runtime agents with their own execution environment.
+
 ---
 
 ## 🤖 RefinementAgent

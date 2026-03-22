@@ -102,7 +102,7 @@ Example structure:
 
 For more details, see:
 - `docs/architecture.md`
-- `docs/adr/ADR-001-arquitectura-base.md`
+- `docs/adr/ADR-001-orchestrator-base-architecture.md`
 - `docs/adr/ADR-002-architectural-style.md`
 
 ---
@@ -143,7 +143,7 @@ Project documentation is available at:
 - [Architecture](docs/architecture.md)
 - [Agents](docs/agents.md)
 - [Contracts](docs/contracts.md)
-- [ADR-001: Base Architecture](docs/adr/ADR-001-arquitectura-base.md)
+- [ADR-001: Base Architecture](docs/adr/ADR-001-orchestrator-base-architecture.md)
 
 ---
 
@@ -177,11 +177,18 @@ Current capabilities:
 
 - requirement refinement (`/refine`)
 - technical analysis (`/analyze`)
-- provider abstraction with fallback
+- provider abstraction for AI execution
+- fallback strategy for analysis providers
 - circuit breaker for resilience
 - metrics and health visibility
-
 - agent orchestration (`/plan`)
+
+Notes about the current implementation:
+
+- `/plan` orchestrates `refine -> analyze`
+- structured output validation is enforced before returning AI responses
+- fallback/circuit breaker behavior is currently implemented for the analyze flow
+- `ClaudeAnalysisProvider` exists as a placeholder and is not implemented yet
 
 Next step:
 

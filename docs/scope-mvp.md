@@ -8,9 +8,10 @@ Validate that the system can transform a natural language requirement into a str
 
 The first version of the system will include:
 
-- Two input endpoints:
+- Three input endpoints:
   - `POST /analyze`
   - `POST /refine`
+  - `POST /plan`
 - Two initial agents:
   - `AnalysisAgent`
   - `RefinementAgent`
@@ -26,6 +27,9 @@ The first version of the system will include:
     - User Story
     - Acceptance Criteria
     - Edge Cases
+  - Orchestrated planning flow (plan)
+    - Refinement result
+    - Analysis result
 
 ## Out of Scope
 
@@ -64,5 +68,21 @@ Example:
   "userStory": "string",
   "acceptanceCriteria": ["string"],
   "edgeCases": ["string"]
+}
+
+// /plan
+{
+  "refinement": {
+    "problem": "string",
+    "goal": "string",
+    "userStory": "string",
+    "acceptanceCriteria": ["string"],
+    "edgeCases": ["string"]
+  },
+  "analysis": {
+    "userStory": "string",
+    "acceptanceCriteria": ["string"],
+    "tasks": ["string"]
+  }
 }
 ```
