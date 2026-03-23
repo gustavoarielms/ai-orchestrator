@@ -12,7 +12,7 @@ export class PlanningController {
   @Post()
   async plan(@Body() body: PlanRequest) {
     Logger.log("Plan request received", {
-      input: body.text
+      input: body?.text
     });
 
     const result = await this.planRequirementUseCase.execute(body);
