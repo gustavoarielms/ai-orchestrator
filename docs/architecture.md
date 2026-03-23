@@ -81,6 +81,8 @@ It groups all components required for the analyze flow:
 - `AnalyzeUseCase` (application logic)
 - `AnalysisProvider` (port)
 - `OpenAiAnalysisProvider` (infrastructure implementation)
+- `ClaudeAnalysisProvider` (placeholder implementation)
+- `FallbackAnalysisProvider` (failover wrapper)
 
 This module is imported into the root `AppModule`, keeping the application composition clean and scalable.
 
@@ -94,6 +96,8 @@ It groups all components required for the refinement flow:
 - `RefineUseCase` (application logic)
 - `RefinementProvider` (port)
 - `OpenAiRefinementProvider` (infrastructure implementation)
+- `ClaudeRefinementProvider` (placeholder implementation)
+- `FallbackRefinementProvider` (failover wrapper)
 
 This module is responsible for transforming raw input into structured functional requirements and is imported into the root `AppModule`.
 
@@ -120,12 +124,17 @@ Example flow:
 
 The system uses a provider-based approach to interact with external AI services.
 
-A shared port (`AnalysisProvider`) defines the contract for all providers.
+A shared port is defined per feature module:
 
-Current implementations:
+- `AnalysisProvider` for `analyze`
+- `RefinementProvider` for `refinement`
+
+Current implementations include:
 
 - `OpenAiAnalysisProvider` (default)
 - `ClaudeAnalysisProvider` (placeholder)
+- `OpenAiRefinementProvider` (default)
+- `ClaudeRefinementProvider` (placeholder)
 
 The active provider is selected via configuration:
 
@@ -154,9 +163,10 @@ Provider resolution and fallback orchestration are handled at module level (`Ana
 
 Current scope note:
 
-- provider fallback and circuit breaker orchestration are currently implemented for the analyze flow
-- refinement uses the shared OpenAI execution layer but does not implement multi-provider fallback
+- provider fallback and circuit breaker orchestration are implemented for both `analyze` and `refinement`
+- both modules delegate failover behavior to a shared `ProviderFailoverExecutor`
 - `ClaudeAnalysisProvider` is currently a placeholder that returns `501 Not Implemented`
+- `ClaudeRefinementProvider` is currently a placeholder that returns `501 Not Implemented`
 
 ### SystemModule
 
@@ -265,6 +275,8 @@ Example:
 Example:
 - `openai-analysis.provider.ts`
 - `openai-refinement.provider.ts`
+- `fallback-analysis.provider.ts`
+- `fallback-refinement.provider.ts`
 
 ### AI Execution Layer
 
@@ -285,6 +297,23 @@ Providers are responsible only for:
 - invoking the executor
 
 This design enables easier extension for future agents and shared configuration (e.g. language, retries).
+
+### Shared Resilience Layer
+
+The system also includes a shared resilience layer for provider failover.
+
+- `ProviderFailoverExecutor` centralizes:
+  - primary/fallback execution order
+  - circuit breaker checks
+  - fallback metrics
+  - provider failover logging
+
+Feature-specific fallback providers delegate to this shared executor:
+
+- `FallbackAnalysisProvider`
+- `FallbackRefinementProvider`
+
+This keeps feature providers thin while avoiding duplicated resilience logic.
 
 ---
 
