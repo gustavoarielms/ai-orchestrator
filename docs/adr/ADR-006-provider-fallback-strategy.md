@@ -8,7 +8,10 @@ Accepted
 
 ## Context
 
-The system supports multiple AI providers through a shared port (`AnalysisProvider`).
+The system supports multiple AI providers through feature-level provider ports such as:
+
+- `AnalysisProvider`
+- `RefinementProvider`
 
 Initially, provider selection is driven by configuration (`AI_PROVIDER`), but this approach does not provide resilience in case of provider failure.
 
@@ -24,11 +27,16 @@ There is a need to:
 
 The system introduces a fallback strategy between providers.
 
-A new component (`FallbackAnalysisProvider`) is responsible for:
+A feature-level fallback provider is responsible for:
 
 - invoking the primary provider
 - catching failures
 - delegating execution to a fallback provider if enabled
+
+Examples:
+
+- `FallbackAnalysisProvider`
+- `FallbackRefinementProvider`
 
 Fallback is controlled via configuration:
 
@@ -42,6 +50,8 @@ Fallback is applied only when:
 - primary and fallback providers are different
 - the primary provider throws an error
 
+The shared coordination of failover behavior may be delegated to shared resilience infrastructure.
+
 ---
 
 ## Consequences
@@ -52,6 +62,7 @@ Fallback is applied only when:
 - reduces dependency on a single provider
 - enables gradual adoption of new providers
 - keeps use case logic unchanged
+- allows the same fallback strategy to be reused across provider-enabled modules
 
 ### Negative
 
@@ -100,3 +111,7 @@ The fallback strategy may evolve to support:
 ## Notes
 
 This decision extends the multi-provider architecture and reinforces the system’s hexagonal design by keeping fallback logic within the infrastructure layer.
+
+Shared extraction of failover coordination is documented separately in:
+
+- `ADR-008-shared-provider-failover-executor.md`

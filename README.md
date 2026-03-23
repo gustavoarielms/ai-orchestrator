@@ -195,4 +195,5 @@ Notes about the current implementation:
 Next step:
 
 - expand orchestration flows (multi-step pipelines)
-- refactor shared AI execution layer
+- refine provider defaults and placeholder-provider strategy
+- continue consolidating shared resilience and observability patterns
