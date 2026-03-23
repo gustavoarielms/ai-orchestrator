@@ -178,7 +178,7 @@ Current capabilities:
 - requirement refinement (`/refine`)
 - technical analysis (`/analyze`)
 - provider abstraction for AI execution
-- fallback strategy for analysis providers
+- fallback strategy for provider-enabled modules
 - circuit breaker for resilience
 - metrics and health visibility
 - agent orchestration (`/plan`)
