@@ -6,71 +6,72 @@ sequenceDiagram
     participant Controller as AnalyzeController
     participant UseCase as AnalyzeUseCase
     participant Provider as FallbackAnalysisProvider
-    participant Circuit as CircuitBreaker
+    participant Failover as ProviderFailoverExecutor
     participant Primary as Primary Provider
     participant Secondary as Fallback Provider
     participant Metrics as MetricsRecorder
-    participant Logger as Logger
+    participant Circuit as CircuitBreaker
 
     Client->>Controller: POST /analyze
     Controller->>Metrics: incrementRequest()
     Controller->>UseCase: execute(input)
 
     UseCase->>Provider: analyze(input)
+    Provider->>Failover: execute({ primary, fallback, config })
 
-    Provider->>Circuit: canExecute(primary)
     alt primary circuit closed
-        Provider->>Primary: analyze(input)
+        Failover->>Circuit: canExecute(primary)
+        Failover->>Primary: analyze(input)
 
         alt primary success
-            Primary-->>Provider: AnalyzeResponse
-            Provider->>Circuit: recordSuccess(primary)
-            Provider-->>UseCase: AnalyzeResponse
+            Primary-->>Failover: AnalyzeResponse
+            Failover->>Circuit: recordSuccess(primary)
+            Failover-->>Provider: AnalyzeResponse
             UseCase-->>Controller: AnalyzeResponse
             Controller->>Metrics: recordLatency()
             Controller-->>Client: 201 Created
         else primary failure
-            Primary-->>Provider: error
-            Provider->>Circuit: recordFailure(primary)
+            Primary-->>Failover: error
+            Failover->>Circuit: recordFailure(primary)
 
             alt fallback enabled
-                Provider->>Logger: log fallback attempt
-                Provider->>Metrics: incrementFallback()
-                Provider->>Circuit: canExecute(fallback)
+                Failover->>Circuit: canExecute(fallback)
 
                 alt fallback circuit closed
-                    Provider->>Secondary: analyze(input)
+                    Failover->>Metrics: incrementFallback()
+                    Failover->>Secondary: analyze(input)
 
                     alt fallback success
-                        Secondary-->>Provider: AnalyzeResponse
-                        Provider->>Circuit: recordSuccess(fallback)
-                        Provider-->>UseCase: AnalyzeResponse
+                        Secondary-->>Failover: AnalyzeResponse
+                        Failover->>Circuit: recordSuccess(fallback)
+                        Failover-->>Provider: AnalyzeResponse
                         UseCase-->>Controller: AnalyzeResponse
                         Controller->>Metrics: recordLatency()
                         Controller-->>Client: 201 Created
                     else fallback failure
-                        Secondary-->>Provider: error
-                        Provider->>Circuit: recordFailure(fallback)
-                        Provider-->>UseCase: error
+                        Secondary-->>Failover: error
+                        Failover->>Circuit: recordFailure(fallback)
+                        Failover-->>Provider: error
                         UseCase->>Metrics: incrementError(code)
                         Controller->>Metrics: recordLatency()
                         Controller-->>Client: error response
                     end
                 else fallback circuit open
-                    Provider-->>UseCase: ServiceUnavailableException
+                    Failover-->>Provider: ServiceUnavailableException
                     UseCase->>Metrics: incrementError(code)
                     Controller->>Metrics: recordLatency()
                     Controller-->>Client: 503 Service Unavailable
                 end
             else no fallback
-                Provider-->>UseCase: error
+                Failover-->>Provider: error
                 UseCase->>Metrics: incrementError(code)
                 Controller->>Metrics: recordLatency()
                 Controller-->>Client: error response
             end
         end
     else primary circuit open
-        Provider-->>UseCase: ServiceUnavailableException
+        Failover->>Circuit: canExecute(primary)
+        Failover-->>Provider: ServiceUnavailableException
         UseCase->>Metrics: incrementError(code)
         Controller->>Metrics: recordLatency()
         Controller-->>Client: 503 Service Unavailable
