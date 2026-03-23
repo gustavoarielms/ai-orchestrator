@@ -20,6 +20,11 @@ This means:
 - controlled interaction with external systems
 - minimal abstraction to avoid over-engineering
 
+Related ADRs:
+
+- `docs/adr/ADR-001-orchestrator-base-architecture.md`
+- `docs/adr/ADR-002-architectural-style.md`
+
 ---
 
 ## High-Level Flow
@@ -68,6 +73,10 @@ Each module follows this structure:
         entrypoints/
         application/
         domain/
+
+Related ADR:
+
+- `docs/adr/ADR-004-feature-modules-in-nestjs.md`
 
 ---
 
@@ -139,6 +148,10 @@ Current implementations include:
 The active provider is selected via configuration:
 
 AI_PROVIDER=openai | claude
+
+Related ADR:
+
+- `docs/adr/ADR-005-multi-provider-strategy.md`
 
 ### Provider Fallback
 
@@ -315,6 +328,12 @@ Feature-specific fallback providers delegate to this shared executor:
 
 This keeps feature providers thin while avoiding duplicated resilience logic.
 
+Related ADRs:
+
+- `docs/adr/ADR-006-provider-fallback-strategy.md`
+- `docs/adr/ADR-007-provider-circuit-breaker.md`
+- `docs/adr/ADR-008-shared-provider-failover-executor.md`
+
 ---
 
 ## Design Principles
@@ -339,6 +358,17 @@ The architecture may evolve towards:
 - configurable retries
 - timeout handling for external provider calls
 - agent orchestration pipelines (multi-step workflows)
+
+## Related ADRs
+
+- `docs/adr/ADR-001-orchestrator-base-architecture.md`
+- `docs/adr/ADR-002-architectural-style.md`
+- `docs/adr/ADR-003-response-validation-strategy.md`
+- `docs/adr/ADR-004-feature-modules-in-nestjs.md`
+- `docs/adr/ADR-005-multi-provider-strategy.md`
+- `docs/adr/ADR-006-provider-fallback-strategy.md`
+- `docs/adr/ADR-007-provider-circuit-breaker.md`
+- `docs/adr/ADR-008-shared-provider-failover-executor.md`
 
 ---
 
