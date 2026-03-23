@@ -187,8 +187,10 @@ Notes about the current implementation:
 
 - `/plan` orchestrates `refine -> analyze`
 - structured output validation is enforced before returning AI responses
-- fallback/circuit breaker behavior is currently implemented for the analyze flow
+- fallback/circuit breaker behavior is implemented for both `analyze` and `refinement`
+- `ProviderFailoverExecutor` centralizes shared failover behavior across provider-enabled modules
 - `ClaudeAnalysisProvider` exists as a placeholder and is not implemented yet
+- `ClaudeRefinementProvider` exists as a placeholder and is not implemented yet
 
 Next step:
 

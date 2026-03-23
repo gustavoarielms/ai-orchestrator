@@ -172,7 +172,7 @@ Fallback behavior:
 - fallback attempts are logged and tracked via metrics  
 - if fallback also fails, the error is returned  
 
-Provider resolution and fallback orchestration are handled at module level (`AnalyzeModule`).
+Provider resolution is handled at module level (`AnalyzeModule`, `RefinementModule`), while shared failover coordination is delegated to `ProviderFailoverExecutor`.
 
 Current scope note:
 
