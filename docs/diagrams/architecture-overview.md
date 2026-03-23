@@ -16,41 +16,43 @@ flowchart TD
     AnalyzeUseCase --> AnalysisProvider[AnalysisProvider Port]
     AnalyzeController --> MetricsRecorder[MetricsRecorder Port]
     AnalyzeUseCase --> MetricsRecorder
+    AnalysisProvider --> AnalyzeFallbackProvider[FallbackAnalysisProvider]
+    AnalyzeFallbackProvider --> FailoverExecutor[ProviderFailoverExecutor]
+    AnalyzeFallbackProvider --> AnalyzePrimary[Primary Analysis Provider]
+    AnalyzeFallbackProvider --> AnalyzeFallback[Fallback Analysis Provider]
+    AnalyzePrimary --> OpenAIProvider[OpenAiAnalysisProvider]
+    AnalyzePrimary --> ClaudeProvider[ClaudeAnalysisProvider]
+    AnalyzeFallback --> OpenAIProvider
+    AnalyzeFallback --> ClaudeProvider
+    OpenAIProvider --> AnalyzeExecutor[OpenAiStructuredExecutor]
+    AnalyzeExecutor --> OpenAI[OpenAI API]
 
     RefinementModule --> RefinementController[RefinementController]
     RefinementController --> RefineUseCase[RefineUseCase]
     RefineUseCase --> RefinementProvider[RefinementProvider Port]
-    RefinementProvider --> OpenAiRefinementProvider[OpenAiRefinementProvider]
+    RefinementProvider --> RefinementFallbackProvider[FallbackRefinementProvider]
+    RefinementFallbackProvider --> FailoverExecutor
+    RefinementFallbackProvider --> RefinementPrimary[Primary Refinement Provider]
+    RefinementFallbackProvider --> RefinementFallback[Fallback Refinement Provider]
+    RefinementPrimary --> OpenAiRefinementProvider[OpenAiRefinementProvider]
+    RefinementPrimary --> ClaudeRefinementProvider[ClaudeRefinementProvider]
+    RefinementFallback --> OpenAiRefinementProvider
+    RefinementFallback --> ClaudeRefinementProvider
     OpenAiRefinementProvider --> RefinementExecutor[OpenAiStructuredExecutor]
-    RefinementExecutor --> OpenAI[OpenAI API]
+    RefinementExecutor --> OpenAI
 
     PlanningModule --> PlanningController[PlanningController]
     PlanningController --> PlanUseCase[PlanRequirementUseCase]
     PlanUseCase --> RefineUseCase
     PlanUseCase --> AnalyzeUseCase
 
-    AnalysisProvider --> FallbackProvider[FallbackAnalysisProvider]
-
-    FallbackProvider --> CircuitBreaker[CircuitBreaker Port]
-    CircuitBreaker --> InMemoryCircuitBreaker[InMemoryCircuitBreakerService]
-
-    FallbackProvider --> PrimaryProvider[Primary Provider]
-    FallbackProvider --> SecondaryProvider[Fallback Provider]
-
-    PrimaryProvider --> OpenAIProvider[OpenAiAnalysisProvider]
-    PrimaryProvider --> ClaudeProvider[ClaudeAnalysisProvider]
-
-    SecondaryProvider --> OpenAIProvider
-    SecondaryProvider --> ClaudeProvider
-
-    OpenAIProvider --> AnalyzeExecutor[OpenAiStructuredExecutor]
-    AnalyzeExecutor --> OpenAI
-
     SystemModule --> HealthController[HealthController]
     SystemModule --> MetricsController[MetricsController]
     SystemModule --> ResilienceController[ResilienceController]
 
     MetricsRecorder --> InMemoryMetrics[InMemoryMetricsService]
-    ResilienceController --> CircuitBreaker
-    FallbackProvider --> MetricsRecorder
+    ResilienceController --> CircuitBreaker[CircuitBreaker Port]
+    CircuitBreaker --> InMemoryCircuitBreaker[InMemoryCircuitBreakerService]
+    FailoverExecutor --> MetricsRecorder
+    FailoverExecutor --> CircuitBreaker
 ```

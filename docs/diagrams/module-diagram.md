@@ -19,6 +19,8 @@ flowchart LR
     RefinementModule --> RefinementController
     RefinementModule --> RefineUseCase
     RefinementModule --> OpenAiRefinementProvider
+    RefinementModule --> ClaudeRefinementProvider
+    RefinementModule --> FallbackRefinementProvider
     RefinementModule --> OpenAiStructuredExecutor
 
     PlanningModule --> PlanningController
@@ -33,4 +35,5 @@ flowchart LR
 
     ResilienceModule --> CircuitBreaker
     ResilienceModule --> InMemoryCircuitBreakerService
+    ResilienceModule --> ProviderFailoverExecutor
 ```
