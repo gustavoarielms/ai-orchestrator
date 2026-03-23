@@ -20,16 +20,46 @@ Initially, only OpenAI is used. However, there is a need to:
 
 ## Decision
 
-The system adopts a **provider-based strategy** using a shared port:
+The system adopts a **provider-based strategy** using feature-level provider ports:
 
 - `AnalysisProvider`
+- `RefinementProvider`
 
-Each provider implements this interface:
+Concrete providers implement the corresponding feature port:
 
 - `OpenAiAnalysisProvider`
 - `ClaudeAnalysisProvider` (initially not implemented)
+- `OpenAiRefinementProvider`
+- `ClaudeRefinementProvider` (initially not implemented)
 
 The active provider is selected through configuration:
 
 ```env
 AI_PROVIDER=openai | claude
+```
+
+This strategy allows feature modules to remain provider-agnostic at the application layer while selecting the active implementation through infrastructure wiring.
+
+---
+
+## Consequences
+
+### Positive
+
+- avoids coupling application use cases to a single AI vendor
+- allows feature modules to evolve independently while preserving a consistent provider pattern
+- enables future reuse of shared failover and resilience infrastructure
+
+### Negative
+
+- adds more provider wiring at module level
+- requires keeping contracts aligned across multiple provider implementations
+
+---
+
+## Notes
+
+This ADR establishes the provider-based direction. Fallback orchestration and shared failover extraction are described separately in:
+
+- `ADR-006-provider-fallback-strategy.md`
+- `ADR-008-shared-provider-failover-executor.md`
