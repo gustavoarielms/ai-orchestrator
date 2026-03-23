@@ -1,8 +1,7 @@
 import { ServiceUnavailableException } from "@nestjs/common";
 import { FallbackAnalysisProvider } from "./fallback-analysis.provider";
 import { AnalysisProvider } from "../../application/ports/analysis.provider";
-import { MetricsRecorder } from "../../../../shared/metrics/ports/metrics-recorder";
-import { CircuitBreaker } from "../../../../shared/resilience/ports/circuit-breaker";
+import { ProviderFailoverExecutor } from "../../../../shared/resilience/executors/provider-failover-executor";
 
 jest.mock("../../../../config/app.config", () => ({
   appConfig: {
@@ -19,8 +18,7 @@ import { appConfig } from "../../../../config/app.config";
 describe("FallbackAnalysisProvider", () => {
   let primaryProvider: jest.Mocked<AnalysisProvider>;
   let fallbackProvider: jest.Mocked<AnalysisProvider>;
-  let metricsRecorder: jest.Mocked<MetricsRecorder>;
-  let circuitBreaker: jest.Mocked<CircuitBreaker>;
+  let providerFailoverExecutor: jest.Mocked<ProviderFailoverExecutor>;
   let provider: FallbackAnalysisProvider;
 
   beforeEach(() => {
@@ -32,86 +30,104 @@ describe("FallbackAnalysisProvider", () => {
       analyze: jest.fn()
     };
 
-    metricsRecorder = {
-      incrementRequest: jest.fn(),
-      incrementError: jest.fn(),
-      incrementRetry: jest.fn(),
-      incrementFallback: jest.fn(),
-      recordLatency: jest.fn(),
-      getMetrics: jest.fn()
-    };
-
-    circuitBreaker = {
-      canExecute: jest.fn().mockReturnValue(true),
-      recordSuccess: jest.fn(),
-      recordFailure: jest.fn(),
-      getState: jest.fn().mockReturnValue({
-        provider: "openai",
-        state: "open",
-        failureCount: 3,
-        openedAt: Date.now()
-      }),
-      getAllStates: jest.fn()
-    };
+    providerFailoverExecutor = {
+      execute: jest.fn()
+    } as unknown as jest.Mocked<ProviderFailoverExecutor>;
 
     provider = new FallbackAnalysisProvider(
       primaryProvider,
       fallbackProvider,
-      metricsRecorder,
-      circuitBreaker
+      providerFailoverExecutor
     );
 
     jest.clearAllMocks();
   });
 
   it("should return primary provider response when successful", async () => {
-    primaryProvider.analyze.mockResolvedValue({
+    const response = {
+      userStory: "As a user...",
+      acceptanceCriteria: ["Criterion 1"],
+      tasks: ["Task 1"]
+    };
+    providerFailoverExecutor.execute.mockResolvedValue(response);
+
+    const result = await provider.analyze({ text: "implement OTP login" });
+
+    expect(providerFailoverExecutor.execute).toHaveBeenCalledWith({
+      primaryProviderName: "openai",
+      fallbackProviderName: "claude",
+      fallbackEnabled: true,
+      executePrimary: expect.any(Function),
+      executeFallback: expect.any(Function)
+    });
+    expect(result.userStory).toBe("As a user...");
+  });
+
+  it("should pass current config to executor when fallback is disabled", async () => {
+    (appConfig.fallback as any).enabled = false;
+    providerFailoverExecutor.execute.mockResolvedValue({
       userStory: "As a user...",
       acceptanceCriteria: ["Criterion 1"],
       tasks: ["Task 1"]
     });
 
-    const result = await provider.analyze({ text: "implement OTP login" });
+    await provider.analyze({ text: "implement OTP login" });
 
-    expect(primaryProvider.analyze).toHaveBeenCalledTimes(1);
-    expect(fallbackProvider.analyze).not.toHaveBeenCalled();
-    expect(circuitBreaker.recordSuccess).toHaveBeenCalledWith("openai");
-    expect(result.userStory).toBe("As a user...");
-  });
-
-  it("should not fallback when fallback.enabled = false", async () => {
-    (appConfig.fallback as any).enabled = false;
-
-    const error = new Error("Primary failed");
-    primaryProvider.analyze.mockRejectedValue(error);
-
-    await expect(
-      provider.analyze({ text: "implement OTP login" })
-    ).rejects.toBe(error);
-
-    expect(primaryProvider.analyze).toHaveBeenCalledTimes(1);
-    expect(fallbackProvider.analyze).not.toHaveBeenCalled();
-    expect(metricsRecorder.incrementFallback).not.toHaveBeenCalled();
-    expect(circuitBreaker.recordFailure).toHaveBeenCalledWith("openai");
+    expect(providerFailoverExecutor.execute).toHaveBeenCalledWith({
+      primaryProviderName: "openai",
+      fallbackProviderName: "claude",
+      fallbackEnabled: false,
+      executePrimary: expect.any(Function),
+      executeFallback: expect.any(Function)
+    });
 
     (appConfig.fallback as any).enabled = true;
   });
 
-  it("should throw 503 when primary circuit is open", async () => {
-    circuitBreaker.canExecute.mockReturnValue(false);
+  it("should propagate 503 when executor rejects because circuit is open", async () => {
+    providerFailoverExecutor.execute.mockRejectedValue(
+      new ServiceUnavailableException()
+    );
 
     await expect(
       provider.analyze({ text: "implement OTP login" })
     ).rejects.toBeInstanceOf(ServiceUnavailableException);
-
-    expect(primaryProvider.analyze).not.toHaveBeenCalled();
-    expect(fallbackProvider.analyze).not.toHaveBeenCalled();
-    expect(metricsRecorder.incrementFallback).not.toHaveBeenCalled();
   });
 
-  it("should fallback when primary provider fails", async () => {
-    primaryProvider.analyze.mockRejectedValue(new Error("Primary failed"));
+  it("should propagate successful executor result", async () => {
+    providerFailoverExecutor.execute.mockResolvedValue({
+      userStory: "Fallback user story",
+      acceptanceCriteria: ["Fallback criterion"],
+      tasks: ["Fallback task"]
+    });
 
+    const result = await provider.analyze({ text: "implement OTP login" });
+
+    expect(result.userStory).toBe("Fallback user story");
+  });
+
+  it("should propagate fallback error when executor fails", async () => {
+    const fallbackError = new Error("Fallback failed");
+    providerFailoverExecutor.execute.mockRejectedValue(fallbackError);
+
+    await expect(
+      provider.analyze({ text: "implement OTP login" })
+    ).rejects.toBe(fallbackError);
+  });
+
+  it("should wire primary and fallback executions to the executor", async () => {
+    providerFailoverExecutor.execute.mockImplementation(async (params) => {
+      const primaryResult = await params.executePrimary();
+      const fallbackResult = await params.executeFallback();
+
+      return fallbackResult ?? primaryResult;
+    });
+
+    primaryProvider.analyze.mockResolvedValue({
+      userStory: "Primary user story",
+      acceptanceCriteria: ["Primary criterion"],
+      tasks: ["Primary task"]
+    });
     fallbackProvider.analyze.mockResolvedValue({
       userStory: "Fallback user story",
       acceptanceCriteria: ["Fallback criterion"],
@@ -120,67 +136,12 @@ describe("FallbackAnalysisProvider", () => {
 
     const result = await provider.analyze({ text: "implement OTP login" });
 
-    expect(primaryProvider.analyze).toHaveBeenCalledTimes(1);
-    expect(fallbackProvider.analyze).toHaveBeenCalledTimes(1);
-    expect(metricsRecorder.incrementFallback).toHaveBeenCalledTimes(1);
-    expect(circuitBreaker.recordFailure).toHaveBeenCalledWith("openai");
-    expect(circuitBreaker.recordSuccess).toHaveBeenCalledWith("claude");
-    expect(result.userStory).toBe("Fallback user story");
-  });
-
-  it("should propagate fallback error when fallback provider also fails", async () => {
-    primaryProvider.analyze.mockRejectedValue(new Error("Primary failed"));
-    const fallbackError = new Error("Fallback failed");
-    fallbackProvider.analyze.mockRejectedValue(fallbackError);
-
-    await expect(
-      provider.analyze({ text: "implement OTP login" })
-    ).rejects.toBe(fallbackError);
-
-    expect(primaryProvider.analyze).toHaveBeenCalledTimes(1);
-    expect(fallbackProvider.analyze).toHaveBeenCalledTimes(1);
-    expect(metricsRecorder.incrementFallback).toHaveBeenCalledTimes(1);
-  });
-
-  it("should recordFailure for fallback provider when secondary fails", async () => {
-    primaryProvider.analyze.mockRejectedValue(new Error("Primary failed"));
-    fallbackProvider.analyze.mockRejectedValue(new Error("Fallback failed"));
-
-    await expect(
-      provider.analyze({ text: "implement OTP login" })
-    ).rejects.toThrow("Fallback failed");
-
-    expect(circuitBreaker.recordFailure).toHaveBeenCalledWith("openai");
-    expect(circuitBreaker.recordFailure).toHaveBeenCalledWith("claude");
-  });
-
-  it("should not increment fallback if request is rejected before trying fallback provider", async () => {
-    primaryProvider.analyze.mockRejectedValue(new Error("Primary failed"));
-
-    circuitBreaker.canExecute.mockImplementation((providerName: string) => {
-      if (providerName === "openai") {
-        return true;
-      }
-
-      return false;
+    expect(primaryProvider.analyze).toHaveBeenCalledWith({
+      text: "implement OTP login"
     });
-
-    await expect(
-      provider.analyze({ text: "implement OTP login" })
-    ).rejects.toBeInstanceOf(ServiceUnavailableException);
-
-    expect(fallbackProvider.analyze).not.toHaveBeenCalled();
-    expect(metricsRecorder.incrementFallback).not.toHaveBeenCalled();
-  });
-
-  it("should not recordFailure when request is rejected because primary circuit is already open", async () => {
-    circuitBreaker.canExecute.mockReturnValue(false);
-
-    await expect(
-      provider.analyze({ text: "implement OTP login" })
-    ).rejects.toBeInstanceOf(ServiceUnavailableException);
-
-    expect(circuitBreaker.recordFailure).not.toHaveBeenCalled();
-    expect(primaryProvider.analyze).not.toHaveBeenCalled();
+    expect(fallbackProvider.analyze).toHaveBeenCalledWith({
+      text: "implement OTP login"
+    });
+    expect(result.userStory).toBe("Fallback user story");
   });
 });
