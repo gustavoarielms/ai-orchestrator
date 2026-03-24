@@ -5,11 +5,13 @@ import { PlanningModule } from "./modules/planning/planning.module";
 import { SystemModule } from "./modules/system/system.module";
 import { MetricsModule } from "./shared/metrics/metrics.module";
 import { ResilienceModule } from "./shared/resilience/resilience.module";
+import { AiModule } from "./shared/ai/ai.module";
 
 @Module({
   imports: [
     MetricsModule,
     ResilienceModule,
+    AiModule,
     AnalyzeModule,
     RefinementModule,
     PlanningModule,

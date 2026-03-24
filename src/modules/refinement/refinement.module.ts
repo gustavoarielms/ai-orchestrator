@@ -5,59 +5,72 @@ import { OpenAiRefinementProvider } from "./infrastructure/openai-refinement.pro
 import { ClaudeRefinementProvider } from "./infrastructure/claude-refinement.provider";
 import { FallbackRefinementProvider } from "./infrastructure/fallback-refinement.provider";
 import { REFINEMENT_PROVIDER } from "./application/tokens/refinement-provider.token";
-import { appConfig } from "../../config/app.config";
 import { ResilienceModule } from "../../shared/resilience/resilience.module";
-import { OpenAiStructuredExecutor } from "../../shared/ai/openai/openai-structured-executor";
+import { AiModule } from "../../shared/ai/ai.module";
+import { AiProviderResolver } from "../../shared/ai/providers/ai-provider-resolver";
 
 @Module({
-  imports: [ResilienceModule],
+  imports: [ResilienceModule, AiModule],
   controllers: [RefinementController],
   providers: [
     RefineUseCase,
-    OpenAiStructuredExecutor,
     OpenAiRefinementProvider,
     ClaudeRefinementProvider,
     FallbackRefinementProvider,
     {
       provide: "PRIMARY_REFINEMENT_PROVIDER",
       useFactory: (
+        aiProviderResolver: AiProviderResolver,
         openAiRefinementProvider: OpenAiRefinementProvider,
         claudeRefinementProvider: ClaudeRefinementProvider
       ) => {
-        return appConfig.aiProvider === "claude"
-          ? claudeRefinementProvider
-          : openAiRefinementProvider;
+        return aiProviderResolver.resolvePrimary({
+          openai: openAiRefinementProvider,
+          claude: claudeRefinementProvider
+        });
       },
-      inject: [OpenAiRefinementProvider, ClaudeRefinementProvider]
+      inject: [
+        AiProviderResolver,
+        OpenAiRefinementProvider,
+        ClaudeRefinementProvider
+      ]
     },
     {
       provide: "FALLBACK_REFINEMENT_PROVIDER",
       useFactory: (
+        aiProviderResolver: AiProviderResolver,
         openAiRefinementProvider: OpenAiRefinementProvider,
         claudeRefinementProvider: ClaudeRefinementProvider
       ) => {
-        return appConfig.fallback.provider === "openai"
-          ? openAiRefinementProvider
-          : claudeRefinementProvider;
+        return aiProviderResolver.resolveFallback({
+          openai: openAiRefinementProvider,
+          claude: claudeRefinementProvider
+        });
       },
-      inject: [OpenAiRefinementProvider, ClaudeRefinementProvider]
+      inject: [
+        AiProviderResolver,
+        OpenAiRefinementProvider,
+        ClaudeRefinementProvider
+      ]
     },
     {
       provide: REFINEMENT_PROVIDER,
       useFactory: (
+        aiProviderResolver: AiProviderResolver,
         fallbackRefinementProvider: FallbackRefinementProvider,
         primaryProvider: OpenAiRefinementProvider | ClaudeRefinementProvider
       ) => {
-        if (
-          appConfig.fallback.enabled &&
-          appConfig.aiProvider !== appConfig.fallback.provider
-        ) {
+        if (aiProviderResolver.shouldUseFallback()) {
           return fallbackRefinementProvider;
         }
 
         return primaryProvider;
       },
-      inject: [FallbackRefinementProvider, "PRIMARY_REFINEMENT_PROVIDER"]
+      inject: [
+        AiProviderResolver,
+        FallbackRefinementProvider,
+        "PRIMARY_REFINEMENT_PROVIDER"
+      ]
     }
   ],
   exports: [RefineUseCase]

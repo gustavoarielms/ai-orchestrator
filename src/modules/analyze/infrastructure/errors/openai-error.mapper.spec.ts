@@ -50,7 +50,7 @@ describe("openai-error.mapper", () => {
       message: "Request timed out"
     };
 
-    const mapped = mapOpenAiErrorToHttpException(error) as any;
+    const mapped = mapOpenAiErrorToHttpException(error, "analyze_request") as any;
 
     expect(mapped.response.statusCode).toBe(504);
     expect(mapped.response.code).toBe("openai_timeout");

@@ -1,15 +1,20 @@
 import {
   BadRequestException,
-  HttpException,
-  HttpStatus,
+  Inject,
   Injectable,
-  InternalServerErrorException,
-  UnauthorizedException
+  InternalServerErrorException
 } from "@nestjs/common";
 import { ZodSchema } from "zod";
 import { openai } from "../../openai/openai.client";
 import { appConfig } from "../../../config/app.config";
 import { Logger } from "../../logger/logger";
+import { MetricsRecorder } from "../../metrics/ports/metrics-recorder";
+import { METRICS_RECORDER } from "../../metrics/tokens/metrics-recorder.token";
+import {
+  extractErrorCode,
+  mapOpenAiErrorToHttpException,
+  shouldRetryOpenAiError
+} from "./errors/openai-error.mapper";
 import {
   ExecuteStructuredOpenAiParams,
   OpenAiPromptMessage
@@ -17,76 +22,67 @@ import {
 
 @Injectable()
 export class OpenAiStructuredExecutor {
+  constructor(
+    @Inject(METRICS_RECORDER)
+    private readonly metricsRecorder: MetricsRecorder
+  ) {}
+
   async execute<T>({
     operationName,
     prompt,
     schema
   }: ExecuteStructuredOpenAiParams<T>): Promise<T> {
-    try {
-      Logger.log(`Calling OpenAI for ${operationName}`, {
-        timeoutMs: appConfig.openai.timeoutMs
-      });
+    const maxAttempts = appConfig.openai.maxAttempts;
 
-      const response = await openai.responses.create(
-        {
-          model: appConfig.openai.model,
-          input: prompt as Array<{ role: "system" | "user"; content: string }>
-        },
-        {
-          timeout: appConfig.openai.timeoutMs
-        }
-      );
-
-      const outputText = response.output_text ?? "";
-      return this.parseStructuredResponse(outputText, schema, operationName);
-    } catch (error: any) {
-      Logger.error(`OpenAI ${operationName} executor error`, {
-        error: error?.message,
-        status: error?.status,
-        code: error?.code,
-        name: error?.name
-      });
-
-      if (error?.status === 429 && error?.code === "insufficient_quota") {
-        throw new HttpException(
-          {
-            statusCode: HttpStatus.TOO_MANY_REQUESTS,
-            message: "OpenAI quota exceeded. Check billing or API usage limits.",
-            code: "openai_insufficient_quota"
-          },
-          HttpStatus.TOO_MANY_REQUESTS
-        );
-      }
-
-      if (error?.status === 429) {
-        throw new HttpException(
-          {
-            statusCode: HttpStatus.TOO_MANY_REQUESTS,
-            message: "OpenAI rate limit exceeded. Please try again later.",
-            code: "openai_rate_limit_exceeded"
-          },
-          HttpStatus.TOO_MANY_REQUESTS
-        );
-      }
-
-      if (error?.status === 401) {
-        throw new UnauthorizedException({
-          statusCode: HttpStatus.UNAUTHORIZED,
-          message: "OpenAI authentication failed. Check API key configuration.",
-          code: "openai_authentication_failed"
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        Logger.log(`Calling OpenAI for ${operationName}`, {
+          attempt,
+          timeoutMs: appConfig.openai.timeoutMs
         });
-      }
 
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+        const response = await openai.responses.create(
+          {
+            model: appConfig.openai.model,
+            input: prompt as Array<{ role: "system" | "user"; content: string }>
+          },
+          {
+            timeout: appConfig.openai.timeoutMs
+          }
+        );
 
-      throw new InternalServerErrorException({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: `Failed to execute ${operationName}.`,
-        code: `${operationName}_failed`
-      });
+        const outputText = response.output_text ?? "";
+        return this.parseStructuredResponse(outputText, schema, operationName);
+      } catch (error: any) {
+        Logger.error(`OpenAI ${operationName} executor error`, {
+          attempt,
+          error: error?.message,
+          status: error?.status,
+          code: error?.code,
+          name: error?.name
+        });
+
+        if (shouldRetryOpenAiError(error) && attempt < maxAttempts) {
+          this.metricsRecorder.incrementRetry();
+
+          Logger.log("Retrying due to recoverable model output error", {
+            operationName,
+            attempt,
+            errorCode: extractErrorCode(error)
+          });
+
+          continue;
+        }
+
+        throw mapOpenAiErrorToHttpException(error, operationName);
+      }
     }
+
+    throw new InternalServerErrorException({
+      statusCode: 500,
+      message: `Failed to execute ${operationName} after retry attempts.`,
+      code: `${operationName}_failed_after_retries`
+    });
   }
 
   private parseStructuredResponse<T>(
