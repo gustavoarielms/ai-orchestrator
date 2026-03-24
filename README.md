@@ -16,15 +16,17 @@ Reduce friction between an initial idea and its implementation by using AI agent
 
 The MVP currently supports:
 
-- Five endpoints:
+- Six endpoints:
   - `POST /analyze`
   - `POST /refine`
+  - `POST /development`
   - `POST /technical-design`
   - `POST /task-breakdown`
   - `POST /plan`
-- Four initial agents:
+- Five initial agents:
   - `AnalysisAgent`
   - `RefinementAgent`
+  - `DevelopmentAgent`
   - `TechnicalDesignAgent`
   - `TaskBreakdownAgent`
 - Input: free text
@@ -95,6 +97,28 @@ The MVP currently supports:
       "rolloutPlan": ["..."]
     }
 
+**Development (code-oriented perspective):**
+
+    {
+      "filesToChange": ["..."],
+      "codeChanges": [
+        {
+          "file": "...",
+          "changeType": "create|update",
+          "summary": "...",
+          "content": "..."
+        }
+      ],
+      "testsToAdd": [
+        {
+          "file": "...",
+          "summary": "...",
+          "content": "..."
+        }
+      ],
+      "notes": ["..."]
+    }
+
 **Task Breakdown (execution perspective):**
 
     {
@@ -155,6 +179,7 @@ The system currently includes:
 
 - `RefinementAgent` → functional definition (problem, goal, user story, acceptance criteria, edge cases)
 - `AnalysisAgent` → technical analysis (user story, acceptance criteria, tasks)
+- `DevelopmentAgent` → concrete code-oriented implementation proposal (files, changes, tests, notes)
 - `TechnicalDesignAgent` → architecture definition (architecture, components, risks, observability, rollout plan)
 - `TaskBreakdownAgent` → executable delivery plan (tasks, technical approach, tests, definition of done)
 
@@ -164,11 +189,13 @@ These agents can be composed through orchestration flows to produce consolidated
 
 ## 📦 Contracts
 
-All endpoints share a common input:
+Most endpoints share a common input:
 
     {
       "text": "string"
     }
+
+`POST /development` uses a structured input composed of `analysis`, `technicalDesign`, `taskBreakdown`, and `implementationContext`.
 
 Outputs are strictly validated JSON structures defined per endpoint.
 
@@ -221,6 +248,7 @@ Current capabilities:
 
 - requirement refinement (`/refine`)
 - technical analysis (`/analyze`)
+- development generation (`/development`)
 - technical design generation (`/technical-design`)
 - task breakdown generation (`/task-breakdown`)
 - provider abstraction for AI execution
@@ -236,6 +264,7 @@ Notes about the current implementation:
 - `/plan` also returns a deterministic executive summary built from the structured outputs
 - structured output validation is enforced before returning AI responses
 - `technical-design` is implemented as its own provider-backed feature module
+- `development` is implemented as its own provider-backed feature module
 - `task-breakdown` is implemented as its own provider-backed feature module
 - `OpenAiStructuredExecutor` centralizes shared OpenAI retry, parsing, and error mapping
 - fallback/circuit breaker behavior is implemented for both `analyze` and `refinement`
@@ -243,6 +272,7 @@ Notes about the current implementation:
 - `AiProviderResolver` centralizes provider selection across provider-enabled modules
 - `ClaudeAnalysisProvider` exists as a placeholder and is not implemented yet
 - `ClaudeRefinementProvider` exists as a placeholder and is not implemented yet
+- `ClaudeDevelopmentProvider` exists as a placeholder and is not implemented yet
 - `ClaudeTechnicalDesignProvider` exists as a placeholder and is not implemented yet
 - `ClaudeTaskBreakdownProvider` exists as a placeholder and is not implemented yet
 

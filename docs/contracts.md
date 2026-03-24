@@ -94,6 +94,48 @@ POST `/technical-design`
 
 ### Endpoint
 
+POST `/development`
+
+### Request Body
+
+    {
+      "analysis": {
+        "userStory": "string",
+        "acceptanceCriteria": ["string"],
+        "tasks": ["string"]
+      },
+      "technicalDesign": {
+        "architecture": "string",
+        "components": ["string"],
+        "risks": ["string"],
+        "observability": ["string"],
+        "rolloutPlan": ["string"]
+      },
+      "taskBreakdown": {
+        "tasks": ["string"],
+        "technicalApproach": "string",
+        "tests": ["string"],
+        "definitionOfDone": ["string"]
+      },
+      "implementationContext": {
+        "framework": "nestjs",
+        "language": "typescript",
+        "testingFramework": "jest",
+        "architectureStyle": "modular",
+        "logging": "nestjs-logger"
+      }
+    }
+
+### Rules
+
+- `analysis`, `technicalDesign`, `taskBreakdown`, and `implementationContext` are required
+- All nested fields must be present and typed correctly
+- Represents a structured delivery scope that should be converted into executable development changes
+
+---
+
+### Endpoint
+
 POST `/task-breakdown`
 
 ### Request Body
@@ -310,6 +352,59 @@ POST `/technical-design`
 #### rolloutPlan
 
 - Ordered deployment or rollout considerations
+- Each item must be a clear non-empty string
+- Must not contain empty values
+
+---
+
+### Endpoint
+
+POST `/development`
+
+### Response Body
+
+    {
+      "filesToChange": ["string"],
+      "codeChanges": [
+        {
+          "file": "string",
+          "changeType": "create",
+          "summary": "string",
+          "content": "string"
+        }
+      ],
+      "testsToAdd": [
+        {
+          "file": "string",
+          "summary": "string",
+          "content": "string"
+        }
+      ],
+      "notes": ["string"]
+    }
+
+### Field Definitions
+
+#### filesToChange
+
+- List of files expected to be created or updated
+- Each item must be a clear non-empty string
+- Must not contain empty values
+
+#### codeChanges
+
+- Concrete file-level implementation changes
+- Each item must include `file`, `changeType`, `summary`, and `content`
+- `changeType` must be either `create` or `update`
+
+#### testsToAdd
+
+- Concrete tests that should be added
+- Each item must include `file`, `summary`, and `content`
+
+#### notes
+
+- Additional implementation notes or caveats
 - Each item must be a clear non-empty string
 - Must not contain empty values
 
