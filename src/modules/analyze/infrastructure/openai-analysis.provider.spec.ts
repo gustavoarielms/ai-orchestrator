@@ -11,10 +11,10 @@ jest.mock("../../../config/app.config", () => ({
   }
 }));
 
-import { BadRequestException, HttpException } from "@nestjs/common";
 import { OpenAiAnalysisProvider } from "./openai-analysis.provider";
-import { MetricsRecorder } from "../../../shared/metrics/ports/metrics-recorder";
 import { OpenAiStructuredExecutor } from "../../../shared/ai/openai/openai-structured-executor";
+import { buildAnalyzePrompt } from "./prompts/analyze.prompt";
+import { AnalyzeResponseSchema } from "../domain/analyze.schema";
 
 type MockOpenAiStructuredExecutor = Pick<
   jest.Mocked<OpenAiStructuredExecutor>,
@@ -23,101 +23,100 @@ type MockOpenAiStructuredExecutor = Pick<
 
 describe("OpenAiAnalysisProvider", () => {
   let provider: OpenAiAnalysisProvider;
-  let consoleErrorSpy: jest.SpyInstance;
-  let metricsRecorder: jest.Mocked<MetricsRecorder>;
   let openAiStructuredExecutor: MockOpenAiStructuredExecutor;
 
   beforeEach(() => {
-    metricsRecorder = {
-      incrementRequest: jest.fn(),
-      incrementError: jest.fn(),
-      incrementRetry: jest.fn(),
-      recordLatency: jest.fn(),
-      getMetrics: jest.fn(),
-      incrementFallback: jest.fn(),
-    };
-
     jest.clearAllMocks();
-    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     openAiStructuredExecutor = {
       execute: jest.fn()
     };
     provider = new OpenAiAnalysisProvider(
-      metricsRecorder,
       openAiStructuredExecutor as unknown as OpenAiStructuredExecutor
     );
   });
 
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
-  });
-
-  it("should return parsed response when model output is valid", async () => {
+  it("should call OpenAiStructuredExecutor.execute", async () => {
     openAiStructuredExecutor.execute.mockResolvedValue({
       userStory: "As a user, I want OTP login",
       acceptanceCriteria: ["OTP is sent"],
       tasks: ["Create endpoint"]
     });
 
-    const result = await provider.analyze({ text: "implement OTP login" });
+    await provider.analyze({ text: "implement OTP login" });
 
-    expect(result).toEqual({
+    expect(openAiStructuredExecutor.execute).toHaveBeenCalledTimes(1);
+  });
+
+  it('should use operationName = "analyze_request"', async () => {
+    openAiStructuredExecutor.execute.mockResolvedValue({
       userStory: "As a user, I want OTP login",
       acceptanceCriteria: ["OTP is sent"],
       tasks: ["Create endpoint"]
     });
+
+    await provider.analyze({ text: "implement OTP login" });
+
+    expect(openAiStructuredExecutor.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        operationName: "analyze_request"
+      })
+    );
   });
 
-  it("should retry once when model output is invalid", async () => {
-    openAiStructuredExecutor.execute
-      .mockRejectedValueOnce(
-        new BadRequestException({
-          statusCode: 400,
-          message: "Model returned malformed JSON.",
-          code: "openai_malformed_json"
-        })
-      )
-      .mockResolvedValueOnce({
-        userStory: "As a user, I want OTP login",
-        acceptanceCriteria: ["OTP is sent"],
-        tasks: ["Create endpoint"]
-      });
+  it("should use buildAnalyzePrompt(input)", async () => {
+    openAiStructuredExecutor.execute.mockResolvedValue({
+      userStory: "As a user, I want OTP login",
+      acceptanceCriteria: ["OTP is sent"],
+      tasks: ["Create endpoint"]
+    });
+
+    const input = { text: "implement OTP login" };
+
+    await provider.analyze(input);
+
+    expect(openAiStructuredExecutor.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        prompt: buildAnalyzePrompt(input)
+      })
+    );
+  });
+
+  it("should use AnalyzeResponseSchema", async () => {
+    openAiStructuredExecutor.execute.mockResolvedValue({
+      userStory: "As a user, I want OTP login",
+      acceptanceCriteria: ["OTP is sent"],
+      tasks: ["Create endpoint"]
+    });
+
+    await provider.analyze({ text: "implement OTP login" });
+
+    expect(openAiStructuredExecutor.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        schema: AnalyzeResponseSchema
+      })
+    );
+  });
+
+  it("should return executor result", async () => {
+    const expected = {
+      userStory: "As a user, I want OTP login",
+      acceptanceCriteria: ["OTP is sent"],
+      tasks: ["Create endpoint"]
+    };
+
+    openAiStructuredExecutor.execute.mockResolvedValue(expected);
 
     const result = await provider.analyze({ text: "implement OTP login" });
 
-    expect(openAiStructuredExecutor.execute).toHaveBeenCalledTimes(2);
-    expect(metricsRecorder.incrementRetry).toHaveBeenCalledTimes(1);
-    expect(result.userStory).toBe("As a user, I want OTP login");
+    expect(result).toEqual(expected);
   });
 
-  it("should not retry when quota is exceeded", async () => {
-    openAiStructuredExecutor.execute.mockRejectedValue({
-      status: 429,
-      code: "insufficient_quota"
-    });
+  it("should propagate executor errors", async () => {
+    const error = new Error("executor failed");
+    openAiStructuredExecutor.execute.mockRejectedValue(error);
 
     await expect(
       provider.analyze({ text: "implement OTP login" })
-    ).rejects.toBeInstanceOf(HttpException);
-
-    expect(openAiStructuredExecutor.execute).toHaveBeenCalledTimes(1);
-  });
-
-  it("should map timeout errors to gateway timeout", async () => {
-    openAiStructuredExecutor.execute.mockRejectedValue({
-      name: "APIConnectionTimeoutError",
-      message: "Request timed out"
-    });
-
-    await expect(
-      provider.analyze({ text: "implement OTP login" })
-    ).rejects.toMatchObject({
-      response: {
-        statusCode: 504,
-        code: "openai_timeout"
-      }
-    });
-
-    expect(openAiStructuredExecutor.execute).toHaveBeenCalledTimes(1);
+    ).rejects.toBe(error);
   });
 });
