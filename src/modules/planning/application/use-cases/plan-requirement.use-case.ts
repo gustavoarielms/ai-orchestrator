@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { RefineUseCase } from "../../../refinement/application/use-cases/refine.use-case";
 import { AnalyzeUseCase } from "../../../analyze/application/use-cases/analyze.use-case";
+import { TechnicalDesignUseCase } from "../../../technical-design/application/use-cases/technical-design.use-case";
 import { PlanRequest, PlanResponse } from "../../domain/planning.types";
 import { Logger } from "../../../../shared/logger/logger";
 
@@ -8,7 +9,8 @@ import { Logger } from "../../../../shared/logger/logger";
 export class PlanRequirementUseCase {
   constructor(
     private readonly refineUseCase: RefineUseCase,
-    private readonly analyzeUseCase: AnalyzeUseCase
+    private readonly analyzeUseCase: AnalyzeUseCase,
+    private readonly technicalDesignUseCase: TechnicalDesignUseCase
   ) {}
 
   async execute(input: PlanRequest): Promise<PlanResponse> {
@@ -29,11 +31,16 @@ export class PlanRequirementUseCase {
       text: enrichedAnalysisInput
     });
 
+    const technicalDesign = await this.technicalDesignUseCase.execute({
+      text: this.buildTechnicalDesignInput(analysis)
+    });
+
     Logger.log("Plan requirement use case completed");
 
     return {
       refinement,
-      analysis
+      analysis,
+      technicalDesign
     };
   }
 
@@ -44,6 +51,16 @@ export class PlanRequirementUseCase {
       `User Story: ${refinement.userStory}`,
       `Acceptance Criteria: ${refinement.acceptanceCriteria.join("; ")}`,
       `Edge Cases: ${refinement.edgeCases.join("; ")}`
+    ].join("\n");
+  }
+
+  private buildTechnicalDesignInput(
+    analysis: PlanResponse["analysis"]
+  ): string {
+    return [
+      `User Story: ${analysis.userStory}`,
+      `Acceptance Criteria: ${analysis.acceptanceCriteria.join("; ")}`,
+      `Tasks: ${analysis.tasks.join("; ")}`
     ].join("\n");
   }
 }
