@@ -61,6 +61,13 @@ The MVP currently supports:
         "userStory": "...",
         "acceptanceCriteria": ["..."],
         "tasks": ["..."]
+      },
+      "technicalDesign": {
+        "architecture": "...",
+        "components": ["..."],
+        "risks": ["..."],
+        "observability": ["..."],
+        "rolloutPlan": ["..."]
       }
     }
 
@@ -199,7 +206,7 @@ Current capabilities:
 
 Notes about the current implementation:
 
-- `/plan` orchestrates `refine -> analyze`
+- `/plan` orchestrates `refine -> analyze -> technical-design`
 - structured output validation is enforced before returning AI responses
 - `technical-design` is implemented as its own provider-backed feature module
 - `OpenAiStructuredExecutor` centralizes shared OpenAI retry, parsing, and error mapping

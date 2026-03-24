@@ -194,6 +194,13 @@ POST `/plan`
         "userStory": "string",
         "acceptanceCriteria": ["string"],
         "tasks": ["string"]
+      },
+      "technicalDesign": {
+        "architecture": "string",
+        "components": ["string"],
+        "risks": ["string"],
+        "observability": ["string"],
+        "rolloutPlan": ["string"]
       }
     }
 
@@ -209,6 +216,12 @@ POST `/plan`
 
 - Structured technical analysis result
 - Must follow the `/analyze` response contract exactly
+- Must not be null
+
+#### technicalDesign
+
+- Structured technical design result
+- Must follow the `/technical-design` response contract exactly
 - Must not be null
 
 ---

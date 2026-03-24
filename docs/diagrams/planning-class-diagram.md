@@ -21,12 +21,17 @@ classDiagram
       +execute(input)
     }
 
+    class TechnicalDesignUseCase {
+      +execute(input)
+    }
+
     class PlanRequest
     class PlanResponse
 
     PlanningController --> PlanRequirementUseCase
     PlanRequirementUseCase --> RefineUseCase
     PlanRequirementUseCase --> AnalyzeUseCase
+    PlanRequirementUseCase --> TechnicalDesignUseCase
 
     PlanningController --> PlanRequest
     PlanRequirementUseCase --> PlanRequest

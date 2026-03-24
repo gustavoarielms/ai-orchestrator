@@ -7,6 +7,7 @@ sequenceDiagram
     participant UseCase as PlanRequirementUseCase
     participant Refine as RefineUseCase
     participant Analyze as AnalyzeUseCase
+    participant Design as TechnicalDesignUseCase
 
     Client->>Controller: POST /plan
     Controller->>UseCase: execute(input)
@@ -19,10 +20,11 @@ sequenceDiagram
 
         alt analysis success
             Analyze-->>UseCase: AnalyzeResponse
+            UseCase->>Design: execute(analysis-derived input)
+            Design-->>UseCase: TechnicalDesignResponse
             UseCase-->>Controller: PlanResponse
             Controller-->>Client: 201 Created
-        else analysis failure
-            Analyze-->>UseCase: error
+        else analysis or technical design failure
             Controller-->>Client: error response
         end
     else refinement failure

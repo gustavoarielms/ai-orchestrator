@@ -133,6 +133,7 @@ Example flow:
 - `RefineUseCase` is executed
 - refinement output is transformed into enriched input
 - `AnalyzeUseCase` is executed
+- `TechnicalDesignUseCase` is executed using the analysis result as its source
 - a consolidated response is returned
 
 ### TechnicalDesignModule
