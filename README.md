@@ -178,6 +178,7 @@ Current capabilities:
 - requirement refinement (`/refine`)
 - technical analysis (`/analyze`)
 - provider abstraction for AI execution
+- shared AI layer for provider resolution and structured execution
 - fallback strategy for provider-enabled modules
 - circuit breaker for resilience
 - metrics and health visibility
@@ -187,8 +188,10 @@ Notes about the current implementation:
 
 - `/plan` orchestrates `refine -> analyze`
 - structured output validation is enforced before returning AI responses
+- `OpenAiStructuredExecutor` centralizes shared OpenAI retry, parsing, and error mapping
 - fallback/circuit breaker behavior is implemented for both `analyze` and `refinement`
 - `ProviderFailoverExecutor` centralizes shared failover behavior across provider-enabled modules
+- `AiProviderResolver` centralizes provider selection across provider-enabled modules
 - `ClaudeAnalysisProvider` exists as a placeholder and is not implemented yet
 - `ClaudeRefinementProvider` exists as a placeholder and is not implemented yet
 
@@ -196,4 +199,4 @@ Next step:
 
 - expand orchestration flows (multi-step pipelines)
 - refine provider defaults and placeholder-provider strategy
-- continue consolidating shared resilience and observability patterns
+- continue consolidating shared AI, resilience, and observability patterns

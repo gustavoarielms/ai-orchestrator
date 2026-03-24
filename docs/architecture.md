@@ -145,7 +145,13 @@ Current implementations include:
 - `OpenAiRefinementProvider` (default)
 - `ClaudeRefinementProvider` (placeholder)
 
-The active provider is selected via configuration:
+The shared AI layer includes:
+
+- `AiModule`
+- `AiProviderResolver`
+- `OpenAiStructuredExecutor`
+
+The active provider is selected via configuration through `AiProviderResolver`:
 
 AI_PROVIDER=openai | claude
 
@@ -172,12 +178,14 @@ Fallback behavior:
 - fallback attempts are logged and tracked via metrics  
 - if fallback also fails, the error is returned  
 
-Provider resolution is handled at module level (`AnalyzeModule`, `RefinementModule`), while shared failover coordination is delegated to `ProviderFailoverExecutor`.
+Provider selection is centralized in `AiProviderResolver`, while shared failover coordination is delegated to `ProviderFailoverExecutor`.
 
 Current scope note:
 
 - provider fallback and circuit breaker orchestration are implemented for both `analyze` and `refinement`
+- both modules resolve primary/fallback providers through `AiProviderResolver`
 - both modules delegate failover behavior to a shared `ProviderFailoverExecutor`
+- OpenAI retry and error mapping are delegated to `OpenAiStructuredExecutor`
 - `ClaudeAnalysisProvider` is currently a placeholder that returns `501 Not Implemented`
 - `ClaudeRefinementProvider` is currently a placeholder that returns `501 Not Implemented`
 
@@ -300,6 +308,7 @@ The system includes a shared execution layer for AI providers.
   - timeout handling
   - structured response parsing
   - schema validation
+  - retry for recoverable model-output errors
   - error mapping
 
 This prevents duplication across providers and ensures consistent behavior.
@@ -315,6 +324,10 @@ This design enables easier extension for future agents and shared configuration 
 
 The system also includes a shared resilience layer for provider failover.
 
+- `AiProviderResolver` centralizes:
+  - primary provider selection
+  - fallback provider selection
+  - feature-level fallback activation rules
 - `ProviderFailoverExecutor` centralizes:
   - primary/fallback execution order
   - circuit breaker checks

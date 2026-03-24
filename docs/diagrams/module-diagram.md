@@ -6,6 +6,7 @@ flowchart LR
     AppModule --> RefinementModule
     AppModule --> PlanningModule
     AppModule --> SystemModule
+    AppModule --> AiModule
     AppModule --> MetricsModule
     AppModule --> ResilienceModule
 
@@ -14,14 +15,17 @@ flowchart LR
     AnalyzeModule --> OpenAiAnalysisProvider
     AnalyzeModule --> ClaudeAnalysisProvider
     AnalyzeModule --> FallbackAnalysisProvider
-    AnalyzeModule --> OpenAiStructuredExecutor
+    AnalyzeModule --> AiProviderResolver
 
     RefinementModule --> RefinementController
     RefinementModule --> RefineUseCase
     RefinementModule --> OpenAiRefinementProvider
     RefinementModule --> ClaudeRefinementProvider
     RefinementModule --> FallbackRefinementProvider
-    RefinementModule --> OpenAiStructuredExecutor
+    RefinementModule --> AiProviderResolver
+
+    AiModule --> AiProviderResolver
+    AiModule --> OpenAiStructuredExecutor
 
     PlanningModule --> PlanningController
     PlanningModule --> PlanRequirementUseCase

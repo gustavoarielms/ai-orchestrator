@@ -8,6 +8,7 @@ flowchart TD
     App --> RefinementModule[RefinementModule]
     App --> PlanningModule[PlanningModule]
     App --> SystemModule[SystemModule]
+    App --> AiModule[AiModule]
     App --> MetricsModule[MetricsModule]
     App --> ResilienceModule[ResilienceModule]
 
@@ -16,6 +17,7 @@ flowchart TD
     AnalyzeUseCase --> AnalysisProvider[AnalysisProvider Port]
     AnalyzeController --> MetricsRecorder[MetricsRecorder Port]
     AnalyzeUseCase --> MetricsRecorder
+    AnalyzeModule --> AiResolver[AiProviderResolver]
     AnalysisProvider --> AnalyzeFallbackProvider[FallbackAnalysisProvider]
     AnalyzeFallbackProvider --> FailoverExecutor[ProviderFailoverExecutor]
     AnalyzeFallbackProvider --> AnalyzePrimary[Primary Analysis Provider]
@@ -30,6 +32,7 @@ flowchart TD
     RefinementModule --> RefinementController[RefinementController]
     RefinementController --> RefineUseCase[RefineUseCase]
     RefineUseCase --> RefinementProvider[RefinementProvider Port]
+    RefinementModule --> AiResolver
     RefinementProvider --> RefinementFallbackProvider[FallbackRefinementProvider]
     RefinementFallbackProvider --> FailoverExecutor
     RefinementFallbackProvider --> RefinementPrimary[Primary Refinement Provider]
