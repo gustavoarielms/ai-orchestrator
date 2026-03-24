@@ -10,7 +10,7 @@ export const EnvSchema = z.object({
   AI_PROVIDER: z.enum(["openai", "claude"]).default("openai"),
   AI_FALLBACK_PROVIDER: z.enum(["openai", "claude"]).default("claude"),
   AI_FALLBACK_ENABLED: z.preprocess(
-    (value) => (value === undefined ? "true" : value),
+    (value) => (value === undefined ? "false" : value),
     z.string().transform((value) => value === "true")
   ),
   AI_CIRCUIT_BREAKER_ENABLED: z.preprocess(
