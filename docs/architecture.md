@@ -70,6 +70,11 @@ Each module follows this structure:
         application/
         domain/
         infrastructure/
+      technical-design/
+        entrypoints/
+        application/
+        domain/
+        infrastructure/
       planning/
         entrypoints/
         application/
@@ -130,6 +135,21 @@ Example flow:
 - `AnalyzeUseCase` is executed
 - a consolidated response is returned
 
+### TechnicalDesignModule
+
+The `technical-design` domain is encapsulated as a dedicated feature module.
+
+It groups all components required for the technical design flow:
+
+- `TechnicalDesignController` (entrypoint)
+- `TechnicalDesignUseCase` (application logic)
+- `TechnicalDesignProvider` (port)
+- `OpenAiTechnicalDesignProvider` (infrastructure implementation)
+- `ClaudeTechnicalDesignProvider` (placeholder implementation)
+- `FallbackTechnicalDesignProvider` (failover wrapper)
+
+This module is responsible for producing architecture-oriented technical design proposals from free-text requirements and is imported into the root `AppModule`.
+
 ### AI Providers
 
 The system uses a provider-based approach to interact with external AI services.
@@ -138,6 +158,7 @@ A shared port is defined per feature module:
 
 - `AnalysisProvider` for `analyze`
 - `RefinementProvider` for `refinement`
+- `TechnicalDesignProvider` for `technical-design`
 
 Current implementations include:
 
@@ -145,6 +166,8 @@ Current implementations include:
 - `ClaudeAnalysisProvider` (placeholder)
 - `OpenAiRefinementProvider` (default)
 - `ClaudeRefinementProvider` (placeholder)
+- `OpenAiTechnicalDesignProvider` (default)
+- `ClaudeTechnicalDesignProvider` (placeholder)
 
 The shared AI layer includes:
 
@@ -184,11 +207,13 @@ Provider selection is centralized in `AiProviderResolver`, while shared failover
 Current scope note:
 
 - provider fallback and circuit breaker orchestration are implemented for both `analyze` and `refinement`
-- both modules resolve primary/fallback providers through `AiProviderResolver`
-- both modules delegate failover behavior to a shared `ProviderFailoverExecutor`
+- provider fallback and circuit breaker orchestration are implemented for `analyze`, `refinement`, and `technical-design`
+- provider-enabled modules resolve primary/fallback providers through `AiProviderResolver`
+- provider-enabled modules delegate failover behavior to a shared `ProviderFailoverExecutor`
 - OpenAI retry and error mapping are delegated to `OpenAiStructuredExecutor`
 - `ClaudeAnalysisProvider` is currently a placeholder that returns `501 Not Implemented`
 - `ClaudeRefinementProvider` is currently a placeholder that returns `501 Not Implemented`
+- `ClaudeTechnicalDesignProvider` is currently a placeholder that returns `501 Not Implemented`
 
 ### SystemModule
 

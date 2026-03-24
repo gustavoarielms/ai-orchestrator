@@ -16,13 +16,15 @@ Reduce friction between an initial idea and its implementation by using AI agent
 
 The MVP currently supports:
 
-- Three endpoints:
+- Four endpoints:
   - `POST /analyze`
   - `POST /refine`
+  - `POST /technical-design`
   - `POST /plan`
-- Two initial agents:
+- Three initial agents:
   - `AnalysisAgent`
   - `RefinementAgent`
+  - `TechnicalDesignAgent`
 - Input: free text
 
 ### Outputs
@@ -60,6 +62,16 @@ The MVP currently supports:
         "acceptanceCriteria": ["..."],
         "tasks": ["..."]
       }
+    }
+
+**Technical Design (architecture perspective):**
+
+    {
+      "architecture": "...",
+      "components": ["..."],
+      "risks": ["..."],
+      "observability": ["..."],
+      "rolloutPlan": ["..."]
     }
 
 ---
@@ -177,6 +189,7 @@ Current capabilities:
 
 - requirement refinement (`/refine`)
 - technical analysis (`/analyze`)
+- technical design generation (`/technical-design`)
 - provider abstraction for AI execution
 - shared AI layer for provider resolution and structured execution
 - fallback strategy for provider-enabled modules
@@ -188,6 +201,7 @@ Notes about the current implementation:
 
 - `/plan` orchestrates `refine -> analyze`
 - structured output validation is enforced before returning AI responses
+- `technical-design` is implemented as its own provider-backed feature module
 - `OpenAiStructuredExecutor` centralizes shared OpenAI retry, parsing, and error mapping
 - fallback/circuit breaker behavior is implemented for both `analyze` and `refinement`
 - `ProviderFailoverExecutor` centralizes shared failover behavior across provider-enabled modules
