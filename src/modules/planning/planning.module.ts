@@ -4,9 +4,15 @@ import { PlanRequirementUseCase } from "./application/use-cases/plan-requirement
 import { AnalyzeModule } from "../analyze/analyze.module";
 import { RefinementModule } from "../refinement/refinement.module";
 import { TechnicalDesignModule } from "../technical-design/technical-design.module";
+import { TaskBreakdownModule } from "../task-breakdown/task-breakdown.module";
 
 @Module({
-  imports: [AnalyzeModule, RefinementModule, TechnicalDesignModule],
+  imports: [
+    AnalyzeModule,
+    RefinementModule,
+    TechnicalDesignModule,
+    TaskBreakdownModule
+  ],
   controllers: [PlanningController],
   providers: [PlanRequirementUseCase]
 })

@@ -92,6 +92,24 @@ POST `/technical-design`
 
 ---
 
+### Endpoint
+
+POST `/task-breakdown`
+
+### Request Body
+
+    {
+      "text": "string"
+    }
+
+### Rules
+
+- `text` is required
+- Must be a non-empty string
+- Represents a structured technical scope that should be transformed into executable team work
+
+---
+
 ## 📤 Output Contract
 
 ### Endpoint
@@ -201,6 +219,12 @@ POST `/plan`
         "risks": ["string"],
         "observability": ["string"],
         "rolloutPlan": ["string"]
+      },
+      "taskBreakdown": {
+        "tasks": ["string"],
+        "technicalApproach": "string",
+        "tests": ["string"],
+        "definitionOfDone": ["string"]
       }
     }
 
@@ -222,6 +246,12 @@ POST `/plan`
 
 - Structured technical design result
 - Must follow the `/technical-design` response contract exactly
+- Must not be null
+
+#### taskBreakdown
+
+- Structured task breakdown result
+- Must follow the `/task-breakdown` response contract exactly
 - Must not be null
 
 ---
@@ -269,6 +299,47 @@ POST `/technical-design`
 #### rolloutPlan
 
 - Ordered deployment or rollout considerations
+- Each item must be a clear non-empty string
+- Must not contain empty values
+
+---
+
+### Endpoint
+
+POST `/task-breakdown`
+
+### Response Body
+
+    {
+      "tasks": ["string"],
+      "technicalApproach": "string",
+      "tests": ["string"],
+      "definitionOfDone": ["string"]
+    }
+
+### Field Definitions
+
+#### tasks
+
+- Concrete executable team work
+- Each item must be a clear non-empty string
+- Must not contain empty values
+
+#### technicalApproach
+
+- Short summary of the implementation approach
+- Must be concrete and implementation-oriented
+- Must not be empty
+
+#### tests
+
+- Relevant tests that should exist for the work
+- Each item must be a clear non-empty string
+- Must not contain empty values
+
+#### definitionOfDone
+
+- Conditions required to consider the work complete
 - Each item must be a clear non-empty string
 - Must not contain empty values
 

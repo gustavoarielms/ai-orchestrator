@@ -16,15 +16,17 @@ Reduce friction between an initial idea and its implementation by using AI agent
 
 The MVP currently supports:
 
-- Four endpoints:
+- Five endpoints:
   - `POST /analyze`
   - `POST /refine`
   - `POST /technical-design`
+  - `POST /task-breakdown`
   - `POST /plan`
-- Three initial agents:
+- Four initial agents:
   - `AnalysisAgent`
   - `RefinementAgent`
   - `TechnicalDesignAgent`
+  - `TaskBreakdownAgent`
 - Input: free text
 
 ### Outputs
@@ -68,6 +70,12 @@ The MVP currently supports:
         "risks": ["..."],
         "observability": ["..."],
         "rolloutPlan": ["..."]
+      },
+      "taskBreakdown": {
+        "tasks": ["..."],
+        "technicalApproach": "...",
+        "tests": ["..."],
+        "definitionOfDone": ["..."]
       }
     }
 
@@ -79,6 +87,15 @@ The MVP currently supports:
       "risks": ["..."],
       "observability": ["..."],
       "rolloutPlan": ["..."]
+    }
+
+**Task Breakdown (execution perspective):**
+
+    {
+      "tasks": ["..."],
+      "technicalApproach": "...",
+      "tests": ["..."],
+      "definitionOfDone": ["..."]
     }
 
 ---
@@ -197,6 +214,7 @@ Current capabilities:
 - requirement refinement (`/refine`)
 - technical analysis (`/analyze`)
 - technical design generation (`/technical-design`)
+- task breakdown generation (`/task-breakdown`)
 - provider abstraction for AI execution
 - shared AI layer for provider resolution and structured execution
 - fallback strategy for provider-enabled modules
@@ -206,15 +224,18 @@ Current capabilities:
 
 Notes about the current implementation:
 
-- `/plan` orchestrates `refine -> analyze -> technical-design`
+- `/plan` orchestrates `refine -> analyze -> technical-design -> task-breakdown`
 - structured output validation is enforced before returning AI responses
 - `technical-design` is implemented as its own provider-backed feature module
+- `task-breakdown` is implemented as its own provider-backed feature module
 - `OpenAiStructuredExecutor` centralizes shared OpenAI retry, parsing, and error mapping
 - fallback/circuit breaker behavior is implemented for both `analyze` and `refinement`
 - `ProviderFailoverExecutor` centralizes shared failover behavior across provider-enabled modules
 - `AiProviderResolver` centralizes provider selection across provider-enabled modules
 - `ClaudeAnalysisProvider` exists as a placeholder and is not implemented yet
 - `ClaudeRefinementProvider` exists as a placeholder and is not implemented yet
+- `ClaudeTechnicalDesignProvider` exists as a placeholder and is not implemented yet
+- `ClaudeTaskBreakdownProvider` exists as a placeholder and is not implemented yet
 
 Next step:
 

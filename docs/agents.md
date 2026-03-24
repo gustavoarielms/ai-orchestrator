@@ -14,6 +14,8 @@ The system currently supports multiple focused agents for requirement processing
 
 - `RefinementAgent`
 - `AnalysisAgent`
+- `TechnicalDesignAgent`
+- `TaskBreakdownAgent`
 
 These agents represent the first step toward a more specialized multi-agent architecture.
 
@@ -152,6 +154,10 @@ The agent must return a valid JSON with the following structure:
       ↓
     AnalysisAgent
       ↓
+    TechnicalDesignAgent
+      ↓
+    TaskBreakdownAgent
+      ↓
     Consolidated Output
 
 ### Notes
@@ -206,6 +212,8 @@ Status: implemented through the `TechnicalDesignModule` and `POST /technical-des
 #### Role
 
 Technical breakdown and implementation planning.
+
+Status: implemented through the `TaskBreakdownModule` and `POST /task-breakdown`.
 
 #### Output
 

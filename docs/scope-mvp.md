@@ -9,15 +9,17 @@ Validate that the system can transform a natural language requirement into a str
 The first version of the system will include:
 
 - Three input endpoints:
-- Four input endpoints:
+- Five input endpoints:
   - `POST /analyze`
   - `POST /refine`
   - `POST /technical-design`
+  - `POST /task-breakdown`
   - `POST /plan`
-- Three initial agents:
+- Four initial agents:
   - `AnalysisAgent`
   - `RefinementAgent`
   - `TechnicalDesignAgent`
+  - `TaskBreakdownAgent`
 - Integration with OpenAI for text processing
 - Generation of structured outputs:
   - Technical analysis (analyze)
@@ -34,6 +36,7 @@ The first version of the system will include:
     - Refinement result
     - Analysis result
     - Technical design result
+    - Task breakdown result
 
 ## Out of Scope
 
@@ -94,6 +97,12 @@ Example:
     "risks": ["string"],
     "observability": ["string"],
     "rolloutPlan": ["string"]
+  },
+  "taskBreakdown": {
+    "tasks": ["string"],
+    "technicalApproach": "string",
+    "tests": ["string"],
+    "definitionOfDone": ["string"]
   }
 }
 ```
