@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { RefineUseCase } from "../../../refinement/application/use-cases/refine.use-case";
 import { AnalyzeUseCase } from "../../../analyze/application/use-cases/analyze.use-case";
 import { TechnicalDesignUseCase } from "../../../technical-design/application/use-cases/technical-design.use-case";
+import { TaskBreakdownUseCase } from "../../../task-breakdown/application/use-cases/task-breakdown.use-case";
 import { PlanRequest, PlanResponse } from "../../domain/planning.types";
 import { Logger } from "../../../../shared/logger/logger";
 
@@ -10,7 +11,8 @@ export class PlanRequirementUseCase {
   constructor(
     private readonly refineUseCase: RefineUseCase,
     private readonly analyzeUseCase: AnalyzeUseCase,
-    private readonly technicalDesignUseCase: TechnicalDesignUseCase
+    private readonly technicalDesignUseCase: TechnicalDesignUseCase,
+    private readonly taskBreakdownUseCase: TaskBreakdownUseCase
   ) {}
 
   async execute(input: PlanRequest): Promise<PlanResponse> {
@@ -35,12 +37,17 @@ export class PlanRequirementUseCase {
       text: this.buildTechnicalDesignInput(analysis)
     });
 
+    const taskBreakdown = await this.taskBreakdownUseCase.execute({
+      text: this.buildTaskBreakdownInput(analysis, technicalDesign)
+    });
+
     Logger.log("Plan requirement use case completed");
 
     return {
       refinement,
       analysis,
-      technicalDesign
+      technicalDesign,
+      taskBreakdown
     };
   }
 
@@ -61,6 +68,22 @@ export class PlanRequirementUseCase {
       `User Story: ${analysis.userStory}`,
       `Acceptance Criteria: ${analysis.acceptanceCriteria.join("; ")}`,
       `Tasks: ${analysis.tasks.join("; ")}`
+    ].join("\n");
+  }
+
+  private buildTaskBreakdownInput(
+    analysis: PlanResponse["analysis"],
+    technicalDesign: PlanResponse["technicalDesign"]
+  ): string {
+    return [
+      `User Story: ${analysis.userStory}`,
+      `Acceptance Criteria: ${analysis.acceptanceCriteria.join("; ")}`,
+      `Tasks: ${analysis.tasks.join("; ")}`,
+      `Architecture: ${technicalDesign.architecture}`,
+      `Components: ${technicalDesign.components.join("; ")}`,
+      `Risks: ${technicalDesign.risks.join("; ")}`,
+      `Observability: ${technicalDesign.observability.join("; ")}`,
+      `Rollout Plan: ${technicalDesign.rolloutPlan.join("; ")}`
     ].join("\n");
   }
 }

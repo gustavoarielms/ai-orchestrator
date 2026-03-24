@@ -35,6 +35,12 @@ describe("PlanningController", () => {
         risks: ["Delivery provider outage"],
         observability: ["Delivery success metric"],
         rolloutPlan: ["Enable for beta users"]
+      },
+      taskBreakdown: {
+        tasks: ["Implementar endpoint OTP", "Agregar fallback a SMS"],
+        technicalApproach: "Usar un servicio único con estrategia por canal",
+        tests: ["Unit tests para fallback"],
+        definitionOfDone: ["OTP funcionando con observabilidad"]
       }
     });
 
@@ -67,6 +73,12 @@ describe("PlanningController", () => {
         risks: ["Delivery provider outage"],
         observability: ["Delivery success metric"],
         rolloutPlan: ["Enable for beta users"]
+      },
+      taskBreakdown: {
+        tasks: ["Implementar endpoint OTP", "Agregar fallback a SMS"],
+        technicalApproach: "Usar un servicio único con estrategia por canal",
+        tests: ["Unit tests para fallback"],
+        definitionOfDone: ["OTP funcionando con observabilidad"]
       }
     });
   });
