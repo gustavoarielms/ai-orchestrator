@@ -76,6 +76,12 @@ The MVP currently supports:
         "technicalApproach": "...",
         "tests": ["..."],
         "definitionOfDone": ["..."]
+      },
+      "summary": {
+        "summary": "...",
+        "recommendedApproach": "...",
+        "keyRisks": ["..."],
+        "deliveryOutline": ["..."]
       }
     }
 
@@ -149,6 +155,8 @@ The system currently includes:
 
 - `RefinementAgent` → functional definition (problem, goal, user story, acceptance criteria, edge cases)
 - `AnalysisAgent` → technical analysis (user story, acceptance criteria, tasks)
+- `TechnicalDesignAgent` → architecture definition (architecture, components, risks, observability, rollout plan)
+- `TaskBreakdownAgent` → executable delivery plan (tasks, technical approach, tests, definition of done)
 
 These agents can be composed through orchestration flows to produce consolidated outputs.
 
@@ -225,6 +233,7 @@ Current capabilities:
 Notes about the current implementation:
 
 - `/plan` orchestrates `refine -> analyze -> technical-design -> task-breakdown`
+- `/plan` also returns a deterministic executive summary built from the structured outputs
 - structured output validation is enforced before returning AI responses
 - `technical-design` is implemented as its own provider-backed feature module
 - `task-breakdown` is implemented as its own provider-backed feature module

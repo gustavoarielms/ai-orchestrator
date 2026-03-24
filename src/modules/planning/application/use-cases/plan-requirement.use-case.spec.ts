@@ -185,6 +185,13 @@ describe("PlanRequirementUseCase", () => {
       rolloutPlan: ["Enable for beta users"]
     });
 
+    taskBreakdownUseCase.execute.mockResolvedValue({
+      tasks: ["Implementar endpoint OTP", "Agregar fallback a SMS"],
+      technicalApproach: "Usar un servicio único con estrategia por canal",
+      tests: ["Unit tests para fallback"],
+      definitionOfDone: ["OTP funcionando con observabilidad"]
+    });
+
     await useCase.execute({
       text: "Necesito implementar OTP por WhatsApp fallback SMS"
     });
@@ -298,7 +305,57 @@ describe("PlanRequirementUseCase", () => {
       refinement,
       analysis,
       technicalDesign,
-      taskBreakdown
+      taskBreakdown,
+      summary: {
+        summary:
+          "Ensure OTP is delivered even if WhatsApp fails. As a user, I want OTP delivery via WhatsApp with SMS fallback. La arquitectura recomendada es Modular provider-backed delivery architecture.",
+        recommendedApproach: "Usar un servicio único con estrategia por canal",
+        keyRisks: ["Delivery provider outage"],
+        deliveryOutline: ["Implementar endpoint OTP", "Agregar fallback a SMS"]
+      }
+    });
+  });
+
+  it("should build deterministic summary from existing outputs", async () => {
+    refineUseCase.execute.mockResolvedValue({
+      problem: "Users need a backup channel for OTP delivery",
+      goal: "Ensure OTP is delivered even if WhatsApp fails",
+      userStory: "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+      acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+      edgeCases: ["WhatsApp provider unavailable"]
+    });
+
+    analyzeUseCase.execute.mockResolvedValue({
+      userStory: "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+      acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+      tasks: ["Implement fallback logic"]
+    });
+
+    technicalDesignUseCase.execute.mockResolvedValue({
+      architecture: "Modular provider-backed delivery architecture",
+      components: ["OTP orchestrator", "Channel provider adapter"],
+      risks: ["Delivery provider outage"],
+      observability: ["Delivery success metric"],
+      rolloutPlan: ["Enable for beta users"]
+    });
+
+    taskBreakdownUseCase.execute.mockResolvedValue({
+      tasks: ["Implementar endpoint OTP", "Agregar fallback a SMS"],
+      technicalApproach: "Usar un servicio único con estrategia por canal",
+      tests: ["Unit tests para fallback"],
+      definitionOfDone: ["OTP funcionando con observabilidad"]
+    });
+
+    const result = await useCase.execute({
+      text: "Necesito implementar OTP por WhatsApp fallback SMS"
+    });
+
+    expect(result.summary).toEqual({
+      summary:
+        "Ensure OTP is delivered even if WhatsApp fails. As a user, I want OTP delivery via WhatsApp with SMS fallback. La arquitectura recomendada es Modular provider-backed delivery architecture.",
+      recommendedApproach: "Usar un servicio único con estrategia por canal",
+      keyRisks: ["Delivery provider outage"],
+      deliveryOutline: ["Implementar endpoint OTP", "Agregar fallback a SMS"]
     });
   });
 

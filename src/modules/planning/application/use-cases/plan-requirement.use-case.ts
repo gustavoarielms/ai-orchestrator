@@ -3,7 +3,11 @@ import { RefineUseCase } from "../../../refinement/application/use-cases/refine.
 import { AnalyzeUseCase } from "../../../analyze/application/use-cases/analyze.use-case";
 import { TechnicalDesignUseCase } from "../../../technical-design/application/use-cases/technical-design.use-case";
 import { TaskBreakdownUseCase } from "../../../task-breakdown/application/use-cases/task-breakdown.use-case";
-import { PlanRequest, PlanResponse } from "../../domain/planning.types";
+import {
+  PlanRequest,
+  PlanResponse,
+  PlanSummary
+} from "../../domain/planning.types";
 import { Logger } from "../../../../shared/logger/logger";
 
 @Injectable()
@@ -41,13 +45,21 @@ export class PlanRequirementUseCase {
       text: this.buildTaskBreakdownInput(analysis, technicalDesign)
     });
 
+    const summary = this.buildPlanSummary(
+      refinement,
+      analysis,
+      technicalDesign,
+      taskBreakdown
+    );
+
     Logger.log("Plan requirement use case completed");
 
     return {
       refinement,
       analysis,
       technicalDesign,
-      taskBreakdown
+      taskBreakdown,
+      summary
     };
   }
 
@@ -85,5 +97,19 @@ export class PlanRequirementUseCase {
       `Observability: ${technicalDesign.observability.join("; ")}`,
       `Rollout Plan: ${technicalDesign.rolloutPlan.join("; ")}`
     ].join("\n");
+  }
+
+  private buildPlanSummary(
+    refinement: PlanResponse["refinement"],
+    analysis: PlanResponse["analysis"],
+    technicalDesign: PlanResponse["technicalDesign"],
+    taskBreakdown: PlanResponse["taskBreakdown"]
+  ): PlanSummary {
+    return {
+      summary: `${refinement.goal}. ${analysis.userStory}. La arquitectura recomendada es ${technicalDesign.architecture}.`,
+      recommendedApproach: taskBreakdown.technicalApproach,
+      keyRisks: technicalDesign.risks,
+      deliveryOutline: taskBreakdown.tasks
+    };
   }
 }
