@@ -74,6 +74,24 @@ POST `/plan`
 
 ---
 
+### Endpoint
+
+POST `/technical-design`
+
+### Request Body
+
+    {
+      "text": "string"
+    }
+
+### Rules
+
+- `text` is required
+- Must be a non-empty string
+- Represents a requirement that should be transformed into a technical design proposal
+
+---
+
 ## 📤 Output Contract
 
 ### Endpoint
@@ -192,6 +210,54 @@ POST `/plan`
 - Structured technical analysis result
 - Must follow the `/analyze` response contract exactly
 - Must not be null
+
+---
+
+### Endpoint
+
+POST `/technical-design`
+
+### Response Body
+
+    {
+      "architecture": "string",
+      "components": ["string"],
+      "risks": ["string"],
+      "observability": ["string"],
+      "rolloutPlan": ["string"]
+    }
+
+### Field Definitions
+
+#### architecture
+
+- Summary of the proposed architecture
+- Must be clear and implementation-oriented
+- Must not be empty
+
+#### components
+
+- Main technical components involved in the solution
+- Each item must be a clear non-empty string
+- Must not contain empty values
+
+#### risks
+
+- Relevant technical or delivery risks
+- Each item must be a clear non-empty string
+- Must not contain empty values
+
+#### observability
+
+- Monitoring, logging, or alerting recommendations
+- Each item must be a clear non-empty string
+- Must not contain empty values
+
+#### rolloutPlan
+
+- Ordered deployment or rollout considerations
+- Each item must be a clear non-empty string
+- Must not contain empty values
 
 ---
 

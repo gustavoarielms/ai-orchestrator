@@ -187,6 +187,8 @@ May evolve to include:
 
 Architecture definition and technical design.
 
+Status: implemented through the `TechnicalDesignModule` and `POST /technical-design`.
+
 #### Output
 
     {
