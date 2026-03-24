@@ -41,7 +41,7 @@ Examples:
 Fallback is controlled via configuration:
 
 AI_PROVIDER=openai  
-AI_FALLBACK_ENABLED=true  
+AI_FALLBACK_ENABLED=false  
 AI_FALLBACK_PROVIDER=claude  
 
 Fallback is applied only when:

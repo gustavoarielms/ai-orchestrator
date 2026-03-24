@@ -193,7 +193,7 @@ If the primary provider fails and fallback is enabled, the system attempts the f
 Relevant configuration:
 
 AI_PROVIDER=openai  
-AI_FALLBACK_ENABLED=true  
+AI_FALLBACK_ENABLED=false  
 AI_FALLBACK_PROVIDER=claude  
 
 Fallback behavior:
@@ -215,6 +215,7 @@ Current scope note:
 - `ClaudeAnalysisProvider` is currently a placeholder that returns `501 Not Implemented`
 - `ClaudeRefinementProvider` is currently a placeholder that returns `501 Not Implemented`
 - `ClaudeTechnicalDesignProvider` is currently a placeholder that returns `501 Not Implemented`
+- fallback is disabled by default until a working secondary provider is available
 
 ### SystemModule
 
