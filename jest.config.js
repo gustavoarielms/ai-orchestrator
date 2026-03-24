@@ -9,6 +9,7 @@ module.exports = {
   moduleFileExtensions: ["js", "json", "ts"],
   rootDir: ".",
   testRegex: ".*\\.spec\\.ts$",
+  setupFilesAfterEnv: ["<rootDir>/test/jest.setup.ts"],
   collectCoverageFrom: ["src/**/*.ts", "!src/main.ts"],
   coverageDirectory: "./coverage"
 };
