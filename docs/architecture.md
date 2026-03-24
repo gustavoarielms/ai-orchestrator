@@ -48,6 +48,7 @@ Related ADRs:
 Detailed diagrams are available in:
 
 - `docs/diagrams/architecture-overview.md`
+- `docs/diagrams/ai-runtime-diagram.md`
 - `docs/diagrams/analyze-sequence.md`
 - `docs/diagrams/analyze-class-diagram.md`
 - `docs/diagrams/module-diagram.md`
