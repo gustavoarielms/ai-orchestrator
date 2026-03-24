@@ -41,6 +41,13 @@ describe("PlanningController", () => {
         technicalApproach: "Usar un servicio único con estrategia por canal",
         tests: ["Unit tests para fallback"],
         definitionOfDone: ["OTP funcionando con observabilidad"]
+      },
+      summary: {
+        summary:
+          "Ensure OTP is delivered even if WhatsApp fails. As a user, I want OTP delivery via WhatsApp with SMS fallback. La arquitectura recomendada es Modular provider-backed delivery architecture.",
+        recommendedApproach: "Usar un servicio único con estrategia por canal",
+        keyRisks: ["Delivery provider outage"],
+        deliveryOutline: ["Implementar endpoint OTP", "Agregar fallback a SMS"]
       }
     });
 
@@ -79,6 +86,13 @@ describe("PlanningController", () => {
         technicalApproach: "Usar un servicio único con estrategia por canal",
         tests: ["Unit tests para fallback"],
         definitionOfDone: ["OTP funcionando con observabilidad"]
+      },
+      summary: {
+        summary:
+          "Ensure OTP is delivered even if WhatsApp fails. As a user, I want OTP delivery via WhatsApp with SMS fallback. La arquitectura recomendada es Modular provider-backed delivery architecture.",
+        recommendedApproach: "Usar un servicio único con estrategia por canal",
+        keyRisks: ["Delivery provider outage"],
+        deliveryOutline: ["Implementar endpoint OTP", "Agregar fallback a SMS"]
       }
     });
   });

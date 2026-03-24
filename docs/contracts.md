@@ -225,6 +225,12 @@ POST `/plan`
         "technicalApproach": "string",
         "tests": ["string"],
         "definitionOfDone": ["string"]
+      },
+      "summary": {
+        "summary": "string",
+        "recommendedApproach": "string",
+        "keyRisks": ["string"],
+        "deliveryOutline": ["string"]
       }
     }
 
@@ -252,6 +258,11 @@ POST `/plan`
 
 - Structured task breakdown result
 - Must follow the `/task-breakdown` response contract exactly
+- Must not be null
+
+#### summary
+
+- Deterministic executive summary built from the structured plan outputs
 - Must not be null
 
 ---

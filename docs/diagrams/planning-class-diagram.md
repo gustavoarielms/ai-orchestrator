@@ -25,6 +25,10 @@ classDiagram
       +execute(input)
     }
 
+    class TaskBreakdownUseCase {
+      +execute(input)
+    }
+
     class PlanRequest
     class PlanResponse
 
@@ -32,6 +36,7 @@ classDiagram
     PlanRequirementUseCase --> RefineUseCase
     PlanRequirementUseCase --> AnalyzeUseCase
     PlanRequirementUseCase --> TechnicalDesignUseCase
+    PlanRequirementUseCase --> TaskBreakdownUseCase
 
     PlanningController --> PlanRequest
     PlanRequirementUseCase --> PlanRequest
