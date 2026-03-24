@@ -18,6 +18,8 @@ Initially, failover behavior was implemented directly in feature-specific fallba
 
 As the same resilience pattern became necessary for `refinement`, keeping failover logic inside each feature module would introduce duplication and divergence.
 
+At the same time, OpenAI-specific retry and provider selection concerns were starting to diverge between modules.
+
 There is a need to:
 
 - avoid duplicating fallback orchestration across modules
@@ -33,6 +35,11 @@ The system introduces a shared resilience component:
 
 - `ProviderFailoverExecutor`
 
+and keeps it inside a broader shared AI/resilience layer together with:
+
+- `AiProviderResolver`
+- `OpenAiStructuredExecutor`
+
 This component centralizes:
 
 - primary provider execution
@@ -41,6 +48,13 @@ This component centralizes:
 - provider success/failure recording
 - fallback metrics
 - failover logging
+
+The surrounding shared AI layer centralizes:
+
+- primary/fallback provider selection
+- OpenAI structured execution
+- retry for recoverable model-output errors
+- provider-specific error mapping
 
 Feature modules keep lightweight fallback wrappers that adapt domain-specific provider contracts to the shared executor:
 
@@ -66,6 +80,7 @@ Concrete providers remain focused on model-specific execution:
 - makes concrete providers smaller and easier to maintain
 - improves architectural symmetry between `analyze` and `refinement`
 - creates a reusable foundation for future provider-enabled modules
+- keeps provider-specific policies out of feature modules
 
 ### Negative
 

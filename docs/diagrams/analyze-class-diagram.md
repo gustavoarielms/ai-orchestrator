@@ -4,6 +4,7 @@
 classDiagram
     class AnalyzeController
     class AnalyzeUseCase
+    class AiProviderResolver
     class OpenAiStructuredExecutor
     class ProviderFailoverExecutor
 
@@ -52,6 +53,8 @@ classDiagram
     FallbackAnalysisProvider --> ClaudeAnalysisProvider : primary/fallback
     FallbackAnalysisProvider --> ProviderFailoverExecutor
     OpenAiAnalysisProvider --> OpenAiStructuredExecutor
+    AiProviderResolver --> OpenAiAnalysisProvider : resolve primary/fallback
+    AiProviderResolver --> ClaudeAnalysisProvider : resolve primary/fallback
 
     ProviderFailoverExecutor --> MetricsRecorder
     ProviderFailoverExecutor --> CircuitBreaker
