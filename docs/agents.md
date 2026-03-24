@@ -14,6 +14,7 @@ The system currently supports multiple focused agents for requirement processing
 
 - `RefinementAgent`
 - `AnalysisAgent`
+- `DevelopmentAgent`
 - `TechnicalDesignAgent`
 - `TaskBreakdownAgent`
 
@@ -203,6 +204,38 @@ Status: implemented through the `TechnicalDesignModule` and `POST /technical-des
       "risks": ["string"],
       "observability": ["string"],
       "rolloutPlan": ["string"]
+    }
+
+---
+
+### 👨‍💻 Development Agent
+
+#### Role
+
+Concrete implementation proposal and code-oriented change plan.
+
+Status: implemented through the `DevelopmentModule` and `POST /development`.
+
+#### Output
+
+    {
+      "filesToChange": ["string"],
+      "codeChanges": [
+        {
+          "file": "string",
+          "changeType": "create",
+          "summary": "string",
+          "content": "string"
+        }
+      ],
+      "testsToAdd": [
+        {
+          "file": "string",
+          "summary": "string",
+          "content": "string"
+        }
+      ],
+      "notes": ["string"]
     }
 
 ---
