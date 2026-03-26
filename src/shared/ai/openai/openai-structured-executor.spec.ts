@@ -6,33 +6,17 @@ import {
 import { z } from "zod";
 import { OpenAiStructuredExecutor } from "./openai-structured-executor";
 import { MetricsRecorder } from "../../metrics/ports/metrics-recorder";
-
-jest.mock("../../../config/app.config", () => ({
-  appConfig: {
-    port: 3000,
-    nodeEnv: "test",
-    openai: {
-      apiKey: "test-api-key",
-      model: "gpt-5.4",
-      timeoutMs: 10000,
-      maxAttempts: 2
-    }
-  }
-}));
-
-jest.mock("../../openai/openai.client", () => ({
-  openai: {
-    responses: {
-      create: jest.fn()
-    }
-  }
-}));
-
-import { openai } from "../../openai/openai.client";
+import { AiRuntimeConfig } from "../ai-runtime-config.types";
 
 describe("OpenAiStructuredExecutor", () => {
   let executor: OpenAiStructuredExecutor;
   let metricsRecorder: jest.Mocked<MetricsRecorder>;
+  let aiRuntimeConfig: AiRuntimeConfig;
+  let openAiClient: {
+    responses: {
+      create: jest.Mock;
+    };
+  };
 
   const schema = z
     .object({
@@ -50,11 +34,31 @@ describe("OpenAiStructuredExecutor", () => {
       recordLatency: jest.fn(),
       getMetrics: jest.fn()
     };
-    executor = new OpenAiStructuredExecutor(metricsRecorder);
+    aiRuntimeConfig = {
+      primaryProvider: "openai",
+      fallbackEnabled: true,
+      fallbackProvider: "claude",
+      openai: {
+        apiKey: "test-api-key",
+        model: "gpt-5.4",
+        timeoutMs: 10000,
+        maxAttempts: 2
+      }
+    };
+    openAiClient = {
+      responses: {
+        create: jest.fn()
+      }
+    };
+    executor = new OpenAiStructuredExecutor(
+      metricsRecorder,
+      aiRuntimeConfig,
+      openAiClient as any
+    );
   });
 
   it("returns parsed and validated response when output is valid", async () => {
-    (openai.responses.create as jest.Mock).mockResolvedValue({
+    openAiClient.responses.create.mockResolvedValue({
       output_text: JSON.stringify({
         value: "ok"
       })
@@ -73,11 +77,11 @@ describe("OpenAiStructuredExecutor", () => {
       value: "ok"
     });
 
-    expect(openai.responses.create).toHaveBeenCalledTimes(1);
+    expect(openAiClient.responses.create).toHaveBeenCalledTimes(1);
   });
 
   it("throws openai_empty_response when model returns empty output", async () => {
-    (openai.responses.create as jest.Mock).mockResolvedValue({
+    openAiClient.responses.create.mockResolvedValue({
       output_text: ""
     });
 
@@ -99,7 +103,7 @@ describe("OpenAiStructuredExecutor", () => {
   });
 
   it("throws openai_invalid_json when model returns no JSON object", async () => {
-    (openai.responses.create as jest.Mock).mockResolvedValue({
+    openAiClient.responses.create.mockResolvedValue({
       output_text: "plain text response"
     });
 
@@ -121,7 +125,7 @@ describe("OpenAiStructuredExecutor", () => {
   });
 
   it("throws openai_malformed_json when model returns malformed JSON", async () => {
-    (openai.responses.create as jest.Mock).mockResolvedValue({
+    openAiClient.responses.create.mockResolvedValue({
       output_text: '{"value": }'
     });
 
@@ -143,7 +147,7 @@ describe("OpenAiStructuredExecutor", () => {
   });
 
   it("throws openai_schema_validation_failed when response does not match schema", async () => {
-    (openai.responses.create as jest.Mock).mockResolvedValue({
+    openAiClient.responses.create.mockResolvedValue({
       output_text: JSON.stringify({
         wrongField: "oops"
       })
@@ -167,7 +171,7 @@ describe("OpenAiStructuredExecutor", () => {
   });
 
   it("retries recoverable model output errors once", async () => {
-    (openai.responses.create as jest.Mock)
+    openAiClient.responses.create
       .mockResolvedValueOnce({
         output_text: '{"value": }'
       })
@@ -187,12 +191,12 @@ describe("OpenAiStructuredExecutor", () => {
     });
 
     expect(result).toEqual({ value: "ok" });
-    expect(openai.responses.create).toHaveBeenCalledTimes(2);
+    expect(openAiClient.responses.create).toHaveBeenCalledTimes(2);
     expect(metricsRecorder.incrementRetry).toHaveBeenCalledTimes(1);
   });
 
   it("maps 429 insufficient_quota to HttpException", async () => {
-    (openai.responses.create as jest.Mock).mockRejectedValue({
+    openAiClient.responses.create.mockRejectedValue({
       status: 429,
       code: "insufficient_quota"
     });
@@ -215,7 +219,7 @@ describe("OpenAiStructuredExecutor", () => {
   });
 
   it("maps generic 429 to HttpException", async () => {
-    (openai.responses.create as jest.Mock).mockRejectedValue({
+    openAiClient.responses.create.mockRejectedValue({
       status: 429,
       code: "rate_limit_exceeded"
     });
@@ -238,7 +242,7 @@ describe("OpenAiStructuredExecutor", () => {
   });
 
   it("maps 401 to UnauthorizedException", async () => {
-    (openai.responses.create as jest.Mock).mockRejectedValue({
+    openAiClient.responses.create.mockRejectedValue({
       status: 401
     });
 
@@ -261,7 +265,7 @@ describe("OpenAiStructuredExecutor", () => {
       code: "custom_bad_request"
     });
 
-    (openai.responses.create as jest.Mock).mockRejectedValue(badRequest);
+    openAiClient.responses.create.mockRejectedValue(badRequest);
 
     await expect(
       executor.execute({
@@ -276,7 +280,7 @@ describe("OpenAiStructuredExecutor", () => {
   });
 
   it("maps timeout errors to gateway timeout", async () => {
-    (openai.responses.create as jest.Mock).mockRejectedValue({
+    openAiClient.responses.create.mockRejectedValue({
       name: "APIConnectionTimeoutError",
       message: "Request timed out"
     });
@@ -299,7 +303,7 @@ describe("OpenAiStructuredExecutor", () => {
   });
 
   it("maps unknown errors to InternalServerErrorException", async () => {
-    (openai.responses.create as jest.Mock).mockRejectedValue(
+    openAiClient.responses.create.mockRejectedValue(
       new Error("unexpected failure")
     );
 

@@ -1,0 +1,1 @@
+export const AI_RUNTIME_CONFIG = "AI_RUNTIME_CONFIG";

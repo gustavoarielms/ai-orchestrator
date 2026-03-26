@@ -1,24 +1,30 @@
-import { Injectable } from "@nestjs/common";
-import { appConfig } from "../../../config/app.config";
+import { Inject, Injectable } from "@nestjs/common";
+import { AI_RUNTIME_CONFIG } from "../tokens/ai-runtime-config.token";
+import { AiRuntimeConfig } from "../ai-runtime-config.types";
 
 @Injectable()
 export class AiProviderResolver {
+  constructor(
+    @Inject(AI_RUNTIME_CONFIG)
+    private readonly aiRuntimeConfig: AiRuntimeConfig
+  ) {}
+
   resolvePrimary<T>(providers: { openai: T; claude: T }): T {
-    return appConfig.aiProvider === "claude"
+    return this.aiRuntimeConfig.primaryProvider === "claude"
       ? providers.claude
       : providers.openai;
   }
 
   resolveFallback<T>(providers: { openai: T; claude: T }): T {
-    return appConfig.fallback.provider === "openai"
+    return this.aiRuntimeConfig.fallbackProvider === "openai"
       ? providers.openai
       : providers.claude;
   }
 
   shouldUseFallback(): boolean {
     return (
-      appConfig.fallback.enabled &&
-      appConfig.aiProvider !== appConfig.fallback.provider
+      this.aiRuntimeConfig.fallbackEnabled &&
+      this.aiRuntimeConfig.primaryProvider !== this.aiRuntimeConfig.fallbackProvider
     );
   }
 }

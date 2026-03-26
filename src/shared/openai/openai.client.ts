@@ -1,6 +1,8 @@
 import OpenAI from "openai";
-import { appConfig } from "../../config/app.config";
+import { AiRuntimeConfig } from "../ai/ai-runtime-config.types";
 
-export const openai = new OpenAI({
-  apiKey: appConfig.openai.apiKey
-});
+export function createOpenAiClient(config: AiRuntimeConfig): OpenAI {
+  return new OpenAI({
+    apiKey: config.openai.apiKey
+  });
+}
