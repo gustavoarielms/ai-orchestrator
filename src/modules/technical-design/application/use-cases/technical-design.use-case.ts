@@ -19,9 +19,14 @@ export class TechnicalDesignUseCase {
   ): Promise<TechnicalDesignResponse> {
     Logger.log("Technical design use case started");
 
-    if (!input?.text || typeof input.text !== "string") {
+    if (
+      !input?.source ||
+      typeof input.source.userStory !== "string" ||
+      !Array.isArray(input.source.acceptanceCriteria) ||
+      !Array.isArray(input.source.tasks)
+    ) {
       Logger.error("Invalid technical design input");
-      throw new BadRequestException("Invalid input: 'text' is required");
+      throw new BadRequestException("Invalid input: 'source' is required");
     }
 
     const result = await this.technicalDesignProvider.design(input);

@@ -8,6 +8,8 @@ export type TechnicalDesignPromptMessage = {
 export function buildTechnicalDesignPrompt(
   input: TechnicalDesignRequest
 ): TechnicalDesignPromptMessage[] {
+  const { userStory, acceptanceCriteria, tasks } = input.source;
+
   return [
     {
       role: "system",
@@ -16,7 +18,13 @@ export function buildTechnicalDesignPrompt(
     },
     {
       role: "user",
-      content: `Generate a technical design based strictly on this structured analysis:\n\n${input.text}`
+      content: [
+        "Generate a technical design based strictly on this structured analysis:",
+        "",
+        `User Story: ${userStory}`,
+        `Acceptance Criteria: ${acceptanceCriteria.join("; ")}`,
+        `Tasks: ${tasks.join("; ")}`
+      ].join("\n")
     }
   ];
 }

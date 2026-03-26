@@ -36,11 +36,11 @@ export class PlanRequirementUseCase {
     });
 
     const technicalDesign = await this.technicalDesignUseCase.execute({
-      text: TechnicalDesignInputBuilder.fromAnalysis(analysis)
+      source: TechnicalDesignInputBuilder.fromAnalysis(analysis)
     });
 
     const taskBreakdown = await this.taskBreakdownUseCase.execute({
-      text: TaskBreakdownInputBuilder.fromAnalysisAndTechnicalDesign(
+      source: TaskBreakdownInputBuilder.fromAnalysisAndTechnicalDesign(
         analysis,
         technicalDesign
       )

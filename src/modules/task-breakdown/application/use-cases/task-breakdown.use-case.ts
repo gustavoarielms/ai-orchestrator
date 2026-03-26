@@ -17,9 +17,19 @@ export class TaskBreakdownUseCase {
   async execute(input: TaskBreakdownRequest): Promise<TaskBreakdownResponse> {
     Logger.log("Task breakdown use case started");
 
-    if (!input?.text || typeof input.text !== "string") {
+    if (
+      !input?.source ||
+      typeof input.source.analysis?.userStory !== "string" ||
+      !Array.isArray(input.source.analysis?.acceptanceCriteria) ||
+      !Array.isArray(input.source.analysis?.tasks) ||
+      typeof input.source.technicalDesign?.architecture !== "string" ||
+      !Array.isArray(input.source.technicalDesign?.components) ||
+      !Array.isArray(input.source.technicalDesign?.risks) ||
+      !Array.isArray(input.source.technicalDesign?.observability) ||
+      !Array.isArray(input.source.technicalDesign?.rolloutPlan)
+    ) {
       Logger.error("Invalid task breakdown input");
-      throw new BadRequestException("Invalid input: 'text' is required");
+      throw new BadRequestException("Invalid input: 'source' is required");
     }
 
     const result = await this.taskBreakdownProvider.breakdown(input);

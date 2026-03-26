@@ -24,25 +24,35 @@ describe("TechnicalDesignUseCase", () => {
     });
 
     const result = await useCase.execute({
-      text: "Design a technical solution for OTP with WhatsApp and SMS fallback"
+      source: {
+        userStory:
+          "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+        acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+        tasks: ["Implement fallback logic"]
+      }
     });
 
     expect(technicalDesignProvider.design).toHaveBeenCalledWith({
-      text: "Design a technical solution for OTP with WhatsApp and SMS fallback"
+      source: {
+        userStory:
+          "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+        acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+        tasks: ["Implement fallback logic"]
+      }
     });
     expect(result.architecture).toContain("Modular NestJS");
   });
 
-  it("should throw BadRequestException when text is missing", async () => {
+  it("should throw BadRequestException when source is missing", async () => {
     await expect(useCase.execute({} as any)).rejects.toBeInstanceOf(
       BadRequestException
     );
   });
 
-  it("should throw BadRequestException when text is not a string", async () => {
-    await expect(useCase.execute({ text: 123 as any })).rejects.toBeInstanceOf(
-      BadRequestException
-    );
+  it("should throw BadRequestException when source shape is invalid", async () => {
+    await expect(
+      useCase.execute({ source: { userStory: 123 as any } } as any)
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it("should propagate provider errors", async () => {
@@ -51,7 +61,12 @@ describe("TechnicalDesignUseCase", () => {
 
     await expect(
       useCase.execute({
-        text: "Design a technical solution for OTP with WhatsApp and SMS fallback"
+        source: {
+          userStory:
+            "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+          acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+          tasks: ["Implement fallback logic"]
+        }
       })
     ).rejects.toBe(error);
   });

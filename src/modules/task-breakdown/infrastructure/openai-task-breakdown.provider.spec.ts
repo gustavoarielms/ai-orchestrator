@@ -24,7 +24,21 @@ describe("OpenAiTaskBreakdownProvider", () => {
     });
 
     await provider.breakdown({
-      text: "Create executable team work from the technical design"
+      source: {
+        analysis: {
+          userStory:
+            "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+          acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+          tasks: ["Implement fallback logic"]
+        },
+        technicalDesign: {
+          architecture: "Modular provider-backed delivery architecture",
+          components: ["OTP orchestrator", "Channel provider adapter"],
+          risks: ["Delivery provider outage"],
+          observability: ["Delivery success metric"],
+          rolloutPlan: ["Enable for beta users"]
+        }
+      }
     });
 
     expect(openAiStructuredExecutor.execute).toHaveBeenCalledTimes(1);
@@ -39,7 +53,21 @@ describe("OpenAiTaskBreakdownProvider", () => {
     });
 
     await provider.breakdown({
-      text: "Create executable team work from the technical design"
+      source: {
+        analysis: {
+          userStory:
+            "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+          acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+          tasks: ["Implement fallback logic"]
+        },
+        technicalDesign: {
+          architecture: "Modular provider-backed delivery architecture",
+          components: ["OTP orchestrator", "Channel provider adapter"],
+          risks: ["Delivery provider outage"],
+          observability: ["Delivery success metric"],
+          rolloutPlan: ["Enable for beta users"]
+        }
+      }
     });
 
     expect(openAiStructuredExecutor.execute).toHaveBeenCalledWith(
@@ -58,7 +86,21 @@ describe("OpenAiTaskBreakdownProvider", () => {
     });
 
     const input = {
-      text: "Create executable team work from the technical design"
+      source: {
+        analysis: {
+          userStory:
+            "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+          acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+          tasks: ["Implement fallback logic"]
+        },
+        technicalDesign: {
+          architecture: "Modular provider-backed delivery architecture",
+          components: ["OTP orchestrator", "Channel provider adapter"],
+          risks: ["Delivery provider outage"],
+          observability: ["Delivery success metric"],
+          rolloutPlan: ["Enable for beta users"]
+        }
+      }
     };
 
     await provider.breakdown(input);
@@ -79,7 +121,21 @@ describe("OpenAiTaskBreakdownProvider", () => {
     });
 
     await provider.breakdown({
-      text: "Create executable team work from the technical design"
+      source: {
+        analysis: {
+          userStory:
+            "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+          acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+          tasks: ["Implement fallback logic"]
+        },
+        technicalDesign: {
+          architecture: "Modular provider-backed delivery architecture",
+          components: ["OTP orchestrator", "Channel provider adapter"],
+          risks: ["Delivery provider outage"],
+          observability: ["Delivery success metric"],
+          rolloutPlan: ["Enable for beta users"]
+        }
+      }
     });
 
     expect(openAiStructuredExecutor.execute).toHaveBeenCalledWith(
@@ -100,7 +156,21 @@ describe("OpenAiTaskBreakdownProvider", () => {
     openAiStructuredExecutor.execute.mockResolvedValue(expected);
 
     const result = await provider.breakdown({
-      text: "Create executable team work from the technical design"
+      source: {
+        analysis: {
+          userStory:
+            "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+          acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+          tasks: ["Implement fallback logic"]
+        },
+        technicalDesign: {
+          architecture: "Modular provider-backed delivery architecture",
+          components: ["OTP orchestrator", "Channel provider adapter"],
+          risks: ["Delivery provider outage"],
+          observability: ["Delivery success metric"],
+          rolloutPlan: ["Enable for beta users"]
+        }
+      }
     });
 
     expect(result).toEqual(expected);
@@ -112,7 +182,21 @@ describe("OpenAiTaskBreakdownProvider", () => {
 
     await expect(
       provider.breakdown({
-        text: "Create executable team work from the technical design"
+        source: {
+          analysis: {
+            userStory:
+              "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+            acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+            tasks: ["Implement fallback logic"]
+          },
+          technicalDesign: {
+            architecture: "Modular provider-backed delivery architecture",
+            components: ["OTP orchestrator", "Channel provider adapter"],
+            risks: ["Delivery provider outage"],
+            observability: ["Delivery success metric"],
+            rolloutPlan: ["Enable for beta users"]
+          }
+        }
       })
     ).rejects.toBe(error);
   });

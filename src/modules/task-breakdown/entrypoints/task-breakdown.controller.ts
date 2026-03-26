@@ -10,7 +10,7 @@ export class TaskBreakdownController {
   @Post()
   async breakdown(@Body() body: TaskBreakdownRequest) {
     Logger.log("Task breakdown request received", {
-      input: body?.text
+      input: body?.source
     });
 
     const result = await this.taskBreakdownUseCase.execute(body);

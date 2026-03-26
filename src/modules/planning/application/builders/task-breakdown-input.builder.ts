@@ -1,20 +1,25 @@
 import { AnalyzeResponse } from "../../../analyze/domain/analyze.types";
 import { TechnicalDesignResponse } from "../../../technical-design/domain/technical-design.types";
+import { TaskBreakdownSource } from "../../../task-breakdown/domain/task-breakdown.types";
 
 export class TaskBreakdownInputBuilder {
   static fromAnalysisAndTechnicalDesign(
     analysis: AnalyzeResponse,
     technicalDesign: TechnicalDesignResponse
-  ): string {
-    return [
-      `User Story: ${analysis.userStory}`,
-      `Acceptance Criteria: ${analysis.acceptanceCriteria.join("; ")}`,
-      `Tasks: ${analysis.tasks.join("; ")}`,
-      `Architecture: ${technicalDesign.architecture}`,
-      `Components: ${technicalDesign.components.join("; ")}`,
-      `Risks: ${technicalDesign.risks.join("; ")}`,
-      `Observability: ${technicalDesign.observability.join("; ")}`,
-      `Rollout Plan: ${technicalDesign.rolloutPlan.join("; ")}`
-    ].join("\n");
+  ): TaskBreakdownSource {
+    return {
+      analysis: {
+        userStory: analysis.userStory,
+        acceptanceCriteria: analysis.acceptanceCriteria,
+        tasks: analysis.tasks
+      },
+      technicalDesign: {
+        architecture: technicalDesign.architecture,
+        components: technicalDesign.components,
+        risks: technicalDesign.risks,
+        observability: technicalDesign.observability,
+        rolloutPlan: technicalDesign.rolloutPlan
+      }
+    };
   }
 }

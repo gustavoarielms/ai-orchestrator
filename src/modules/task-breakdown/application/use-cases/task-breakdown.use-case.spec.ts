@@ -23,25 +23,53 @@ describe("TaskBreakdownUseCase", () => {
     });
 
     const result = await useCase.execute({
-      text: "Create executable team work from the technical design"
+      source: {
+        analysis: {
+          userStory:
+            "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+          acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+          tasks: ["Implement fallback logic"]
+        },
+        technicalDesign: {
+          architecture: "Modular provider-backed delivery architecture",
+          components: ["OTP orchestrator", "Channel provider adapter"],
+          risks: ["Delivery provider outage"],
+          observability: ["Delivery success metric"],
+          rolloutPlan: ["Enable for beta users"]
+        }
+      }
     });
 
     expect(taskBreakdownProvider.breakdown).toHaveBeenCalledWith({
-      text: "Create executable team work from the technical design"
+      source: {
+        analysis: {
+          userStory:
+            "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+          acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+          tasks: ["Implement fallback logic"]
+        },
+        technicalDesign: {
+          architecture: "Modular provider-backed delivery architecture",
+          components: ["OTP orchestrator", "Channel provider adapter"],
+          risks: ["Delivery provider outage"],
+          observability: ["Delivery success metric"],
+          rolloutPlan: ["Enable for beta users"]
+        }
+      }
     });
     expect(result.tasks).toContain("Implementar endpoint OTP");
   });
 
-  it("should throw BadRequestException when text is missing", async () => {
+  it("should throw BadRequestException when source is missing", async () => {
     await expect(useCase.execute({} as any)).rejects.toBeInstanceOf(
       BadRequestException
     );
   });
 
-  it("should throw BadRequestException when text is not a string", async () => {
-    await expect(useCase.execute({ text: 123 as any })).rejects.toBeInstanceOf(
-      BadRequestException
-    );
+  it("should throw BadRequestException when source shape is invalid", async () => {
+    await expect(
+      useCase.execute({ source: { analysis: {} } } as any)
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it("should propagate provider errors", async () => {
@@ -50,7 +78,21 @@ describe("TaskBreakdownUseCase", () => {
 
     await expect(
       useCase.execute({
-        text: "Create executable team work from the technical design"
+        source: {
+          analysis: {
+            userStory:
+              "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+            acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+            tasks: ["Implement fallback logic"]
+          },
+          technicalDesign: {
+            architecture: "Modular provider-backed delivery architecture",
+            components: ["OTP orchestrator", "Channel provider adapter"],
+            risks: ["Delivery provider outage"],
+            observability: ["Delivery success metric"],
+            rolloutPlan: ["Enable for beta users"]
+          }
+        }
       })
     ).rejects.toBe(error);
   });
