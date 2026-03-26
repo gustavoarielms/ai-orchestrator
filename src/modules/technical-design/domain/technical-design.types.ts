@@ -1,5 +1,11 @@
+export type TechnicalDesignSource = {
+  userStory: string;
+  acceptanceCriteria: string[];
+  tasks: string[];
+};
+
 export type TechnicalDesignRequest = {
-  text: string;
+  source: TechnicalDesignSource;
 };
 
 export type TechnicalDesignResponse = {

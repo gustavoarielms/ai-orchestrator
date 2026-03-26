@@ -23,11 +23,21 @@ describe("TechnicalDesignController", () => {
     });
 
     const result = await controller.design({
-      text: "Design a technical solution for OTP with WhatsApp and SMS fallback"
+      source: {
+        userStory:
+          "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+        acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+        tasks: ["Implement fallback logic"]
+      }
     });
 
     expect(technicalDesignUseCase.execute).toHaveBeenCalledWith({
-      text: "Design a technical solution for OTP with WhatsApp and SMS fallback"
+      source: {
+        userStory:
+          "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+        acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+        tasks: ["Implement fallback logic"]
+      }
     });
     expect(result.components).toContain("TechnicalDesignController");
   });

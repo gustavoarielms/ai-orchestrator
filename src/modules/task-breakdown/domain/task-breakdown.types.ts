@@ -1,5 +1,20 @@
+export type TaskBreakdownSource = {
+  analysis: {
+    userStory: string;
+    acceptanceCriteria: string[];
+    tasks: string[];
+  };
+  technicalDesign: {
+    architecture: string;
+    components: string[];
+    risks: string[];
+    observability: string[];
+    rolloutPlan: string[];
+  };
+};
+
 export type TaskBreakdownRequest = {
-  text: string;
+  source: TaskBreakdownSource;
 };
 
 export type TaskBreakdownResponse = {

@@ -39,7 +39,12 @@ describe("FallbackTechnicalDesignProvider", () => {
     });
 
     const result = await provider.design({
-      text: "Design a technical solution for OTP with WhatsApp and SMS fallback"
+      source: {
+        userStory:
+          "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+        acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+        tasks: ["Implement fallback logic"]
+      }
     });
 
     expect(providerFailoverExecutor.execute).toHaveBeenCalledTimes(1);
@@ -56,7 +61,12 @@ describe("FallbackTechnicalDesignProvider", () => {
 
     await expect(
       provider.design({
-        text: "Design a technical solution for OTP with WhatsApp and SMS fallback"
+        source: {
+          userStory:
+            "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+          acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+          tasks: ["Implement fallback logic"]
+        }
       })
     ).rejects.toBe(error);
   });

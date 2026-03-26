@@ -12,7 +12,7 @@ export class TechnicalDesignController {
   @Post()
   async design(@Body() body: TechnicalDesignRequest) {
     Logger.log("Technical design request received", {
-      input: body?.text
+      input: body?.source
     });
 
     const result = await this.technicalDesignUseCase.execute(body);

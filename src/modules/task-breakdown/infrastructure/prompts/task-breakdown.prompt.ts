@@ -8,6 +8,8 @@ export type TaskBreakdownPromptMessage = {
 export function buildTaskBreakdownPrompt(
   input: TaskBreakdownRequest
 ): TaskBreakdownPromptMessage[] {
+  const { analysis, technicalDesign } = input.source;
+
   return [
     {
       role: "system",
@@ -16,7 +18,18 @@ export function buildTaskBreakdownPrompt(
     },
     {
       role: "user",
-      content: `Generate a task breakdown based strictly on this structured analysis and technical design:\n\n${input.text}`
+      content: [
+        "Generate a task breakdown based strictly on this structured analysis and technical design:",
+        "",
+        `User Story: ${analysis.userStory}`,
+        `Acceptance Criteria: ${analysis.acceptanceCriteria.join("; ")}`,
+        `Tasks: ${analysis.tasks.join("; ")}`,
+        `Architecture: ${technicalDesign.architecture}`,
+        `Components: ${technicalDesign.components.join("; ")}`,
+        `Risks: ${technicalDesign.risks.join("; ")}`,
+        `Observability: ${technicalDesign.observability.join("; ")}`,
+        `Rollout Plan: ${technicalDesign.rolloutPlan.join("; ")}`
+      ].join("\n")
     }
   ];
 }

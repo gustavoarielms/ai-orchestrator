@@ -38,7 +38,21 @@ describe("FallbackTaskBreakdownProvider", () => {
     });
 
     const result = await provider.breakdown({
-      text: "Create executable team work from the technical design"
+      source: {
+        analysis: {
+          userStory:
+            "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+          acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+          tasks: ["Implement fallback logic"]
+        },
+        technicalDesign: {
+          architecture: "Modular provider-backed delivery architecture",
+          components: ["OTP orchestrator", "Channel provider adapter"],
+          risks: ["Delivery provider outage"],
+          observability: ["Delivery success metric"],
+          rolloutPlan: ["Enable for beta users"]
+        }
+      }
     });
 
     expect(providerFailoverExecutor.execute).toHaveBeenCalledTimes(1);
@@ -55,7 +69,21 @@ describe("FallbackTaskBreakdownProvider", () => {
 
     await expect(
       provider.breakdown({
-        text: "Create executable team work from the technical design"
+        source: {
+          analysis: {
+            userStory:
+              "As a user, I want OTP delivery via WhatsApp with SMS fallback",
+            acceptanceCriteria: ["OTP is first attempted via WhatsApp"],
+            tasks: ["Implement fallback logic"]
+          },
+          technicalDesign: {
+            architecture: "Modular provider-backed delivery architecture",
+            components: ["OTP orchestrator", "Channel provider adapter"],
+            risks: ["Delivery provider outage"],
+            observability: ["Delivery success metric"],
+            rolloutPlan: ["Enable for beta users"]
+          }
+        }
       })
     ).rejects.toBe(error);
   });
