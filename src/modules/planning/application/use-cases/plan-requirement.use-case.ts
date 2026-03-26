@@ -3,12 +3,12 @@ import { RefineUseCase } from "../../../refinement/application/use-cases/refine.
 import { AnalyzeUseCase } from "../../../analyze/application/use-cases/analyze.use-case";
 import { TechnicalDesignUseCase } from "../../../technical-design/application/use-cases/technical-design.use-case";
 import { TaskBreakdownUseCase } from "../../../task-breakdown/application/use-cases/task-breakdown.use-case";
-import {
-  PlanRequest,
-  PlanResponse,
-  PlanSummary
-} from "../../domain/planning.types";
+import { PlanRequest, PlanResponse } from "../../domain/planning.types";
 import { Logger } from "../../../../shared/logger/logger";
+import { AnalysisInputBuilder } from "../builders/analysis-input.builder";
+import { TechnicalDesignInputBuilder } from "../builders/technical-design-input.builder";
+import { TaskBreakdownInputBuilder } from "../builders/task-breakdown-input.builder";
+import { PlanSummaryBuilder } from "../builders/plan-summary.builder";
 
 @Injectable()
 export class PlanRequirementUseCase {
@@ -31,21 +31,22 @@ export class PlanRequirementUseCase {
       text: input.text
     });
 
-    const enrichedAnalysisInput = this.buildAnalysisInput(refinement);
-
     const analysis = await this.analyzeUseCase.execute({
-      text: enrichedAnalysisInput
+      text: AnalysisInputBuilder.fromRefinement(refinement)
     });
 
     const technicalDesign = await this.technicalDesignUseCase.execute({
-      text: this.buildTechnicalDesignInput(analysis)
+      text: TechnicalDesignInputBuilder.fromAnalysis(analysis)
     });
 
     const taskBreakdown = await this.taskBreakdownUseCase.execute({
-      text: this.buildTaskBreakdownInput(analysis, technicalDesign)
+      text: TaskBreakdownInputBuilder.fromAnalysisAndTechnicalDesign(
+        analysis,
+        technicalDesign
+      )
     });
 
-    const summary = this.buildPlanSummary(
+    const summary = PlanSummaryBuilder.fromArtifacts(
       refinement,
       analysis,
       technicalDesign,
@@ -60,56 +61,6 @@ export class PlanRequirementUseCase {
       technicalDesign,
       taskBreakdown,
       summary
-    };
-  }
-
-  private buildAnalysisInput(refinement: PlanResponse["refinement"]): string {
-    return [
-      `Problem: ${refinement.problem}`,
-      `Goal: ${refinement.goal}`,
-      `User Story: ${refinement.userStory}`,
-      `Acceptance Criteria: ${refinement.acceptanceCriteria.join("; ")}`,
-      `Edge Cases: ${refinement.edgeCases.join("; ")}`
-    ].join("\n");
-  }
-
-  private buildTechnicalDesignInput(
-    analysis: PlanResponse["analysis"]
-  ): string {
-    return [
-      `User Story: ${analysis.userStory}`,
-      `Acceptance Criteria: ${analysis.acceptanceCriteria.join("; ")}`,
-      `Tasks: ${analysis.tasks.join("; ")}`
-    ].join("\n");
-  }
-
-  private buildTaskBreakdownInput(
-    analysis: PlanResponse["analysis"],
-    technicalDesign: PlanResponse["technicalDesign"]
-  ): string {
-    return [
-      `User Story: ${analysis.userStory}`,
-      `Acceptance Criteria: ${analysis.acceptanceCriteria.join("; ")}`,
-      `Tasks: ${analysis.tasks.join("; ")}`,
-      `Architecture: ${technicalDesign.architecture}`,
-      `Components: ${technicalDesign.components.join("; ")}`,
-      `Risks: ${technicalDesign.risks.join("; ")}`,
-      `Observability: ${technicalDesign.observability.join("; ")}`,
-      `Rollout Plan: ${technicalDesign.rolloutPlan.join("; ")}`
-    ].join("\n");
-  }
-
-  private buildPlanSummary(
-    refinement: PlanResponse["refinement"],
-    analysis: PlanResponse["analysis"],
-    technicalDesign: PlanResponse["technicalDesign"],
-    taskBreakdown: PlanResponse["taskBreakdown"]
-  ): PlanSummary {
-    return {
-      summary: `${refinement.goal}. ${analysis.userStory}. La arquitectura recomendada es ${technicalDesign.architecture}.`,
-      recommendedApproach: taskBreakdown.technicalApproach,
-      keyRisks: technicalDesign.risks,
-      deliveryOutline: taskBreakdown.tasks
     };
   }
 }
