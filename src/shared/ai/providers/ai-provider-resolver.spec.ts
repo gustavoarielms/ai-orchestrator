@@ -1,24 +1,23 @@
-jest.mock("../../../config/app.config", () => ({
-  appConfig: {
-    aiProvider: "openai",
-    fallback: {
-      enabled: true,
-      provider: "claude"
-    }
-  }
-}));
-
-import { appConfig } from "../../../config/app.config";
 import { AiProviderResolver } from "./ai-provider-resolver";
+import { AiRuntimeConfig } from "../ai-runtime-config.types";
 
 describe("AiProviderResolver", () => {
   let resolver: AiProviderResolver;
+  let aiRuntimeConfig: AiRuntimeConfig;
 
   beforeEach(() => {
-    resolver = new AiProviderResolver();
-    appConfig.aiProvider = "openai";
-    appConfig.fallback.enabled = true;
-    appConfig.fallback.provider = "claude";
+    aiRuntimeConfig = {
+      primaryProvider: "openai",
+      fallbackEnabled: true,
+      fallbackProvider: "claude",
+      openai: {
+        apiKey: "test-api-key",
+        model: "gpt-5.4",
+        timeoutMs: 10000,
+        maxAttempts: 2
+      }
+    };
+    resolver = new AiProviderResolver(aiRuntimeConfig);
   });
 
   it("should resolve primary provider from configured AI provider", () => {
@@ -44,13 +43,13 @@ describe("AiProviderResolver", () => {
   });
 
   it("should return false when fallback is disabled", () => {
-    appConfig.fallback.enabled = false;
+    aiRuntimeConfig.fallbackEnabled = false;
 
     expect(resolver.shouldUseFallback()).toBe(false);
   });
 
   it("should return false when primary and fallback providers match", () => {
-    appConfig.fallback.provider = "openai";
+    aiRuntimeConfig.fallbackProvider = "openai";
 
     expect(resolver.shouldUseFallback()).toBe(false);
   });

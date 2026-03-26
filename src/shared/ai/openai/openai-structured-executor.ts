@@ -4,12 +4,14 @@ import {
   Injectable,
   InternalServerErrorException
 } from "@nestjs/common";
+import OpenAI from "openai";
 import { ZodSchema } from "zod";
-import { openai } from "../../openai/openai.client";
-import { appConfig } from "../../../config/app.config";
 import { Logger } from "../../logger/logger";
 import { MetricsRecorder } from "../../metrics/ports/metrics-recorder";
 import { METRICS_RECORDER } from "../../metrics/tokens/metrics-recorder.token";
+import { AI_RUNTIME_CONFIG } from "../tokens/ai-runtime-config.token";
+import { AiRuntimeConfig } from "../ai-runtime-config.types";
+import { OPENAI_CLIENT } from "../../openai/tokens/openai-client.token";
 import {
   extractErrorCode,
   mapOpenAiErrorToHttpException,
@@ -24,7 +26,11 @@ import {
 export class OpenAiStructuredExecutor {
   constructor(
     @Inject(METRICS_RECORDER)
-    private readonly metricsRecorder: MetricsRecorder
+    private readonly metricsRecorder: MetricsRecorder,
+    @Inject(AI_RUNTIME_CONFIG)
+    private readonly aiRuntimeConfig: AiRuntimeConfig,
+    @Inject(OPENAI_CLIENT)
+    private readonly openAiClient: OpenAI
   ) {}
 
   async execute<T>({
@@ -32,22 +38,22 @@ export class OpenAiStructuredExecutor {
     prompt,
     schema
   }: ExecuteStructuredOpenAiParams<T>): Promise<T> {
-    const maxAttempts = appConfig.openai.maxAttempts;
+    const maxAttempts = this.aiRuntimeConfig.openai.maxAttempts;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         Logger.log(`Calling OpenAI for ${operationName}`, {
           attempt,
-          timeoutMs: appConfig.openai.timeoutMs
+          timeoutMs: this.aiRuntimeConfig.openai.timeoutMs
         });
 
-        const response = await openai.responses.create(
+        const response = await this.openAiClient.responses.create(
           {
-            model: appConfig.openai.model,
+            model: this.aiRuntimeConfig.openai.model,
             input: prompt as Array<{ role: "system" | "user"; content: string }>
           },
           {
-            timeout: appConfig.openai.timeoutMs
+            timeout: this.aiRuntimeConfig.openai.timeoutMs
           }
         );
 
