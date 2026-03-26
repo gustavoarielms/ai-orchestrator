@@ -7,7 +7,8 @@ import { FallbackDevelopmentProvider } from "./infrastructure/fallback-developme
 import { DEVELOPMENT_PROVIDER } from "./application/tokens/development-provider.token";
 import { ResilienceModule } from "../../shared/resilience/resilience.module";
 import { AiModule } from "../../shared/ai/ai.module";
-import { AiProviderResolver } from "../../shared/ai/providers/ai-provider-resolver";
+import { createAiProviderSet } from "../../shared/ai/providers/create-ai-provider-set";
+import { DevelopmentProvider } from "./application/ports/development.provider";
 
 @Module({
   imports: [ResilienceModule, AiModule],
@@ -17,63 +18,14 @@ import { AiProviderResolver } from "../../shared/ai/providers/ai-provider-resolv
     OpenAiDevelopmentProvider,
     ClaudeDevelopmentProvider,
     FallbackDevelopmentProvider,
-    {
-      provide: "PRIMARY_DEVELOPMENT_PROVIDER",
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        openAiDevelopmentProvider: OpenAiDevelopmentProvider,
-        claudeDevelopmentProvider: ClaudeDevelopmentProvider
-      ) => {
-        return aiProviderResolver.resolvePrimary({
-          openai: openAiDevelopmentProvider,
-          claude: claudeDevelopmentProvider
-        });
-      },
-      inject: [
-        AiProviderResolver,
-        OpenAiDevelopmentProvider,
-        ClaudeDevelopmentProvider
-      ]
-    },
-    {
-      provide: "FALLBACK_DEVELOPMENT_PROVIDER",
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        openAiDevelopmentProvider: OpenAiDevelopmentProvider,
-        claudeDevelopmentProvider: ClaudeDevelopmentProvider
-      ) => {
-        return aiProviderResolver.resolveFallback({
-          openai: openAiDevelopmentProvider,
-          claude: claudeDevelopmentProvider
-        });
-      },
-      inject: [
-        AiProviderResolver,
-        OpenAiDevelopmentProvider,
-        ClaudeDevelopmentProvider
-      ]
-    },
-    {
-      provide: DEVELOPMENT_PROVIDER,
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        fallbackDevelopmentProvider: FallbackDevelopmentProvider,
-        primaryProvider:
-          | OpenAiDevelopmentProvider
-          | ClaudeDevelopmentProvider
-      ) => {
-        if (aiProviderResolver.shouldUseFallback()) {
-          return fallbackDevelopmentProvider;
-        }
-
-        return primaryProvider;
-      },
-      inject: [
-        AiProviderResolver,
-        FallbackDevelopmentProvider,
-        "PRIMARY_DEVELOPMENT_PROVIDER"
-      ]
-    }
+    ...createAiProviderSet<DevelopmentProvider, FallbackDevelopmentProvider>({
+      featureToken: DEVELOPMENT_PROVIDER,
+      primaryToken: "PRIMARY_DEVELOPMENT_PROVIDER",
+      fallbackToken: "FALLBACK_DEVELOPMENT_PROVIDER",
+      openAiProvider: OpenAiDevelopmentProvider,
+      claudeProvider: ClaudeDevelopmentProvider,
+      fallbackProvider: FallbackDevelopmentProvider
+    })
   ],
   exports: [DevelopmentUseCase]
 })

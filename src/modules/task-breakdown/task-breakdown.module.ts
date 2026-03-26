@@ -7,7 +7,8 @@ import { FallbackTaskBreakdownProvider } from "./infrastructure/fallback-task-br
 import { TASK_BREAKDOWN_PROVIDER } from "./application/tokens/task-breakdown-provider.token";
 import { ResilienceModule } from "../../shared/resilience/resilience.module";
 import { AiModule } from "../../shared/ai/ai.module";
-import { AiProviderResolver } from "../../shared/ai/providers/ai-provider-resolver";
+import { createAiProviderSet } from "../../shared/ai/providers/create-ai-provider-set";
+import { TaskBreakdownProvider } from "./application/ports/task-breakdown.provider";
 
 @Module({
   imports: [ResilienceModule, AiModule],
@@ -17,63 +18,14 @@ import { AiProviderResolver } from "../../shared/ai/providers/ai-provider-resolv
     OpenAiTaskBreakdownProvider,
     ClaudeTaskBreakdownProvider,
     FallbackTaskBreakdownProvider,
-    {
-      provide: "PRIMARY_TASK_BREAKDOWN_PROVIDER",
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        openAiTaskBreakdownProvider: OpenAiTaskBreakdownProvider,
-        claudeTaskBreakdownProvider: ClaudeTaskBreakdownProvider
-      ) => {
-        return aiProviderResolver.resolvePrimary({
-          openai: openAiTaskBreakdownProvider,
-          claude: claudeTaskBreakdownProvider
-        });
-      },
-      inject: [
-        AiProviderResolver,
-        OpenAiTaskBreakdownProvider,
-        ClaudeTaskBreakdownProvider
-      ]
-    },
-    {
-      provide: "FALLBACK_TASK_BREAKDOWN_PROVIDER",
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        openAiTaskBreakdownProvider: OpenAiTaskBreakdownProvider,
-        claudeTaskBreakdownProvider: ClaudeTaskBreakdownProvider
-      ) => {
-        return aiProviderResolver.resolveFallback({
-          openai: openAiTaskBreakdownProvider,
-          claude: claudeTaskBreakdownProvider
-        });
-      },
-      inject: [
-        AiProviderResolver,
-        OpenAiTaskBreakdownProvider,
-        ClaudeTaskBreakdownProvider
-      ]
-    },
-    {
-      provide: TASK_BREAKDOWN_PROVIDER,
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        fallbackTaskBreakdownProvider: FallbackTaskBreakdownProvider,
-        primaryProvider:
-          | OpenAiTaskBreakdownProvider
-          | ClaudeTaskBreakdownProvider
-      ) => {
-        if (aiProviderResolver.shouldUseFallback()) {
-          return fallbackTaskBreakdownProvider;
-        }
-
-        return primaryProvider;
-      },
-      inject: [
-        AiProviderResolver,
-        FallbackTaskBreakdownProvider,
-        "PRIMARY_TASK_BREAKDOWN_PROVIDER"
-      ]
-    }
+    ...createAiProviderSet<TaskBreakdownProvider, FallbackTaskBreakdownProvider>({
+      featureToken: TASK_BREAKDOWN_PROVIDER,
+      primaryToken: "PRIMARY_TASK_BREAKDOWN_PROVIDER",
+      fallbackToken: "FALLBACK_TASK_BREAKDOWN_PROVIDER",
+      openAiProvider: OpenAiTaskBreakdownProvider,
+      claudeProvider: ClaudeTaskBreakdownProvider,
+      fallbackProvider: FallbackTaskBreakdownProvider
+    })
   ],
   exports: [TaskBreakdownUseCase]
 })

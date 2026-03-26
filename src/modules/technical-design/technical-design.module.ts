@@ -7,7 +7,8 @@ import { FallbackTechnicalDesignProvider } from "./infrastructure/fallback-techn
 import { TECHNICAL_DESIGN_PROVIDER } from "./application/tokens/technical-design-provider.token";
 import { ResilienceModule } from "../../shared/resilience/resilience.module";
 import { AiModule } from "../../shared/ai/ai.module";
-import { AiProviderResolver } from "../../shared/ai/providers/ai-provider-resolver";
+import { createAiProviderSet } from "../../shared/ai/providers/create-ai-provider-set";
+import { TechnicalDesignProvider } from "./application/ports/technical-design.provider";
 
 @Module({
   imports: [ResilienceModule, AiModule],
@@ -17,63 +18,17 @@ import { AiProviderResolver } from "../../shared/ai/providers/ai-provider-resolv
     OpenAiTechnicalDesignProvider,
     ClaudeTechnicalDesignProvider,
     FallbackTechnicalDesignProvider,
-    {
-      provide: "PRIMARY_TECHNICAL_DESIGN_PROVIDER",
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        openAiTechnicalDesignProvider: OpenAiTechnicalDesignProvider,
-        claudeTechnicalDesignProvider: ClaudeTechnicalDesignProvider
-      ) => {
-        return aiProviderResolver.resolvePrimary({
-          openai: openAiTechnicalDesignProvider,
-          claude: claudeTechnicalDesignProvider
-        });
-      },
-      inject: [
-        AiProviderResolver,
-        OpenAiTechnicalDesignProvider,
-        ClaudeTechnicalDesignProvider
-      ]
-    },
-    {
-      provide: "FALLBACK_TECHNICAL_DESIGN_PROVIDER",
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        openAiTechnicalDesignProvider: OpenAiTechnicalDesignProvider,
-        claudeTechnicalDesignProvider: ClaudeTechnicalDesignProvider
-      ) => {
-        return aiProviderResolver.resolveFallback({
-          openai: openAiTechnicalDesignProvider,
-          claude: claudeTechnicalDesignProvider
-        });
-      },
-      inject: [
-        AiProviderResolver,
-        OpenAiTechnicalDesignProvider,
-        ClaudeTechnicalDesignProvider
-      ]
-    },
-    {
-      provide: TECHNICAL_DESIGN_PROVIDER,
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        fallbackTechnicalDesignProvider: FallbackTechnicalDesignProvider,
-        primaryProvider:
-          | OpenAiTechnicalDesignProvider
-          | ClaudeTechnicalDesignProvider
-      ) => {
-        if (aiProviderResolver.shouldUseFallback()) {
-          return fallbackTechnicalDesignProvider;
-        }
-
-        return primaryProvider;
-      },
-      inject: [
-        AiProviderResolver,
-        FallbackTechnicalDesignProvider,
-        "PRIMARY_TECHNICAL_DESIGN_PROVIDER"
-      ]
-    }
+    ...createAiProviderSet<
+      TechnicalDesignProvider,
+      FallbackTechnicalDesignProvider
+    >({
+      featureToken: TECHNICAL_DESIGN_PROVIDER,
+      primaryToken: "PRIMARY_TECHNICAL_DESIGN_PROVIDER",
+      fallbackToken: "FALLBACK_TECHNICAL_DESIGN_PROVIDER",
+      openAiProvider: OpenAiTechnicalDesignProvider,
+      claudeProvider: ClaudeTechnicalDesignProvider,
+      fallbackProvider: FallbackTechnicalDesignProvider
+    })
   ],
   exports: [TechnicalDesignUseCase]
 })
