@@ -8,8 +8,6 @@ describe("AiProviderResolver", () => {
   beforeEach(() => {
     aiRuntimeConfig = {
       primaryProvider: "openai",
-      fallbackEnabled: true,
-      fallbackProvider: "claude",
       openai: {
         apiKey: "test-api-key",
         model: "gpt-5.4",
@@ -29,28 +27,14 @@ describe("AiProviderResolver", () => {
     expect(result).toBe("openai-provider");
   });
 
-  it("should resolve fallback provider from configured fallback provider", () => {
-    const result = resolver.resolveFallback({
+  it("should resolve claude when configured as the primary provider", () => {
+    aiRuntimeConfig.primaryProvider = "claude";
+
+    const result = resolver.resolvePrimary({
       openai: "openai-provider",
       claude: "claude-provider"
     });
 
     expect(result).toBe("claude-provider");
-  });
-
-  it("should return true when fallback should be used", () => {
-    expect(resolver.shouldUseFallback()).toBe(true);
-  });
-
-  it("should return false when fallback is disabled", () => {
-    aiRuntimeConfig.fallbackEnabled = false;
-
-    expect(resolver.shouldUseFallback()).toBe(false);
-  });
-
-  it("should return false when primary and fallback providers match", () => {
-    aiRuntimeConfig.fallbackProvider = "openai";
-
-    expect(resolver.shouldUseFallback()).toBe(false);
   });
 });

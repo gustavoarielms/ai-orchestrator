@@ -81,14 +81,18 @@ POST `/technical-design`
 ### Request Body
 
     {
-      "text": "string"
+      "source": {
+        "userStory": "string",
+        "acceptanceCriteria": ["string"],
+        "tasks": ["string"]
+      }
     }
 
 ### Rules
 
-- `text` is required
-- Must be a non-empty string
-- Represents a requirement that should be transformed into a technical design proposal
+- `source` is required
+- `userStory`, `acceptanceCriteria`, and `tasks` are required
+- Represents structured analysis input that should be transformed into a technical design proposal
 
 ---
 
@@ -141,13 +145,27 @@ POST `/task-breakdown`
 ### Request Body
 
     {
-      "text": "string"
+      "source": {
+        "analysis": {
+          "userStory": "string",
+          "acceptanceCriteria": ["string"],
+          "tasks": ["string"]
+        },
+        "technicalDesign": {
+          "architecture": "string",
+          "components": ["string"],
+          "risks": ["string"],
+          "observability": ["string"],
+          "rolloutPlan": ["string"]
+        }
+      }
     }
 
 ### Rules
 
-- `text` is required
-- Must be a non-empty string
+- `source` is required
+- `analysis` and `technicalDesign` are required
+- All nested fields must be present and typed correctly
 - Represents a structured technical scope that should be transformed into executable team work
 
 ---

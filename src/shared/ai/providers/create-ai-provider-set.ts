@@ -1,30 +1,24 @@
 import { Provider, Type } from "@nestjs/common";
 import { AiProviderResolver } from "./ai-provider-resolver";
 
-type CreateAiProviderSetParams<TPrimary, TFallback> = {
+type CreateAiProviderSetParams<TProvider> = {
   featureToken: string;
-  primaryToken: string;
-  fallbackToken: string;
-  openAiProvider: Type<TPrimary>;
-  claudeProvider: Type<TPrimary>;
-  fallbackProvider: Type<TFallback>;
+  openAiProvider: Type<TProvider>;
+  claudeProvider: Type<TProvider>;
 };
 
-export function createAiProviderSet<TPrimary, TFallback>({
+export function createAiProviderSet<TProvider>({
   featureToken,
-  primaryToken,
-  fallbackToken,
   openAiProvider,
-  claudeProvider,
-  fallbackProvider
-}: CreateAiProviderSetParams<TPrimary, TFallback>): Provider[] {
+  claudeProvider
+}: CreateAiProviderSetParams<TProvider>): Provider[] {
   return [
     {
-      provide: primaryToken,
+      provide: featureToken,
       useFactory: (
         aiProviderResolver: AiProviderResolver,
-        openAiInstance: TPrimary,
-        claudeInstance: TPrimary
+        openAiInstance: TProvider,
+        claudeInstance: TProvider
       ) => {
         return aiProviderResolver.resolvePrimary({
           openai: openAiInstance,
@@ -32,35 +26,6 @@ export function createAiProviderSet<TPrimary, TFallback>({
         });
       },
       inject: [AiProviderResolver, openAiProvider, claudeProvider]
-    },
-    {
-      provide: fallbackToken,
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        openAiInstance: TPrimary,
-        claudeInstance: TPrimary
-      ) => {
-        return aiProviderResolver.resolveFallback({
-          openai: openAiInstance,
-          claude: claudeInstance
-        });
-      },
-      inject: [AiProviderResolver, openAiProvider, claudeProvider]
-    },
-    {
-      provide: featureToken,
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        fallbackInstance: TFallback,
-        primaryInstance: TPrimary
-      ) => {
-        if (aiProviderResolver.shouldUseFallback()) {
-          return fallbackInstance;
-        }
-
-        return primaryInstance;
-      },
-      inject: [AiProviderResolver, fallbackProvider, primaryToken]
     }
   ];
 }

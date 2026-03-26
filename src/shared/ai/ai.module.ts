@@ -13,8 +13,6 @@ import { OpenAiStructuredExecutor } from "./openai/openai-structured-executor";
       provide: AI_RUNTIME_CONFIG,
       useValue: {
         primaryProvider: appConfig.aiProvider,
-        fallbackEnabled: appConfig.fallback.enabled,
-        fallbackProvider: appConfig.fallback.provider,
         openai: {
           apiKey: appConfig.openai.apiKey,
           model: appConfig.openai.model,
@@ -27,8 +25,6 @@ import { OpenAiStructuredExecutor } from "./openai/openai-structured-executor";
       provide: OPENAI_CLIENT,
       useFactory: (aiRuntimeConfig: {
         primaryProvider: "openai" | "claude";
-        fallbackEnabled: boolean;
-        fallbackProvider: "openai" | "claude";
         openai: {
           apiKey: string;
           model: string;
