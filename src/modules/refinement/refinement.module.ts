@@ -7,7 +7,8 @@ import { FallbackRefinementProvider } from "./infrastructure/fallback-refinement
 import { REFINEMENT_PROVIDER } from "./application/tokens/refinement-provider.token";
 import { ResilienceModule } from "../../shared/resilience/resilience.module";
 import { AiModule } from "../../shared/ai/ai.module";
-import { AiProviderResolver } from "../../shared/ai/providers/ai-provider-resolver";
+import { createAiProviderSet } from "../../shared/ai/providers/create-ai-provider-set";
+import { RefinementProvider } from "./application/ports/refinement.provider";
 
 @Module({
   imports: [ResilienceModule, AiModule],
@@ -17,61 +18,14 @@ import { AiProviderResolver } from "../../shared/ai/providers/ai-provider-resolv
     OpenAiRefinementProvider,
     ClaudeRefinementProvider,
     FallbackRefinementProvider,
-    {
-      provide: "PRIMARY_REFINEMENT_PROVIDER",
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        openAiRefinementProvider: OpenAiRefinementProvider,
-        claudeRefinementProvider: ClaudeRefinementProvider
-      ) => {
-        return aiProviderResolver.resolvePrimary({
-          openai: openAiRefinementProvider,
-          claude: claudeRefinementProvider
-        });
-      },
-      inject: [
-        AiProviderResolver,
-        OpenAiRefinementProvider,
-        ClaudeRefinementProvider
-      ]
-    },
-    {
-      provide: "FALLBACK_REFINEMENT_PROVIDER",
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        openAiRefinementProvider: OpenAiRefinementProvider,
-        claudeRefinementProvider: ClaudeRefinementProvider
-      ) => {
-        return aiProviderResolver.resolveFallback({
-          openai: openAiRefinementProvider,
-          claude: claudeRefinementProvider
-        });
-      },
-      inject: [
-        AiProviderResolver,
-        OpenAiRefinementProvider,
-        ClaudeRefinementProvider
-      ]
-    },
-    {
-      provide: REFINEMENT_PROVIDER,
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        fallbackRefinementProvider: FallbackRefinementProvider,
-        primaryProvider: OpenAiRefinementProvider | ClaudeRefinementProvider
-      ) => {
-        if (aiProviderResolver.shouldUseFallback()) {
-          return fallbackRefinementProvider;
-        }
-
-        return primaryProvider;
-      },
-      inject: [
-        AiProviderResolver,
-        FallbackRefinementProvider,
-        "PRIMARY_REFINEMENT_PROVIDER"
-      ]
-    }
+    ...createAiProviderSet<RefinementProvider, FallbackRefinementProvider>({
+      featureToken: REFINEMENT_PROVIDER,
+      primaryToken: "PRIMARY_REFINEMENT_PROVIDER",
+      fallbackToken: "FALLBACK_REFINEMENT_PROVIDER",
+      openAiProvider: OpenAiRefinementProvider,
+      claudeProvider: ClaudeRefinementProvider,
+      fallbackProvider: FallbackRefinementProvider
+    })
   ],
   exports: [RefineUseCase]
 })

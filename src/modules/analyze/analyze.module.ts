@@ -7,10 +7,9 @@ import { FallbackAnalysisProvider } from "./infrastructure/fallback/fallback-ana
 import { AnalysisProvider } from "./application/ports/analysis.provider";
 import { ANALYSIS_PROVIDER } from "./application/tokens/analysis-provider.token";
 import { MetricsModule } from "../../shared/metrics/metrics.module";
-import { appConfig } from "../../config/app.config";
 import { ResilienceModule } from "../../shared/resilience/resilience.module";
 import { AiModule } from "../../shared/ai/ai.module";
-import { AiProviderResolver } from "../../shared/ai/providers/ai-provider-resolver";
+import { createAiProviderSet } from "../../shared/ai/providers/create-ai-provider-set";
 
 @Module({
   imports: [MetricsModule, ResilienceModule, AiModule],
@@ -20,49 +19,14 @@ import { AiProviderResolver } from "../../shared/ai/providers/ai-provider-resolv
     OpenAiAnalysisProvider,
     ClaudeAnalysisProvider,
     FallbackAnalysisProvider,
-    {
-      provide: "PRIMARY_ANALYSIS_PROVIDER",
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        openAiAnalysisProvider: OpenAiAnalysisProvider,
-        claudeAnalysisProvider: ClaudeAnalysisProvider
-      ) => {
-        return aiProviderResolver.resolvePrimary({
-          openai: openAiAnalysisProvider,
-          claude: claudeAnalysisProvider
-        });
-      },
-      inject: [AiProviderResolver, OpenAiAnalysisProvider, ClaudeAnalysisProvider]
-    },
-    {
-      provide: "FALLBACK_ANALYSIS_PROVIDER",
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        openAiAnalysisProvider: OpenAiAnalysisProvider,
-        claudeAnalysisProvider: ClaudeAnalysisProvider
-      ) => {
-        return aiProviderResolver.resolveFallback({
-          openai: openAiAnalysisProvider,
-          claude: claudeAnalysisProvider
-        });
-      },
-      inject: [AiProviderResolver, OpenAiAnalysisProvider, ClaudeAnalysisProvider]
-    },
-    {
-      provide: ANALYSIS_PROVIDER,
-      useFactory: (
-        aiProviderResolver: AiProviderResolver,
-        fallbackAnalysisProvider: FallbackAnalysisProvider,
-        primaryProvider: AnalysisProvider
-      ) => {
-        if (aiProviderResolver.shouldUseFallback()) {
-          return fallbackAnalysisProvider;
-        }
-
-        return primaryProvider;
-      },
-      inject: [AiProviderResolver, FallbackAnalysisProvider, "PRIMARY_ANALYSIS_PROVIDER"]
-    }
+    ...createAiProviderSet<AnalysisProvider, FallbackAnalysisProvider>({
+      featureToken: ANALYSIS_PROVIDER,
+      primaryToken: "PRIMARY_ANALYSIS_PROVIDER",
+      fallbackToken: "FALLBACK_ANALYSIS_PROVIDER",
+      openAiProvider: OpenAiAnalysisProvider,
+      claudeProvider: ClaudeAnalysisProvider,
+      fallbackProvider: FallbackAnalysisProvider
+    })
   ],
   exports: [AnalyzeUseCase]
 })
