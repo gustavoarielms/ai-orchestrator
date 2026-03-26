@@ -1,1 +1,0 @@
-export const CIRCUIT_BREAKER = "CircuitBreaker";

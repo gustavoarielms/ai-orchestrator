@@ -14,17 +14,4 @@ export class AiProviderResolver {
       ? providers.claude
       : providers.openai;
   }
-
-  resolveFallback<T>(providers: { openai: T; claude: T }): T {
-    return this.aiRuntimeConfig.fallbackProvider === "openai"
-      ? providers.openai
-      : providers.claude;
-  }
-
-  shouldUseFallback(): boolean {
-    return (
-      this.aiRuntimeConfig.fallbackEnabled &&
-      this.aiRuntimeConfig.primaryProvider !== this.aiRuntimeConfig.fallbackProvider
-    );
-  }
 }

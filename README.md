@@ -145,8 +145,8 @@ The system also includes:
 
 - structured logging
 - request tracing
-- basic metrics (requests, errors, retries, fallback)
-- resilience mechanisms (fallback + circuit breaker)
+- basic metrics (requests, errors, retries)
+- shared AI execution and provider selection
 
 Example structure:
 
@@ -196,6 +196,10 @@ Most endpoints share a common input:
     }
 
 `POST /development` uses a structured input composed of `analysis`, `technicalDesign`, `taskBreakdown`, and `implementationContext`.
+
+`POST /technical-design` uses a structured `source` built from analysis output.
+
+`POST /task-breakdown` uses a structured `source` built from analysis and technical design output.
 
 Outputs are strictly validated JSON structures defined per endpoint.
 
@@ -253,8 +257,6 @@ Current capabilities:
 - task breakdown generation (`/task-breakdown`)
 - provider abstraction for AI execution
 - shared AI layer for provider resolution and structured execution
-- fallback strategy for provider-enabled modules
-- circuit breaker for resilience
 - metrics and health visibility
 - agent orchestration (`/plan`)
 
@@ -267,8 +269,6 @@ Notes about the current implementation:
 - `development` is implemented as its own provider-backed feature module
 - `task-breakdown` is implemented as its own provider-backed feature module
 - `OpenAiStructuredExecutor` centralizes shared OpenAI retry, parsing, and error mapping
-- fallback/circuit breaker behavior is implemented for both `analyze` and `refinement`
-- `ProviderFailoverExecutor` centralizes shared failover behavior across provider-enabled modules
 - `AiProviderResolver` centralizes provider selection across provider-enabled modules
 - `ClaudeAnalysisProvider` exists as a placeholder and is not implemented yet
 - `ClaudeRefinementProvider` exists as a placeholder and is not implemented yet
@@ -280,4 +280,4 @@ Next step:
 
 - expand orchestration flows (multi-step pipelines)
 - refine provider defaults and placeholder-provider strategy
-- continue consolidating shared AI, resilience, and observability patterns
+- continue consolidating shared AI, planning, and development-context patterns

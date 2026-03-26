@@ -36,8 +36,6 @@ describe("OpenAiStructuredExecutor", () => {
     };
     aiRuntimeConfig = {
       primaryProvider: "openai",
-      fallbackEnabled: true,
-      fallbackProvider: "claude",
       openai: {
         apiKey: "test-api-key",
         model: "gpt-5.4",

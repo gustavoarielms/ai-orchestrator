@@ -107,7 +107,6 @@ It groups all components required for the analyze flow:
 - `AnalysisProvider` (port)
 - `OpenAiAnalysisProvider` (infrastructure implementation)
 - `ClaudeAnalysisProvider` (placeholder implementation)
-- `FallbackAnalysisProvider` (failover wrapper)
 
 This module is imported into the root `AppModule`, keeping the application composition clean and scalable.
 
@@ -122,7 +121,6 @@ It groups all components required for the refinement flow:
 - `RefinementProvider` (port)
 - `OpenAiRefinementProvider` (infrastructure implementation)
 - `ClaudeRefinementProvider` (placeholder implementation)
-- `FallbackRefinementProvider` (failover wrapper)
 
 This module is responsible for transforming raw input into structured functional requirements and is imported into the root `AppModule`.
 
@@ -158,9 +156,8 @@ It groups all components required for the technical design flow:
 - `TechnicalDesignProvider` (port)
 - `OpenAiTechnicalDesignProvider` (infrastructure implementation)
 - `ClaudeTechnicalDesignProvider` (placeholder implementation)
-- `FallbackTechnicalDesignProvider` (failover wrapper)
 
-This module is responsible for producing architecture-oriented technical design proposals from free-text requirements and is imported into the root `AppModule`.
+This module is responsible for producing architecture-oriented technical design proposals from structured analysis input and is imported into the root `AppModule`.
 
 ### DevelopmentModule
 
@@ -173,7 +170,6 @@ It groups all components required for the development flow:
 - `DevelopmentProvider` (port)
 - `OpenAiDevelopmentProvider` (infrastructure implementation)
 - `ClaudeDevelopmentProvider` (placeholder implementation)
-- `FallbackDevelopmentProvider` (failover wrapper)
 
 This module is responsible for converting structured analysis, technical design, and task breakdown inputs into concrete implementation changes and is imported into the root `AppModule`.
 
@@ -188,9 +184,8 @@ It groups all components required for the task breakdown flow:
 - `TaskBreakdownProvider` (port)
 - `OpenAiTaskBreakdownProvider` (infrastructure implementation)
 - `ClaudeTaskBreakdownProvider` (placeholder implementation)
-- `FallbackTaskBreakdownProvider` (failover wrapper)
 
-This module is responsible for converting technical scope into executable team work and is imported into the root `AppModule`.
+This module is responsible for converting structured analysis and technical design into executable team work and is imported into the root `AppModule`.
 
 ### AI Providers
 
@@ -222,6 +217,8 @@ The shared AI layer includes:
 - `AiModule`
 - `AiProviderResolver`
 - `OpenAiStructuredExecutor`
+- `OPENAI_CLIENT`
+- `AI_RUNTIME_CONFIG`
 
 The active provider is selected via configuration through `AiProviderResolver`:
 
@@ -231,40 +228,23 @@ Related ADR:
 
 - `docs/adr/ADR-005-multi-provider-strategy.md`
 
-### Provider Fallback
+### Provider Selection
 
-The system supports a configurable fallback strategy between providers.
-
-If the primary provider fails and fallback is enabled, the system attempts the fallback provider before returning an error.
+The system supports configurable provider selection between `openai` and `claude`.
 
 Relevant configuration:
 
-AI_PROVIDER=openai  
-AI_FALLBACK_ENABLED=false  
-AI_FALLBACK_PROVIDER=claude  
-
-Fallback behavior:
-
-- primary provider is executed first  
-- if it fails, fallback provider is invoked  
-- fallback attempts are logged and tracked via metrics  
-- if fallback also fails, the error is returned  
-
-Provider selection is centralized in `AiProviderResolver`, while shared failover coordination is delegated to `ProviderFailoverExecutor`.
+AI_PROVIDER=openai | claude
 
 Current scope note:
 
-- provider fallback and circuit breaker orchestration are implemented for both `analyze` and `refinement`
-- provider fallback and circuit breaker orchestration are implemented for `analyze`, `refinement`, `development`, `technical-design`, and `task-breakdown`
-- provider-enabled modules resolve primary/fallback providers through `AiProviderResolver`
-- provider-enabled modules delegate failover behavior to a shared `ProviderFailoverExecutor`
+- provider-enabled modules resolve the active provider through `AiProviderResolver`
 - OpenAI retry and error mapping are delegated to `OpenAiStructuredExecutor`
 - `ClaudeAnalysisProvider` is currently a placeholder that returns `501 Not Implemented`
 - `ClaudeRefinementProvider` is currently a placeholder that returns `501 Not Implemented`
 - `ClaudeDevelopmentProvider` is currently a placeholder that returns `501 Not Implemented`
 - `ClaudeTechnicalDesignProvider` is currently a placeholder that returns `501 Not Implemented`
 - `ClaudeTaskBreakdownProvider` is currently a placeholder that returns `501 Not Implemented`
-- fallback is disabled by default until a working secondary provider is available
 
 ### SystemModule
 
@@ -272,7 +252,6 @@ Encapsulates operational endpoints used for runtime visibility and health checks
 
 - `HealthController`
 - `MetricsController`
-- `ResilienceController`
 
 This module is imported into the root `AppModule` alongside feature modules.
 
@@ -297,26 +276,11 @@ service: `ai-orchestrator`
 
 Returns an extended runtime view of the system, including:
 
-- overall system status (`ok` or `degraded`)
+- overall system status (`ok`)
 - configured primary provider
-- fallback configuration
-- circuit breaker states
 - metrics snapshot
 
-The detailed health status is calculated dynamically.
-
-Current behavior:
-
-- `ok` when all provider circuits are closed
-- `degraded` when at least one provider circuit is open
-
 This endpoint is intended for operational visibility and debugging, while `/health` remains suitable for simple probes.
-
-#### Resilience Details
-
-`GET /resilience/circuits`
-
-Returns the current circuit breaker state for each known provider.
 
 ---
 
@@ -373,8 +337,6 @@ Example:
 Example:
 - `openai-analysis.provider.ts`
 - `openai-refinement.provider.ts`
-- `fallback-analysis.provider.ts`
-- `fallback-refinement.provider.ts`
 
 ### AI Execution Layer
 
@@ -397,32 +359,21 @@ Providers are responsible only for:
 
 This design enables easier extension for future agents and shared configuration (e.g. language, retries).
 
-### Shared Resilience Layer
+### Shared AI Layer
 
-The system also includes a shared resilience layer for provider failover.
+The system includes a shared AI runtime layer for provider selection and OpenAI execution concerns.
 
-- `AiProviderResolver` centralizes:
-  - primary provider selection
-  - fallback provider selection
-  - feature-level fallback activation rules
-- `ProviderFailoverExecutor` centralizes:
-  - primary/fallback execution order
-  - circuit breaker checks
-  - fallback metrics
-  - provider failover logging
+- `AiProviderResolver` centralizes active provider selection
+- `OpenAiStructuredExecutor` centralizes:
+  - OpenAI API calls
+  - timeout handling
+  - structured response parsing
+  - schema validation
+  - retry for recoverable model-output errors
+  - error mapping
+- `OPENAI_CLIENT` and `AI_RUNTIME_CONFIG` are injected through `AiModule`
 
-Feature-specific fallback providers delegate to this shared executor:
-
-- `FallbackAnalysisProvider`
-- `FallbackRefinementProvider`
-
-This keeps feature providers thin while avoiding duplicated resilience logic.
-
-Related ADRs:
-
-- `docs/adr/ADR-006-provider-fallback-strategy.md`
-- `docs/adr/ADR-007-provider-circuit-breaker.md`
-- `docs/adr/ADR-008-shared-provider-failover-executor.md`
+This keeps feature providers thin while avoiding duplicated provider-selection and OpenAI-execution logic.
 
 ---
 
@@ -442,7 +393,7 @@ The architecture may evolve towards:
 
 - full hexagonal architecture (ports & adapters)
 - multiple providers (OpenAI, Anthropic, etc.)
-- broader retry and fallback strategies
+- broader retry and provider strategies
 - richer structured validation layer
 - observability and metrics
 - configurable retries
@@ -456,8 +407,6 @@ The architecture may evolve towards:
 - `docs/adr/ADR-003-response-validation-strategy.md`
 - `docs/adr/ADR-004-feature-modules-in-nestjs.md`
 - `docs/adr/ADR-005-multi-provider-strategy.md`
-- `docs/adr/ADR-006-provider-fallback-strategy.md`
-- `docs/adr/ADR-007-provider-circuit-breaker.md`
 - `docs/adr/ADR-008-shared-provider-failover-executor.md`
 
 ---
@@ -497,7 +446,7 @@ Tracked metrics currently include:
 - request count
 - error count
 - retry count
-- fallback count
+- fallback count (legacy metric; currently unused in runtime)
 - average request latency
 - error count grouped by technical error code
 
@@ -513,35 +462,6 @@ This design allows replacing the metrics backend (e.g. Prometheus, external serv
 A `/metrics` endpoint is exposed to retrieve current values.
 
 These metrics are implemented in-memory and are intended as a lightweight foundation for future integration with external monitoring systems.
-
-### Circuit Breaker
-
-The system includes a circuit breaker strategy for AI providers.
-
-Its purpose is to avoid repeatedly calling providers that are currently failing.
-
-Behavior:
-
-- each provider has its own circuit state
-- repeated failures increase the failure count
-- once the configured threshold is reached, the circuit is opened
-- while the circuit is open, execution against that provider is blocked
-- after the configured reset timeout, the provider can be tried again in half-open mode
-- a successful execution closes the circuit and resets the failure count
-
-Relevant configuration:
-
-AI_CIRCUIT_BREAKER_ENABLED=true  
-AI_CIRCUIT_BREAKER_FAILURE_THRESHOLD=3  
-AI_CIRCUIT_BREAKER_RESET_TIMEOUT_MS=30000  
-
-The circuit breaker is applied during provider execution and works together with the fallback strategy.
-
-Current circuit states can be inspected through:
-
-`GET /resilience/circuits`
-
----
 
 ## Summary
 
