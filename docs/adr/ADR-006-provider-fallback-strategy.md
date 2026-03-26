@@ -8,12 +8,12 @@ Accepted
 
 ## Context
 
-The system supports multiple AI providers through feature-level provider ports such as:
+The system used feature-level provider ports such as:
 
 - `AnalysisProvider`
 - `RefinementProvider`
 
-Initially, provider selection is driven by configuration (`AI_PROVIDER`), but this approach does not provide resilience in case of provider failure.
+At the time of this decision, provider selection alone did not provide resilience in case of provider failure.
 
 There is a need to:
 
@@ -25,7 +25,7 @@ There is a need to:
 
 ## Decision
 
-The system introduces a fallback strategy between providers.
+The system introduced a fallback strategy between providers.
 
 A feature-level fallback provider is responsible for:
 
@@ -38,13 +38,7 @@ Examples:
 - `FallbackAnalysisProvider`
 - `FallbackRefinementProvider`
 
-Fallback is controlled via configuration:
-
-AI_PROVIDER=openai  
-AI_FALLBACK_ENABLED=false  
-AI_FALLBACK_PROVIDER=claude  
-
-Fallback is applied only when:
+Fallback was applied only when:
 
 - fallback is enabled
 - primary and fallback providers are different
@@ -112,6 +106,6 @@ The fallback strategy may evolve to support:
 
 This decision extends the multi-provider architecture and reinforces the system’s hexagonal design by keeping fallback logic within the infrastructure layer.
 
-Shared extraction of failover coordination is documented separately in:
+This strategy was later removed when the application was simplified to OpenAI-only execution. Shared extraction of failover coordination is documented separately in:
 
 - `ADR-008-shared-provider-failover-executor.md`

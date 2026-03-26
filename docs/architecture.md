@@ -106,7 +106,6 @@ It groups all components required for the analyze flow:
 - `AnalyzeUseCase` (application logic)
 - `AnalysisProvider` (port)
 - `OpenAiAnalysisProvider` (infrastructure implementation)
-- `ClaudeAnalysisProvider` (placeholder implementation)
 
 This module is imported into the root `AppModule`, keeping the application composition clean and scalable.
 
@@ -120,7 +119,6 @@ It groups all components required for the refinement flow:
 - `RefineUseCase` (application logic)
 - `RefinementProvider` (port)
 - `OpenAiRefinementProvider` (infrastructure implementation)
-- `ClaudeRefinementProvider` (placeholder implementation)
 
 This module is responsible for transforming raw input into structured functional requirements and is imported into the root `AppModule`.
 
@@ -155,7 +153,6 @@ It groups all components required for the technical design flow:
 - `TechnicalDesignUseCase` (application logic)
 - `TechnicalDesignProvider` (port)
 - `OpenAiTechnicalDesignProvider` (infrastructure implementation)
-- `ClaudeTechnicalDesignProvider` (placeholder implementation)
 
 This module is responsible for producing architecture-oriented technical design proposals from structured analysis input and is imported into the root `AppModule`.
 
@@ -169,7 +166,6 @@ It groups all components required for the development flow:
 - `DevelopmentUseCase` (application logic)
 - `DevelopmentProvider` (port)
 - `OpenAiDevelopmentProvider` (infrastructure implementation)
-- `ClaudeDevelopmentProvider` (placeholder implementation)
 
 This module is responsible for converting structured analysis, technical design, and task breakdown inputs into concrete implementation changes and is imported into the root `AppModule`.
 
@@ -183,7 +179,6 @@ It groups all components required for the task breakdown flow:
 - `TaskBreakdownUseCase` (application logic)
 - `TaskBreakdownProvider` (port)
 - `OpenAiTaskBreakdownProvider` (infrastructure implementation)
-- `ClaudeTaskBreakdownProvider` (placeholder implementation)
 
 This module is responsible for converting structured analysis and technical design into executable team work and is imported into the root `AppModule`.
 
@@ -202,49 +197,30 @@ A shared port is defined per feature module:
 Current implementations include:
 
 - `OpenAiAnalysisProvider` (default)
-- `ClaudeAnalysisProvider` (placeholder)
 - `OpenAiRefinementProvider` (default)
-- `ClaudeRefinementProvider` (placeholder)
 - `OpenAiDevelopmentProvider` (default)
-- `ClaudeDevelopmentProvider` (placeholder)
 - `OpenAiTechnicalDesignProvider` (default)
-- `ClaudeTechnicalDesignProvider` (placeholder)
 - `OpenAiTaskBreakdownProvider` (default)
-- `ClaudeTaskBreakdownProvider` (placeholder)
 
 The shared AI layer includes:
 
 - `AiModule`
-- `AiProviderResolver`
 - `OpenAiStructuredExecutor`
 - `OPENAI_CLIENT`
 - `AI_RUNTIME_CONFIG`
 
-The active provider is selected via configuration through `AiProviderResolver`:
-
-AI_PROVIDER=openai | claude
-
 Related ADR:
 
-- `docs/adr/ADR-005-multi-provider-strategy.md`
+- `docs/adr/ADR-001-orchestrator-base-architecture.md`
 
 ### Provider Selection
 
-The system supports configurable provider selection between `openai` and `claude`.
-
-Relevant configuration:
-
-AI_PROVIDER=openai | claude
+The system currently uses OpenAI as its active AI provider across provider-backed feature modules.
 
 Current scope note:
 
-- provider-enabled modules resolve the active provider through `AiProviderResolver`
 - OpenAI retry and error mapping are delegated to `OpenAiStructuredExecutor`
-- `ClaudeAnalysisProvider` is currently a placeholder that returns `501 Not Implemented`
-- `ClaudeRefinementProvider` is currently a placeholder that returns `501 Not Implemented`
-- `ClaudeDevelopmentProvider` is currently a placeholder that returns `501 Not Implemented`
-- `ClaudeTechnicalDesignProvider` is currently a placeholder that returns `501 Not Implemented`
-- `ClaudeTaskBreakdownProvider` is currently a placeholder that returns `501 Not Implemented`
+- provider-backed modules bind their feature port directly to the OpenAI implementation
 
 ### SystemModule
 
@@ -361,9 +337,8 @@ This design enables easier extension for future agents and shared configuration 
 
 ### Shared AI Layer
 
-The system includes a shared AI runtime layer for provider selection and OpenAI execution concerns.
+The system includes a shared AI runtime layer for OpenAI execution concerns.
 
-- `AiProviderResolver` centralizes active provider selection
 - `OpenAiStructuredExecutor` centralizes:
   - OpenAI API calls
   - timeout handling
@@ -373,7 +348,7 @@ The system includes a shared AI runtime layer for provider selection and OpenAI 
   - error mapping
 - `OPENAI_CLIENT` and `AI_RUNTIME_CONFIG` are injected through `AiModule`
 
-This keeps feature providers thin while avoiding duplicated provider-selection and OpenAI-execution logic.
+This keeps feature providers thin while avoiding duplicated OpenAI-execution logic.
 
 ---
 

@@ -1,9 +1,3 @@
-jest.mock("../../../config/app.config", () => ({
-  appConfig: {
-    aiProvider: "openai"
-  }
-}));
-
 import { HealthService } from "./health.service";
 import { MetricsRecorder } from "../../../shared/metrics/ports/metrics-recorder";
 

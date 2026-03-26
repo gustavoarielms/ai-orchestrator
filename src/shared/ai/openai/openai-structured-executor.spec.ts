@@ -35,7 +35,6 @@ describe("OpenAiStructuredExecutor", () => {
       getMetrics: jest.fn()
     };
     aiRuntimeConfig = {
-      primaryProvider: "openai",
       openai: {
         apiKey: "test-api-key",
         model: "gpt-5.4",

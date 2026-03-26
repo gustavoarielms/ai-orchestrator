@@ -6,7 +6,6 @@ const parsedEnv = EnvSchema.parse(process.env);
 export const appConfig = {
   port: parsedEnv.PORT,
   nodeEnv: parsedEnv.NODE_ENV,
-  aiProvider: parsedEnv.AI_PROVIDER,
   openai: {
     apiKey: parsedEnv.OPENAI_API_KEY,
     model: parsedEnv.OPENAI_MODEL,

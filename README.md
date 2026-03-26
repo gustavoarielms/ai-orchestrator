@@ -269,15 +269,10 @@ Notes about the current implementation:
 - `development` is implemented as its own provider-backed feature module
 - `task-breakdown` is implemented as its own provider-backed feature module
 - `OpenAiStructuredExecutor` centralizes shared OpenAI retry, parsing, and error mapping
-- `AiProviderResolver` centralizes provider selection across provider-enabled modules
-- `ClaudeAnalysisProvider` exists as a placeholder and is not implemented yet
-- `ClaudeRefinementProvider` exists as a placeholder and is not implemented yet
-- `ClaudeDevelopmentProvider` exists as a placeholder and is not implemented yet
-- `ClaudeTechnicalDesignProvider` exists as a placeholder and is not implemented yet
-- `ClaudeTaskBreakdownProvider` exists as a placeholder and is not implemented yet
+- provider-backed modules are currently implemented against OpenAI only
 
 Next step:
 
 - expand orchestration flows (multi-step pipelines)
-- refine provider defaults and placeholder-provider strategy
+- improve generation quality and repository-context awareness
 - continue consolidating shared AI, planning, and development-context patterns

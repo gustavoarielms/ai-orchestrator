@@ -10,37 +10,20 @@ flowchart TD
     App --> SystemModule[SystemModule]
     App --> AiModule[AiModule]
     App --> MetricsModule[MetricsModule]
-    App --> ResilienceModule[ResilienceModule]
 
     AnalyzeModule --> AnalyzeController[AnalyzeController]
     AnalyzeController --> AnalyzeUseCase[AnalyzeUseCase]
     AnalyzeUseCase --> AnalysisProvider[AnalysisProvider Port]
     AnalyzeController --> MetricsRecorder[MetricsRecorder Port]
     AnalyzeUseCase --> MetricsRecorder
-    AnalyzeModule --> AiResolver[AiProviderResolver]
-    AnalysisProvider --> AnalyzeFallbackProvider[FallbackAnalysisProvider]
-    AnalyzeFallbackProvider --> FailoverExecutor[ProviderFailoverExecutor]
-    AnalyzeFallbackProvider --> AnalyzePrimary[Primary Analysis Provider]
-    AnalyzeFallbackProvider --> AnalyzeFallback[Fallback Analysis Provider]
-    AnalyzePrimary --> OpenAIProvider[OpenAiAnalysisProvider]
-    AnalyzePrimary --> ClaudeProvider[ClaudeAnalysisProvider]
-    AnalyzeFallback --> OpenAIProvider
-    AnalyzeFallback --> ClaudeProvider
+    AnalysisProvider --> OpenAIProvider[OpenAiAnalysisProvider]
     OpenAIProvider --> AnalyzeExecutor[OpenAiStructuredExecutor]
     AnalyzeExecutor --> OpenAI[OpenAI API]
 
     RefinementModule --> RefinementController[RefinementController]
     RefinementController --> RefineUseCase[RefineUseCase]
     RefineUseCase --> RefinementProvider[RefinementProvider Port]
-    RefinementModule --> AiResolver
-    RefinementProvider --> RefinementFallbackProvider[FallbackRefinementProvider]
-    RefinementFallbackProvider --> FailoverExecutor
-    RefinementFallbackProvider --> RefinementPrimary[Primary Refinement Provider]
-    RefinementFallbackProvider --> RefinementFallback[Fallback Refinement Provider]
-    RefinementPrimary --> OpenAiRefinementProvider[OpenAiRefinementProvider]
-    RefinementPrimary --> ClaudeRefinementProvider[ClaudeRefinementProvider]
-    RefinementFallback --> OpenAiRefinementProvider
-    RefinementFallback --> ClaudeRefinementProvider
+    RefinementProvider --> OpenAiRefinementProvider[OpenAiRefinementProvider]
     OpenAiRefinementProvider --> RefinementExecutor[OpenAiStructuredExecutor]
     RefinementExecutor --> OpenAI
 
@@ -51,11 +34,6 @@ flowchart TD
 
     SystemModule --> HealthController[HealthController]
     SystemModule --> MetricsController[MetricsController]
-    SystemModule --> ResilienceController[ResilienceController]
 
     MetricsRecorder --> InMemoryMetrics[InMemoryMetricsService]
-    ResilienceController --> CircuitBreaker[CircuitBreaker Port]
-    CircuitBreaker --> InMemoryCircuitBreaker[InMemoryCircuitBreakerService]
-    FailoverExecutor --> MetricsRecorder
-    FailoverExecutor --> CircuitBreaker
 ```

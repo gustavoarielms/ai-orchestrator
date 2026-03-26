@@ -1,5 +1,4 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { appConfig } from "../../../config/app.config";
 import { MetricsRecorder } from "../../../shared/metrics/ports/metrics-recorder";
 import { METRICS_RECORDER } from "../../../shared/metrics/tokens/metrics-recorder.token";
 
@@ -24,7 +23,7 @@ export class HealthService {
       status: "ok",
       service: "ai-orchestrator",
       provider: {
-        primary: appConfig.aiProvider
+        primary: "openai"
       },
       metrics
     };
