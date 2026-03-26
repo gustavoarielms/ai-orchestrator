@@ -37,7 +37,6 @@ The system introduces a shared resilience component:
 
 and keeps it inside a broader shared AI/resilience layer together with:
 
-- `AiProviderResolver`
 - `OpenAiStructuredExecutor`
 
 This component centralizes:

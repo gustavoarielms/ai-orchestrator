@@ -19,7 +19,7 @@ describe("OpenAiTechnicalDesignProvider", () => {
     openAiStructuredExecutor.execute.mockResolvedValue({
       architecture: "Modular NestJS service with provider-backed AI execution",
       components: ["TechnicalDesignController", "TechnicalDesignUseCase"],
-      risks: ["Claude provider remains a placeholder"],
+      risks: ["External provider instability"],
       observability: ["Structured logs", "Metrics for retries/fallback"],
       rolloutPlan: ["Ship behind internal endpoint", "Validate output quality"]
     });
@@ -40,7 +40,7 @@ describe("OpenAiTechnicalDesignProvider", () => {
     openAiStructuredExecutor.execute.mockResolvedValue({
       architecture: "Modular NestJS service with provider-backed AI execution",
       components: ["TechnicalDesignController", "TechnicalDesignUseCase"],
-      risks: ["Claude provider remains a placeholder"],
+      risks: ["External provider instability"],
       observability: ["Structured logs", "Metrics for retries/fallback"],
       rolloutPlan: ["Ship behind internal endpoint", "Validate output quality"]
     });
@@ -65,7 +65,7 @@ describe("OpenAiTechnicalDesignProvider", () => {
     openAiStructuredExecutor.execute.mockResolvedValue({
       architecture: "Modular NestJS service with provider-backed AI execution",
       components: ["TechnicalDesignController", "TechnicalDesignUseCase"],
-      risks: ["Claude provider remains a placeholder"],
+      risks: ["External provider instability"],
       observability: ["Structured logs", "Metrics for retries/fallback"],
       rolloutPlan: ["Ship behind internal endpoint", "Validate output quality"]
     });
@@ -92,7 +92,7 @@ describe("OpenAiTechnicalDesignProvider", () => {
     openAiStructuredExecutor.execute.mockResolvedValue({
       architecture: "Modular NestJS service with provider-backed AI execution",
       components: ["TechnicalDesignController", "TechnicalDesignUseCase"],
-      risks: ["Claude provider remains a placeholder"],
+      risks: ["External provider instability"],
       observability: ["Structured logs", "Metrics for retries/fallback"],
       rolloutPlan: ["Ship behind internal endpoint", "Validate output quality"]
     });
@@ -117,7 +117,7 @@ describe("OpenAiTechnicalDesignProvider", () => {
     const expected = {
       architecture: "Modular NestJS service with provider-backed AI execution",
       components: ["TechnicalDesignController", "TechnicalDesignUseCase"],
-      risks: ["Claude provider remains a placeholder"],
+      risks: ["External provider instability"],
       observability: ["Structured logs", "Metrics for retries/fallback"],
       rolloutPlan: ["Ship behind internal endpoint", "Validate output quality"]
     };
