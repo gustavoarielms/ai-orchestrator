@@ -1,12 +1,14 @@
-import { Body, Controller, Post } from "@nestjs/common";
-import { TechnicalDesignUseCase } from "../application/use-cases/technical-design.use-case";
+import { Body, Controller, Inject, Post } from "@nestjs/common";
+import { TechnicalDesignHandler } from "../application/ports/technical-design-handler";
+import { TECHNICAL_DESIGN_HANDLER } from "../application/tokens/technical-design-handler.token";
 import { TechnicalDesignRequest } from "../domain/technical-design.types";
 import { Logger } from "../../../shared/logger/logger";
 
 @Controller("/technical-design")
 export class TechnicalDesignController {
   constructor(
-    private readonly technicalDesignUseCase: TechnicalDesignUseCase
+    @Inject(TECHNICAL_DESIGN_HANDLER)
+    private readonly technicalDesignUseCase: TechnicalDesignHandler
   ) {}
 
   @Post()

@@ -3,12 +3,13 @@ import {
   TechnicalDesignRequest,
   TechnicalDesignResponse
 } from "../../domain/technical-design.types";
+import { TechnicalDesignHandler } from "../ports/technical-design-handler";
 import { TECHNICAL_DESIGN_PROVIDER } from "../tokens/technical-design-provider.token";
 import { TechnicalDesignProvider } from "../ports/technical-design.provider";
 import { Logger } from "../../../../shared/logger/logger";
 
 @Injectable()
-export class TechnicalDesignUseCase {
+export class TechnicalDesignUseCase implements TechnicalDesignHandler {
   constructor(
     @Inject(TECHNICAL_DESIGN_PROVIDER)
     private readonly technicalDesignProvider: TechnicalDesignProvider

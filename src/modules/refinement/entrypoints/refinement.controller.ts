@@ -1,11 +1,15 @@
-import { Body, Controller, Post } from "@nestjs/common";
-import { RefineUseCase } from "../application/use-cases/refine.use-case";
+import { Body, Controller, Inject, Post } from "@nestjs/common";
+import { RefineHandler } from "../application/ports/refine-handler";
+import { REFINE_HANDLER } from "../application/tokens/refine-handler.token";
 import { RefineRequest } from "../domain/refinement.types";
 import { Logger } from "../../../shared/logger/logger";
 
 @Controller("/refine")
 export class RefinementController {
-  constructor(private readonly refineUseCase: RefineUseCase) {}
+  constructor(
+    @Inject(REFINE_HANDLER)
+    private readonly refineUseCase: RefineHandler
+  ) {}
 
   @Post()
   async refine(@Body() body: RefineRequest) {

@@ -1,14 +1,14 @@
 import { PlanningController } from "./planning.controller";
-import { PlanRequirementUseCase } from "../application/use-cases/plan-requirement.use-case";
+import { PlanHandler } from "../application/ports/plan-handler";
 
 describe("PlanningController", () => {
   let controller: PlanningController;
-  let planRequirementUseCase: jest.Mocked<PlanRequirementUseCase>;
+  let planRequirementUseCase: jest.Mocked<PlanHandler>;
 
   beforeEach(() => {
     planRequirementUseCase = {
       execute: jest.fn()
-    } as unknown as jest.Mocked<PlanRequirementUseCase>;
+    } as unknown as jest.Mocked<PlanHandler>;
 
     controller = new PlanningController(planRequirementUseCase);
   });

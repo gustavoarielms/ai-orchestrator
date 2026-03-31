@@ -1,14 +1,14 @@
 import { TechnicalDesignController } from "./technical-design.controller";
-import { TechnicalDesignUseCase } from "../application/use-cases/technical-design.use-case";
+import { TechnicalDesignHandler } from "../application/ports/technical-design-handler";
 
 describe("TechnicalDesignController", () => {
   let controller: TechnicalDesignController;
-  let technicalDesignUseCase: jest.Mocked<TechnicalDesignUseCase>;
+  let technicalDesignUseCase: jest.Mocked<TechnicalDesignHandler>;
 
   beforeEach(() => {
     technicalDesignUseCase = {
       execute: jest.fn()
-    } as unknown as jest.Mocked<TechnicalDesignUseCase>;
+    } as unknown as jest.Mocked<TechnicalDesignHandler>;
 
     controller = new TechnicalDesignController(technicalDesignUseCase);
   });

@@ -1,14 +1,14 @@
 import { TaskBreakdownController } from "./task-breakdown.controller";
-import { TaskBreakdownUseCase } from "../application/use-cases/task-breakdown.use-case";
+import { TaskBreakdownHandler } from "../application/ports/task-breakdown-handler";
 
 describe("TaskBreakdownController", () => {
   let controller: TaskBreakdownController;
-  let taskBreakdownUseCase: jest.Mocked<TaskBreakdownUseCase>;
+  let taskBreakdownUseCase: jest.Mocked<TaskBreakdownHandler>;
 
   beforeEach(() => {
     taskBreakdownUseCase = {
       execute: jest.fn()
-    } as unknown as jest.Mocked<TaskBreakdownUseCase>;
+    } as unknown as jest.Mocked<TaskBreakdownHandler>;
 
     controller = new TaskBreakdownController(taskBreakdownUseCase);
   });

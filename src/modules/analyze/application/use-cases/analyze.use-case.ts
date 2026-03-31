@@ -1,5 +1,6 @@
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { AnalyzeRequest, AnalyzeResponse } from "../../domain/analyze.types";
+import { AnalyzeHandler } from "../ports/analyze-handler";
 import { AnalysisProvider } from "../ports/analysis.provider";
 import { ANALYSIS_PROVIDER } from "../tokens/analysis-provider.token";
 import { Logger } from "../../../../shared/logger/logger";
@@ -7,7 +8,7 @@ import { MetricsRecorder } from "../../../../shared/metrics/ports/metrics-record
 import { METRICS_RECORDER } from "../../../../shared/metrics/tokens/metrics-recorder.token";
 
 @Injectable()
-export class AnalyzeUseCase {
+export class AnalyzeUseCase implements AnalyzeHandler {
   constructor(
     @Inject(ANALYSIS_PROVIDER)
     private readonly analysisProvider: AnalysisProvider,

@@ -1,10 +1,10 @@
 import { DevelopmentController } from "./development.controller";
-import { DevelopmentUseCase } from "../application/use-cases/development.use-case";
+import { DevelopmentHandler } from "../application/ports/development-handler";
 import { DevelopmentRequest } from "../domain/development.types";
 
 describe("DevelopmentController", () => {
   let controller: DevelopmentController;
-  let developmentUseCase: jest.Mocked<DevelopmentUseCase>;
+  let developmentUseCase: jest.Mocked<DevelopmentHandler>;
 
   const validInput: DevelopmentRequest = {
     analysis: {
@@ -37,7 +37,7 @@ describe("DevelopmentController", () => {
   beforeEach(() => {
     developmentUseCase = {
       execute: jest.fn()
-    } as unknown as jest.Mocked<DevelopmentUseCase>;
+    } as unknown as jest.Mocked<DevelopmentHandler>;
 
     controller = new DevelopmentController(developmentUseCase);
   });

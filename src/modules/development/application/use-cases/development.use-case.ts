@@ -3,12 +3,13 @@ import {
   DevelopmentRequest,
   DevelopmentResponse
 } from "../../domain/development.types";
+import { DevelopmentHandler } from "../ports/development-handler";
 import { DEVELOPMENT_PROVIDER } from "../tokens/development-provider.token";
 import { DevelopmentProvider } from "../ports/development.provider";
 import { Logger } from "../../../../shared/logger/logger";
 
 @Injectable()
-export class DevelopmentUseCase {
+export class DevelopmentUseCase implements DevelopmentHandler {
   constructor(
     @Inject(DEVELOPMENT_PROVIDER)
     private readonly developmentProvider: DevelopmentProvider

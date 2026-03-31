@@ -4,6 +4,7 @@ import { AnalyzeUseCase } from "../../../analyze/application/use-cases/analyze.u
 import { TechnicalDesignUseCase } from "../../../technical-design/application/use-cases/technical-design.use-case";
 import { TaskBreakdownUseCase } from "../../../task-breakdown/application/use-cases/task-breakdown.use-case";
 import { PlanRequest, PlanResponse } from "../../domain/planning.types";
+import { PlanHandler } from "../ports/plan-handler";
 import { Logger } from "../../../../shared/logger/logger";
 import { AnalysisInputBuilder } from "../builders/analysis-input.builder";
 import { TechnicalDesignInputBuilder } from "../builders/technical-design-input.builder";
@@ -11,7 +12,7 @@ import { TaskBreakdownInputBuilder } from "../builders/task-breakdown-input.buil
 import { PlanSummaryBuilder } from "../builders/plan-summary.builder";
 
 @Injectable()
-export class PlanRequirementUseCase {
+export class PlanRequirementUseCase implements PlanHandler {
   constructor(
     private readonly refineUseCase: RefineUseCase,
     private readonly analyzeUseCase: AnalyzeUseCase,

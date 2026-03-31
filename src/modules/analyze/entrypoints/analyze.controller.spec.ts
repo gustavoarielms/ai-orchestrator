@@ -1,16 +1,16 @@
 import { AnalyzeController } from "./analyze.controller";
-import { AnalyzeUseCase } from "../application/use-cases/analyze.use-case";
+import { AnalyzeHandler } from "../application/ports/analyze-handler";
 import { MetricsRecorder } from "../../../shared/metrics/ports/metrics-recorder";
 
 describe("AnalyzeController", () => {
   let controller: AnalyzeController;
-  let analyzeUseCase: jest.Mocked<AnalyzeUseCase>;
+  let analyzeUseCase: jest.Mocked<AnalyzeHandler>;
   let metricsRecorder: jest.Mocked<MetricsRecorder>;
 
   beforeEach(() => {
     analyzeUseCase = {
       execute: jest.fn()
-    } as unknown as jest.Mocked<AnalyzeUseCase>;
+    } as unknown as jest.Mocked<AnalyzeHandler>;
 
     metricsRecorder = {
       incrementRequest: jest.fn(),

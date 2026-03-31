@@ -1,12 +1,14 @@
-import { Body, Controller, Post } from "@nestjs/common";
-import { PlanRequirementUseCase } from "../application/use-cases/plan-requirement.use-case";
+import { Body, Controller, Inject, Post } from "@nestjs/common";
+import { PlanHandler } from "../application/ports/plan-handler";
+import { PLAN_HANDLER } from "../application/tokens/plan-handler.token";
 import { PlanRequest } from "../domain/planning.types";
 import { Logger } from "../../../shared/logger/logger";
 
 @Controller("/plan")
 export class PlanningController {
   constructor(
-    private readonly planRequirementUseCase: PlanRequirementUseCase
+    @Inject(PLAN_HANDLER)
+    private readonly planRequirementUseCase: PlanHandler
   ) {}
 
   @Post()

@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { AnalyzeController } from "./entrypoints/analyze.controller";
 import { AnalyzeUseCase } from "./application/use-cases/analyze.use-case";
+import { ANALYZE_HANDLER } from "./application/tokens/analyze-handler.token";
 import { OpenAiAnalysisProvider } from "./infrastructure/openai-analysis.provider";
 import { ANALYSIS_PROVIDER } from "./application/tokens/analysis-provider.token";
 import { MetricsModule } from "../../shared/metrics/metrics.module";
@@ -11,6 +12,10 @@ import { AiModule } from "../../shared/ai/ai.module";
   controllers: [AnalyzeController],
   providers: [
     AnalyzeUseCase,
+    {
+      provide: ANALYZE_HANDLER,
+      useExisting: AnalyzeUseCase
+    },
     OpenAiAnalysisProvider,
     {
       provide: ANALYSIS_PROVIDER,

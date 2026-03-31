@@ -1,14 +1,14 @@
 import { RefinementController } from "./refinement.controller";
-import { RefineUseCase } from "../application/use-cases/refine.use-case";
+import { RefineHandler } from "../application/ports/refine-handler";
 
 describe("RefinementController", () => {
   let controller: RefinementController;
-  let refineUseCase: jest.Mocked<RefineUseCase>;
+  let refineUseCase: jest.Mocked<RefineHandler>;
 
   beforeEach(() => {
     refineUseCase = {
       execute: jest.fn()
-    } as unknown as jest.Mocked<RefineUseCase>;
+    } as unknown as jest.Mocked<RefineHandler>;
 
     controller = new RefinementController(refineUseCase);
   });

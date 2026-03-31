@@ -3,12 +3,13 @@ import {
   TaskBreakdownRequest,
   TaskBreakdownResponse
 } from "../../domain/task-breakdown.types";
+import { TaskBreakdownHandler } from "../ports/task-breakdown-handler";
 import { TASK_BREAKDOWN_PROVIDER } from "../tokens/task-breakdown-provider.token";
 import { TaskBreakdownProvider } from "../ports/task-breakdown.provider";
 import { Logger } from "../../../../shared/logger/logger";
 
 @Injectable()
-export class TaskBreakdownUseCase {
+export class TaskBreakdownUseCase implements TaskBreakdownHandler {
   constructor(
     @Inject(TASK_BREAKDOWN_PROVIDER)
     private readonly taskBreakdownProvider: TaskBreakdownProvider

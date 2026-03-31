@@ -1,11 +1,12 @@
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { RefineRequest, RefineResponse } from "../../domain/refinement.types";
+import { RefineHandler } from "../ports/refine-handler";
 import { RefinementProvider } from "../ports/refinement.provider";
 import { REFINEMENT_PROVIDER } from "../tokens/refinement-provider.token";
 import { Logger } from "../../../../shared/logger/logger";
 
 @Injectable()
-export class RefineUseCase {
+export class RefineUseCase implements RefineHandler {
   constructor(
     @Inject(REFINEMENT_PROVIDER)
     private readonly refinementProvider: RefinementProvider
